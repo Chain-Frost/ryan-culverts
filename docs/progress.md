@@ -1,5 +1,29 @@
 # Development progress
 
+## 2026-09-10 - CS-010, CS-016, CS-019, and CS-020 development pass
+
+Split the former broad CS-010 backlog item and completed its first roadway-specific scope.
+The new typed `RoadwayWeir` uses an explicit SI coefficient with FHWA HDS-5 Equation 3.9;
+crossings now conserve a common total flow across culvert groups and a constant-elevation
+unsubmerged roadway crest. Culvert and roadway flows remain separate in results and
+inventory summaries. Tailwater above the crest fails closed; CS-028 now owns irregular sag
+profiles and the published submergence correction. Design search, plotting, additional
+shapes/materials, blockage, and uncertainty are CS-023 through CS-027.
+
+CS-016 adds a deliberate MkDocs Material site, generated top-level API reference, strict
+local/CI link validation, and a least-privilege Pages build/deploy workflow adapted from
+`run-hy8`. CS-019 aligns metadata with the Python 3.14 support claim and adds
+Windows/Linux/macOS installed-wheel smoke CI. CS-020 adds metadata-backed
+`culvert_solver.__version__`, a documented public import/stability boundary, changelog, and
+package project links. Redundant CS-018 was removed; CS-021 no longer duplicates office
+checkout guidance; CS-022 remains unchanged.
+
+Verification passed: 298 tests, Ruff lint and format, strict Pyright, Markdown lint,
+`mkdocs build --strict`, and `git diff --check`. A temporary wheel built as
+`ryan_culverts-26.9.9.2-py3-none-any.whl`, passed repository verification, installed into
+an isolated target outside editable imports, and passed the public metadata/API smoke
+calculation. No release wheel was replaced or published.
+
 ## 2026-09-09 - CS-017 transactional calendar-version packaging
 
 `package.bat` now advances the normalized `yy.m.d.vv` calendar version automatically.
@@ -24,8 +48,7 @@ Remaining limitations: release dates use the packaging machine's local date, so 
 working from another location must pull before packaging and keep the system clock correct.
 The script does not commit, push, update the office checkout, tag, or publish. The office
 network checkout is updated deliberately with `git pull`, and users install from its tracked
-`dist/` folder. CS-018 through CS-022 record the remaining professional-package improvements
-under this simple Git-plus-network-checkout distribution model.
+`dist/` folder. CS-022 retains the optional future distribution decision.
 
 ## 2026-09-09 - CS-012 initial 26.9.9.1 package handoff
 
@@ -143,10 +166,11 @@ in `docs/research/fixture_candidates.md`. Method decisions retain HDS-5 as the p
 baseline, Bodhaine as physical-classification evidence, HY-8 as comparison evidence, and
 Austroads as Australian application guidance.
 
-Remaining limitations are explicit future work. CS-013 owns typed modern-box inlet
-geometry before corrected FHWA coefficients can be executable. CS-014 owns any NCHRP
-slipline, buried-invert, Borda-Carnot outlet, variable-roughness, or composite-roughness
-support. The original NCHRP embedded coefficients are explicitly rejected because the
+Remaining limitations were recorded as explicit future work. CS-013 subsequently added
+typed modern-box inlet geometry and bounded corrected FHWA coefficients. CS-030 through
+CS-033 now separately own NCHRP slipline, buried-invert, Borda-Carnot outlet,
+variable-roughness, and composite-roughness support. The original NCHRP embedded
+coefficients are explicitly rejected because the
 HY-8 developer correction identifies a dimensionless-flow error and false beveled-case
 data; that note's synthetic extension is comparison evidence only. CS-015 records the
 Austroads worked example's inconsistent `2.5`/`2.75 m/s` full-flow velocity. Markdown
@@ -844,6 +868,24 @@ Pyright, Markdown lint, captured-CSV equality, and `git diff --check` passed.
 The single-barrel wall-clock benchmark failed once at `0.501 ms/evaluation` against its
 fixed `< 0.5 ms` threshold, then passed alone and in the final full run. CS-007 must
 replace this environment-sensitive assertion with a reproducible benchmark policy.
+
+## 2026-09-10 - Modern box and inverse-capacity increment
+
+- Reviewed `run-hy8/src` and recorded which orchestration features belong there versus
+  hydraulically relevant gaps in this independent solver.
+- Promoted discharge-for-headwater calculations to the public barrel, group, and crossing
+  API. Added a barrel-only HW/D helper and retained absolute headwater for mixed crossings.
+- Implemented net-area filleted rectangular geometry and the corrected FHWA-HRT-06-138
+  Figure 93 configuration catalogue. Unsupported physical combinations and Table 12
+  results outside approximately `0.4 < HW/D < 2.3` fail explicitly.
+- Reproduced the Appendix D FC-D-30 Q25 critical depth and pool water level using the
+  customary-unit governing inputs, typed Sketch 2 coefficients, and published approach
+  area.
+- Split CS-014 without implementing it: CS-030 through CS-033 separately own slipline,
+  receiving-section/exit-loss, buried-invert, and variable-roughness work.
+
+Verification: 306 tests passed; Ruff check and format, strict Pyright, Markdown lint,
+strict MkDocs build, and `git diff --check` passed.
 
 ## Phase status
 

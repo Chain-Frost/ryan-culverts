@@ -4,6 +4,8 @@ The package exposes internally tested geometry and hydraulic components through
 provisional combined solvers. External engineering validation is not yet complete.
 """
 
+from importlib.metadata import PackageNotFoundError, version
+
 from .constants import (
     GRAVITATIONAL_ACCELERATION,
     STANDARD_WATER_DENSITY,
@@ -12,6 +14,7 @@ from .constants import (
 from .exceptions import ConvergenceError, InvalidInputError
 from .geometry.base import CrossSectionGeometry
 from .geometry.circular import CircularGeometry
+from .geometry.filleted_rectangular import FilletedRectangularGeometry
 from .geometry.rectangular import RectangularGeometry
 from .hydraulics.critical import CriticalDepthResult, calculate_critical_depth
 from .hydraulics.momentum import (
@@ -29,6 +32,7 @@ from .hydraulics.primitives import (
     minor_head_loss,
     specific_energy,
     velocity_head,
+    water_surface_elevation_from_energy_grade,
 )
 from .inlet_control.coefficients import (
     BOX_CONCRETE_BEVEL_45_HEADWALL,
@@ -49,6 +53,18 @@ from .inlet_control.fhwa import (
     transition_headwater,
     unsubmerged_headwater_form_1,
     unsubmerged_headwater_form_2,
+)
+from .inlet_control.modern_box import (
+    FHWA_HRT_06_138_REFERENCE,
+    FHWA_MODERN_BOX_HW_D_MAX,
+    FHWA_MODERN_BOX_HW_D_MIN,
+    BoxCrownTreatment,
+    BoxWingwallTreatment,
+    ModernBoxInlet,
+    ModernBoxInletCoefficients,
+    ModernBoxInletResult,
+    calculate_modern_box_inlet_headwater,
+    resolve_modern_box_inlet_coefficients,
 )
 from .inlet_control.solver import (
     EXTREME_HEADWATER_RATIO,
@@ -108,6 +124,7 @@ from .models.results import (
     HeadLossComponents,
     HydraulicWarning,
 )
+from .models.roadway import FHWA_HDS5_ROADWAY_OVERTOPPING, RoadwayWeir
 from .models.tailwater import TailwaterCondition
 from .numerical.roots import RootResult, solve_bracketed, solve_brent
 from .numerical.tolerances import RootTolerances
@@ -158,9 +175,16 @@ from .profiles.direct_step import (
     compute_steep_inlet_control_profile,
 )
 from .references.models import SourceReference
+from .roadway.overtopping import RoadwayOvertoppingResult, calculate_roadway_overtopping
 from .solver.barrel import solve_barrel_hydraulics
 from .solver.config import DEFAULT_SOLVER_CONFIGURATION, SolverConfiguration
-from .solver.crossing import solve_crossing_hydraulics
+from .solver.crossing import (
+    solve_barrel_discharge_for_headwater,
+    solve_barrel_discharge_for_headwater_ratio,
+    solve_crossing_discharge_for_headwater,
+    solve_crossing_hydraulics,
+    solve_group_discharge_for_headwater,
+)
 from .solver.group import solve_group_hydraulics
 from .solver.rating_curve import (
     RatingCurvePoint,
@@ -177,6 +201,12 @@ from .solver.resolvers import (
     resolve_inlet_coefficients,
 )
 from .units.conversion import dimension_mm_to_m
+
+try:
+    __version__ = version("ryan-culverts")
+except PackageNotFoundError:
+    # A source-tree import can occur before installation during development.
+    __version__ = "0+unknown"
 
 __all__: list[str] = [
     "AdoptedParameterSet",
@@ -201,6 +231,8 @@ __all__: list[str] = [
     "MRWA_SPEC404_REFERENCE",
     "SMOOTH_HDPE",
     "BarrelHydraulicResult",
+    "BoxCrownTreatment",
+    "BoxWingwallTreatment",
     "CircularGeometry",
     "ConvergenceError",
     "CriticalDepthResult",
@@ -226,6 +258,11 @@ __all__: list[str] = [
     "EntranceLossSelectionBasis",
     "EXTREME_HEADWATER_RATIO",
     "FlowRegime",
+    "FHWA_HRT_06_138_REFERENCE",
+    "FHWA_MODERN_BOX_HW_D_MAX",
+    "FHWA_MODERN_BOX_HW_D_MIN",
+    "FilletedRectangularGeometry",
+    "FHWA_HDS5_ROADWAY_OVERTOPPING",
     "FullFlowOutletResult",
     "GeometryShape",
     "GRAVITATIONAL_ACCELERATION",
@@ -245,6 +282,9 @@ __all__: list[str] = [
     "InventorySummary",
     "NormalDepthResult",
     "ManningRoughnessSelection",
+    "ModernBoxInlet",
+    "ModernBoxInletCoefficients",
+    "ModernBoxInletResult",
     "PartialFlowOutletResult",
     "ProfilePoint",
     "ProfileCurve",
@@ -253,6 +293,8 @@ __all__: list[str] = [
     "RectangularGeometry",
     "RootResult",
     "RootTolerances",
+    "RoadwayOvertoppingResult",
+    "RoadwayWeir",
     "RoughnessSelectionBasis",
     "RoughnessApplicabilityNotice",
     "STANDARD_EXIT_LOSS_COEFFICIENT",
@@ -264,6 +306,7 @@ __all__: list[str] = [
     "SourceReference",
     "TailwaterCondition",
     "WaterSurfaceProfile",
+    "__version__",
     "BOX_LOSS_FLARED_30_75",
     "BOX_LOSS_PARALLEL_0",
     "PIPE_CMP_LOSS_HEADWALL",
@@ -277,9 +320,11 @@ __all__: list[str] = [
     "calculate_full_flow_outlet_headwater",
     "calculate_downstream_full_flow_length",
     "calculate_inlet_control_headwater",
+    "calculate_modern_box_inlet_headwater",
     "calculate_normal_depth",
     "calculate_sequent_depth",
     "calculate_partial_flow_outlet_headwater",
+    "calculate_roadway_overtopping",
     "calculate_total_head_loss",
     "resolve_exit_loss_coefficient",
     "compute_backwater_profile",
@@ -303,15 +348,21 @@ __all__: list[str] = [
     "resolve_entrance_loss_coefficient",
     "resolve_inlet_coefficients",
     "resolve_manning_roughness",
+    "resolve_modern_box_inlet_coefficients",
     "solve_barrel_hydraulics",
+    "solve_barrel_discharge_for_headwater",
+    "solve_barrel_discharge_for_headwater_ratio",
     "solve_bracketed",
     "solve_brent",
     "solve_crossing_hydraulics",
+    "solve_crossing_discharge_for_headwater",
     "solve_group_hydraulics",
+    "solve_group_discharge_for_headwater",
     "specific_energy",
     "submerged_headwater",
     "transition_headwater",
     "unsubmerged_headwater_form_1",
     "unsubmerged_headwater_form_2",
     "velocity_head",
+    "water_surface_elevation_from_energy_grade",
 ]

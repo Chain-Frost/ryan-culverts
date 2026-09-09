@@ -42,6 +42,22 @@ def specific_energy(depth: float, velocity_head: float) -> float:
     return y + hv
 
 
+def water_surface_elevation_from_energy_grade(
+    energy_grade_elevation: float,
+    discharge: float,
+    flow_area: float,
+    g: float = GRAVITATIONAL_ACCELERATION,
+) -> float:
+    """Convert an energy-grade elevation to water level using approach velocity head.
+
+    The discharge and area must describe the same approach section. A unit velocity
+    distribution coefficient is assumed.
+    """
+    energy_elevation = finite(energy_grade_elevation, "energy_grade_elevation")
+    velocity = cross_section_velocity(discharge, flow_area)
+    return energy_elevation - velocity_head(velocity, g=g)
+
+
 def froude_number(
     discharge: float,
     area: float,

@@ -9,10 +9,23 @@ combined solver. Several higher-level tests compare one package entry point with
 path through the same implementation, so they are regression tests rather than independent
 hydraulic oracles.
 
-Missing evidence includes independent published water-surface-profile and hydraulic-jump
-benchmarks, mixed free-surface/pressurised transitions, corrected box-inlet applicability,
-and version-pinned HY-8/HEC-RAS comparisons. Performance thresholds are development
+Missing evidence includes additional independent published water-surface-profile and
+hydraulic-jump benchmarks, mixed free-surface/pressurised transitions, and version-pinned
+HEC-RAS comparisons. Performance thresholds are development
 regressions and do not imply hydraulic correctness.
+
+## Corrected modern-box fixture
+
+`tests/test_modern_box.py` checks the corrected FHWA-HRT-06-138 transcription and
+applicability boundary. It verifies net area and depth-dependent geometry for equal
+45-degree corner fillets, resolves the Appendix D FC-D-30 physical inlet to Figure 93
+Sketch 2 and `Ke = 0.32`, checks the dimensionless Table 12 polynomial, and rejects both
+unsupported configurations and results outside approximately `0.4 < HW/D < 2.3`.
+
+The Q25 fixture uses the report's authoritative customary-unit inputs. It reproduces the
+Table 22 critical depth of `3.88 ft` and Table 25 pool water elevation of `85.907 ft`.
+The pool result converts the calculated energy grade using the published `1265 ft2`
+approach area; a general discharge-dependent approach-section model remains future work.
 
 ## Foundation milestone
 
@@ -113,9 +126,17 @@ package API as its oracle.
 | Unequal-size groups of identical barrels | One-barrel plus three-barrel groups, same barrel, `Qtotal=8 m³/s`, `TW=11 m` | group flows `2` and `6 m³/s`, common `HW=11.843853860747691 m` | less than `2e-15 m³/s`; less than `2e-15 m` | flow absolute `1e-5 m³/s`; HW absolute `1e-6 m` | both groups full outlet control |
 | Inlet-control rating curve | Circular `D=1 m`, `L=25 m`, `S0=0.02`, `n=0.012`, `TW=49.5 m`; `Q=(0.3, 1.0, 1.626, 2.5) m³/s` | `HW=(50.41129639578769, 50.85046073327805, 51.21952069304025, 51.98257475067179) m` | less than `1e-14 m` | HW absolute `1e-9 m` | unsubmerged, unsubmerged, transition, submerged |
 
+CS-010 adds an equation-level roadway fixture evaluated independently from HDS-5 Equation
+3.9: for `C_d=1.6 m^0.5/s`, `L=25 m`, and `H_wr=0.5 m`, the expected flow is
+`14.1421356237 m³/s`. Tests also cover zero flow at the crest, explicit rejection when
+tailwater exceeds the crest, a roadway-only solution below a higher culvert inlet, and
+combined culvert/roadway conservation to `1e-5 m³/s`. These are free-flow software and
+equation fixtures, not validation of the caller's coefficient selection or submerged flow.
+
 These fixtures validate identical-barrel conservation and fixed-boundary rating assembly.
 They do not validate unequal barrel flow division against an external worked example,
-tailwater rating relationships, storage routing, or roadway overtopping.
+tailwater rating relationships, storage routing, irregular road crests, or submerged
+roadway overtopping.
 
 ## Later hydraulic and external gates
 

@@ -1,0 +1,69 @@
+site_name: ryan-culverts
+site_description: Independent, literature-led culvert hydraulics for Python
+site_url: https://chain-frost.github.io/ryan-culverts/
+repo_url: https://github.com/Chain-Frost/ryan-culverts
+repo_name: Chain-Frost/ryan-culverts
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: numpy
+            members_order: source
+            show_root_heading: true
+            show_source: false
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+  links:
+    not_found: warn
+    anchors: warn
+
+nav:
+  - Home: index.md
+  - User guide:
+      - Packaging and installation: packaging.md
+      - Public API policy: public_api.md
+      - API reference: api.md
+      - Changelog: changelog.md
+      - Release notes: releases/README.md
+  - Engineering basis:
+      - Computational basis: computational_basis.md
+      - Architecture: architecture.md
+      - Validation: validation.md
+      - References: references.md
+      - HY-8 capability matrix: hy8_feature_parity.md
+  - Research records:
+      - Research index: research/README.md
+      - Local evidence inventory: research/local_evidence_inventory.md
+      - Fixture candidates: research/fixture_candidates.md
+      - FHWA box inlets: research/fhwa_box_inlets.md
+      - NCHRP 734 coefficients: research/nchrp734_coefficients.md
+  - Development:
+      - Progress: progress.md
+      - Work register: work/README.md
+      - Remediation and forward plan: work/2026-09-06-phase-0-to-10-remediation.md
+      - Long-term plan: work/long-term-development-plan.md
+      - Repository setup review: repo_setup_review.md
+      - Legacy evidence: legacy/README.md

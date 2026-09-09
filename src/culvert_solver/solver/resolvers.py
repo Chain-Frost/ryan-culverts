@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
+from ..geometry.filleted_rectangular import FilletedRectangularGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..inlet_control.coefficients import InletCoefficients
 from ..models.barrel import CulvertBarrel
@@ -58,7 +59,7 @@ def _validate_inlet_shape(barrel: CulvertBarrel, coefficients: InletCoefficients
     """Reject inlet coefficients for a different geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape = GeometryShape.CIRCULAR
-    elif isinstance(barrel.geometry, RectangularGeometry):
+    elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         barrel_shape = GeometryShape.RECTANGULAR
     else:
         barrel_shape = GeometryShape.ANY
@@ -82,7 +83,7 @@ def _default_inlet_coefficients(
             "No default inlet coefficients exist for this circular barrel material; "
             "provide inlet_coefficients explicitly."
         )
-    if isinstance(barrel.geometry, RectangularGeometry):
+    if isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
             return config.default_rectangular_inlet
         raise InvalidInputError(
@@ -159,7 +160,7 @@ class EntranceLossSelection:
     shape: GeometryShape
 
     def __post_init__(self) -> None:
-        ke_val = finite(self.ke, "ke")
+        ke_val: float = finite(self.ke, "ke")
         if ke_val < 0:
             raise InvalidInputError("ke must be nonnegative.")
         if not self.name.strip():
@@ -199,7 +200,9 @@ def resolve_entrance_loss_coefficient(
     EntranceLossSelection
         Resolved Ke with selection basis and source provenance.
     """
-    config = configuration if configuration is not None else DEFAULT_SOLVER_CONFIGURATION
+    config: SolverConfiguration = (
+        configuration if configuration is not None else DEFAULT_SOLVER_CONFIGURATION
+    )
     # 1. Explicit user override
     if override is not None:
         if isinstance(override, EntranceLossCoefficient):
@@ -216,7 +219,7 @@ def resolve_entrance_loss_coefficient(
                 source=override.reference,
                 shape=override.shape,
             )
-        ke_val = finite(override, "override")
+        ke_val: float = finite(override, "override")
         if ke_val < 0:
             raise InvalidInputError("entrance_loss_coefficient must be nonnegative.")
         return EntranceLossSelection(
@@ -231,7 +234,7 @@ def resolve_entrance_loss_coefficient(
         raise InvalidInputError("override_source requires an override value.")
 
     # 2. Barrel-attached coefficient
-    barrel_ke = barrel.entrance_loss_coefficient
+    barrel_ke: EntranceLossCoefficient | float | None = barrel.entrance_loss_coefficient
     if barrel_ke is not None:
         if isinstance(barrel_ke, EntranceLossCoefficient):
             validate_entrance_loss_shape(barrel, barrel_ke)
@@ -254,7 +257,7 @@ def resolve_entrance_loss_coefficient(
     # 3. Geometry/material-based library default
     if isinstance(barrel.geometry, CircularGeometry):
         if barrel.material == CORRUGATED_STEEL:
-            default_coeff = config.default_circular_cmp_loss
+            default_coeff: EntranceLossCoefficient = config.default_circular_cmp_loss
         elif barrel.material in {CONCRETE, CONCRETE_PIPE}:
             default_coeff = config.default_circular_concrete_loss
         else:
@@ -262,7 +265,7 @@ def resolve_entrance_loss_coefficient(
                 "No default entrance-loss coefficient exists for this circular barrel "
                 "material; provide one explicitly."
             )
-    elif isinstance(barrel.geometry, RectangularGeometry):
+    elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
             default_coeff = config.default_rectangular_loss
         else:

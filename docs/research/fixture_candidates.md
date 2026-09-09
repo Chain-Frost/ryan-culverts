@@ -100,11 +100,11 @@ entrance-loss coefficient `Ke = 0.32`.
 
 The intermediate expected values include critical depths in Table 22, normal depths in
 Table 23, outlet starting conditions in Table 24, and inlet HGL/EGL values in Tables 25
-and 26. The case is fixture-ready as a source record but not executable with the current
-plain `RectangularGeometry`: net area, corner fillets, the top-edge bevel, approach and
-tailwater sections, and the precise multi-cell inlet configuration must be represented
-first. CS-013 owns that future configuration work. Substituting a sharp-corner rectangle
-would change the published problem.
+and 26. The Q25 FC-D-30 case is executable as a bounded fixture using
+`FilletedRectangularGeometry`, the typed Sketch 2 inlet, `Ke = 0.32`, and the published
+approach area. The complete downstream and approach cross sections are not yet general
+boundary-condition objects; CS-029 owns that broader work. Substituting a sharp-corner
+rectangle would still change the published problem.
 
 The report's Table 12 fifth-order polynomial is not the expected method for this outlet-
 controlled Appendix D result. Printed pages 72-73 (local PDF pages 85-86) limit those

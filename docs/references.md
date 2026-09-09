@@ -27,8 +27,8 @@ same as adoption: unsupported geometry and context remain explicit future tasks.
 | --- | --- | --- |
 | FHWA HDS-5, third edition | Reviewed | Adopted primary hydraulic baseline within documented scope |
 | Bodhaine, TWRI 3-A3 | Reviewed | Adopt flow-type physics and terminology; retain worked examples as historical-method comparisons |
-| Corrected FHWA-HRT-06-138 | Reviewed | Configuration-specific box evidence; defer executable catalogue to CS-013 |
-| NCHRP Report 734 | Reviewed | Adopt representative-barrel limitation; defer context-dependent refinements to CS-014 |
+| Corrected FHWA-HRT-06-138 | Reviewed and bounded | Figure 93 catalogue, filleted geometry, and corrected Tables 11/12 are executable only within typed applicability limits |
+| NCHRP Report 734 | Reviewed | Adopt representative-barrel limitation; defer independent refinements to CS-030 through CS-033 |
 | HY-8 embedded-coefficient correction note | Reviewed | Reject original NCHRP embedded coefficients as executable; treat adjusted curves as secondary HY-8 implementation evidence |
 | HY-8 User Manual v8.0 and executable 8.0.1.2 | Reviewed | Version-pinned implementation comparison, never hydraulic authority |
 | Austroads AGRD05B-23 edition 1.2 | Reviewed | Adopt Australian workflow/reporting context; do not replace HDS-5 equations |
@@ -58,6 +58,15 @@ Inspected the local PDF title/report pages; Section 3.1.4, printed pages 3.9–3
 and Manning values in Appendix B/Table B.1 (PDF pages 203–208); and entrance losses in
 Table C.2 (PDF page 216). These sections support transcription checks and also expose
 remaining gaps in mixed-flow profiles and hydraulic-jump handling.
+
+Roadway overtopping uses Section 3.1.5, printed pages 3.15-3.18, specifically Equation
+3.9 and Figures 3.10-3.12. Equation 3.9 defines broad-crested-weir flow as
+`Q_o = C_d L HW_r^1.5`; its SI coefficient is the plotted coefficient multiplied by
+`0.552`. Figure 3.11 selects coefficients for deep or shallow overtopping and supplies a
+downstream-submergence correction. Figure 3.12 describes horizontal segmentation of a sag
+vertical curve. CS-010 implements only an explicit user-supplied SI coefficient and a
+constant, unsubmerged crest; CS-028 owns figure digitisation, irregular segmentation, and
+submergence.
 
 HDS-5 printed pages 3.36-3.37 (local PDF pages 118-119) state that HY-8 Version 7.3
 introduced momentum calculations to determine whether the conjugate depth of an S2
@@ -155,9 +164,9 @@ NCHRP Report 734* additionally identifies a mathematical error in the original e
 culvert dimensionless discharge and false data for the 50% embedded beveled case. Its
 replacement polynomial extends experimental data using an HY-8 unembedded trend to
 stabilise the curve, so it is secondary implementation evidence rather than a correction
-to adopt silently. CS-014 must represent source status as well as slipline, downstream-
-channel, or composite-roughness context before any corresponding coefficient or equation
-is executable.
+to adopt silently. CS-030 through CS-033 separately require source status and the needed
+slipline, downstream-channel, buried-invert, or variable-roughness context before any
+corresponding coefficient or equation is executable.
 
 ### HEC-RAS technical reference
 

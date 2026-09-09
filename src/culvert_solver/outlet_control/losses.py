@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
+from ..geometry.filleted_rectangular import FilletedRectangularGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.primitives import friction_head_loss, minor_head_loss
 from ..models.barrel import CulvertBarrel
@@ -98,7 +99,7 @@ def resolve_exit_loss_coefficient(override: float | None = None) -> ExitLossSele
     """Resolve Ko from an optional numeric override or the sourced HDS-5 default."""
     if override is None:
         return STANDARD_EXIT_LOSS_SELECTION
-    ko = finite(override, "exit_loss_coefficient")
+    ko: float = finite(override, "exit_loss_coefficient")
     if ko < 0:
         raise InvalidInputError("exit_loss_coefficient must be nonnegative.")
     return ExitLossSelection(
@@ -114,8 +115,8 @@ def validate_entrance_loss_shape(
 ) -> None:
     """Reject an entrance-loss coefficient for a different geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
-        barrel_shape = GeometryShape.CIRCULAR
-    elif isinstance(barrel.geometry, RectangularGeometry):
+        barrel_shape: GeometryShape = GeometryShape.CIRCULAR
+    elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         barrel_shape = GeometryShape.RECTANGULAR
     else:
         barrel_shape = GeometryShape.ANY

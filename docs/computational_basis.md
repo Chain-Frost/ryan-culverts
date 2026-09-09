@@ -16,13 +16,15 @@ The completed source review adopts the following method dispositions:
 - Bodhaine's six types define physical classification evidence, not production equations
   or a one-to-one mapping to every extended HY-8 profile label.
 - Corrected FHWA-HRT-06-138 coefficients apply only to their recorded box inlet geometry,
-  barrel count, span-to-rise range, fillets, bevels, and skew. They remain unimplemented
-  until CS-013 adds that context. Its Table 12 polynomial is limited to approximately
+  barrel count, span-to-rise range, fillets, bevels, and skew. CS-013 implements that
+  context and fails closed on unmatched Figure 93 configurations. Its Table 12 polynomial
+  is limited to approximately
   `0.4 < HW/D < 2.3`; it is not HY-8's recomputed South Dakota-box curve.
 - NCHRP 734 supports the current representative-barrel total-flow architecture within its
   tested limitations. Its Borda-Carnot outlet refinement is deferred because the initial
   reservoir/pool boundary has no downstream channel area. Slipline, buried-invert,
-  depth-varying, and composite roughness are deferred to CS-014. Original NCHRP embedded-
+  depth-varying, and composite roughness are separated into CS-030 through CS-033. Original
+  NCHRP embedded-
   culvert coefficients are rejected for implementation because the HY-8-bundled correction
   documents a dimensionless-discharge error and false 50% embedded beveled data. The
   correction's synthetic high-flow extension is also not adopted as primary evidence.
@@ -164,7 +166,19 @@ compliance remain separate decisions. No HY-8 fallback value has been adopted.
 
 The repository implements circular and rectangular geometry, hydraulic primitives,
 critical and normal depth, selected HDS-5 inlet and loss coefficients, provisional
-inlet/outlet control, direct-step profiles, barrel/group/crossing solvers, and rating curves.
+inlet/outlet control, direct-step profiles, barrel/group/crossing solvers, rating curves,
+and constant-crest unsubmerged roadway overtopping. Roadway flow follows HDS-5 Section
+3.1.5 Equation 3.9 in SI units:
+
+```text
+Q_roadway = C_d L H_wr^1.5
+```
+
+The caller must supply the SI coefficient selected for the actual roadway geometry and
+overtopping depth. The crossing solver adds this flow to the independently calculated
+culvert-group flows at a common headwater. Tailwater above the crest fails explicitly
+because the Figure 3.11C submergence correction has not been digitised or validated;
+irregular sag curves and segment summation are also deferred.
 For HDS-5 Section 3.5 steep-slope inlet-control cases, the solver routes an S2 profile
 downstream from immediately below critical depth toward normal depth. Tailwater no higher
 than normal depth directly implies a swept-out jump. For higher sub-crown tailwater, the

@@ -24,10 +24,10 @@ Python 3.14 is the current tested and supported baseline. Move that baseline to
 Python 3.15 when available and validated, updating tool targets and classifiers
 alongside the checks. Supporting every older interpreter is not a project goal.
 
-Other Python versions may attempt to build, install and run the project, but are
-unsupported until explicitly validated. Metadata declares only `requires-python
->=3`, with no minor-version floor or runtime version guard. This is permission to try,
-not a compatibility guarantee: syntax, dependencies or build tools may still fail.
+Metadata declares `requires-python >=3.14,<3.15`, matching the sole supported interpreter
+baseline. CI builds and installs the universal wheel outside the source tree on Windows,
+Linux, and macOS with Python 3.14, then checks public version discovery and a smoke
+calculation. A successful wheel build alone is not a compatibility claim.
 
 The Pyright and Ruff version targets describe the supported development baseline;
 they do not select or restrict the interpreter used to build the package.

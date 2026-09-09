@@ -15,7 +15,10 @@ from culvert_solver.models.results import FlowRegime, GroupHydraulicResult
 from culvert_solver.models.tailwater import TailwaterCondition
 from culvert_solver.solver.crossing import (
     solve_barrel_discharge_for_headwater,
+    solve_barrel_discharge_for_headwater_ratio,
+    solve_crossing_discharge_for_headwater,
     solve_crossing_hydraulics,
+    solve_group_discharge_for_headwater,
 )
 from culvert_solver.solver.group import solve_group_hydraulics
 
@@ -95,6 +98,30 @@ def test_solve_barrel_discharge_for_headwater() -> None:
     group = CulvertGroup(barrel=barrel, quantity=1)
     g_res = solve_group_hydraulics(group=group, total_discharge=q_solved, tailwater=tw)
     assert g_res.barrel_result.headwater_elevation == pytest.approx(target_hw, abs=1e-4)
+
+
+def test_public_discharge_for_headwater_helpers_round_trip() -> None:
+    barrel = CulvertBarrel(
+        geometry=CircularGeometry(diameter=1.0),
+        length=50.0,
+        inlet_invert=20.0,
+        outlet_invert=19.0,
+        roughness=0.013,
+        material=CONCRETE,
+    )
+    group = CulvertGroup(barrel=barrel, quantity=3)
+    crossing = CulvertCrossing([group])
+    target_hw = 21.2
+
+    q_barrel = solve_barrel_discharge_for_headwater_ratio(barrel, 1.2, 19.0)
+    q_group = solve_group_discharge_for_headwater(group, target_hw, 19.0)
+    q_crossing = solve_crossing_discharge_for_headwater(crossing, target_hw, 19.0)
+
+    assert q_barrel > 0.0
+    assert q_group == pytest.approx(3.0 * q_barrel)
+    assert q_crossing == pytest.approx(q_group)
+    round_trip = solve_crossing_hydraulics(crossing, q_crossing, 19.0)
+    assert round_trip.headwater_elevation == pytest.approx(target_hw, abs=1e-4)
 
 
 def test_single_group_crossing() -> None:

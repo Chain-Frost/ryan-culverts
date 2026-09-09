@@ -37,6 +37,7 @@ from .results import (
     FlowRegime,
     GroupHydraulicResult,
 )
+from .roadway import FHWA_HDS5_ROADWAY_OVERTOPPING, RoadwayWeir
 from .tailwater import TailwaterCondition
 
 __all__: list[str] = [
@@ -62,6 +63,7 @@ __all__: list[str] = [
     "ExitLossSelectionBasis",
     "ControlType",
     "FlowRegime",
+    "FHWA_HDS5_ROADWAY_OVERTOPPING",
     "GeometryShape",
     "GroupHydraulicResult",
     "InletEquationForm",
@@ -69,6 +71,7 @@ __all__: list[str] = [
     "ProfileCurve",
     "RoughnessSelectionBasis",
     "RoughnessApplicabilityNotice",
+    "RoadwayWeir",
     "TailwaterCondition",
     "resolve_csp_manning_roughness",
     "resolve_manning_roughness",

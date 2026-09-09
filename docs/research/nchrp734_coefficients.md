@@ -75,7 +75,7 @@ passage. Source: Chapter 5 conclusions, printed page 49 (local PDF page 57).
   pool `Ko = 1.0` assumption.
 - Chapters 7 and 8 show depth-dependent roughness and substantial uncertainty in
   composite-roughness methods. No composite value may be inferred from a single material
-  enum; CS-014 owns any future context-rich implementation.
+  enum; CS-030 owns any future context-rich implementation.
 
 ## 5. Embedded-coefficient correction
 
@@ -91,5 +91,5 @@ It then adds synthetic high-flow points based on the ratio to HY-8's unembedded 
 fifth-order polynomial remains stable beyond the experiment. That extension is a documented
 HY-8 implementation choice, not primary experimental evidence. Consequently, original
 NCHRP embedded coefficients are rejected for executable use, while the note's adjusted
-polynomials are retained only as version-history/comparison evidence. CS-014 requires a
+polynomials are retained only as version-history/comparison evidence. CS-032 requires a
 formally supportable method decision before adding embedded culverts.

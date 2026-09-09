@@ -8,6 +8,7 @@ from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
+from ..geometry.filleted_rectangular import FilletedRectangularGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.critical import calculate_critical_depth
 from ..models.barrel import CulvertBarrel
@@ -95,7 +96,7 @@ def _default_coefficients_for_barrel(barrel: CulvertBarrel) -> InletCoefficients
             "No default inlet coefficients exist for this circular barrel material; "
             "provide inlet_coefficients explicitly."
         )
-    if isinstance(barrel.geometry, RectangularGeometry):
+    if isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
             return BOX_CONCRETE_FLARED_WINGWALLS_30_75
         raise InvalidInputError(
@@ -111,7 +112,7 @@ def _validate_coefficient_shape(barrel: CulvertBarrel, coefficients: InletCoeffi
     """Reject empirical coefficients that do not apply to the barrel geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape: GeometryShape = GeometryShape.CIRCULAR
-    elif isinstance(barrel.geometry, RectangularGeometry):
+    elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         barrel_shape = GeometryShape.RECTANGULAR
     else:
         barrel_shape = GeometryShape.ANY

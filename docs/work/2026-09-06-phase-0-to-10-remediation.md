@@ -135,7 +135,7 @@ baseline, use Bodhaine for physical classification, keep HY-8 as a pinned compar
 and use Austroads for Australian application context. Corrected box coefficients require
 typed fillet/bevel/skew/barrel-count context (CS-013). NCHRP 734 Borda-Carnot outlet loss,
 slipline, buried-invert, and composite-roughness work require richer boundary/material
-models (CS-014); the original embedded coefficients are rejected because the bundled HY-8
+models (CS-030 through CS-033); the original embedded coefficients are rejected because the bundled HY-8
 correction documents flawed dimensionless flow and false beveled-case data. The Austroads
 Section 3.15.1 full-flow velocity inconsistency is isolated as CS-015 rather than embedded
 in a fixture.
@@ -143,9 +143,10 @@ in a fixture.
 Verification and remaining limitations: `python -m pymarkdown -d MD013 scan` passed for
 the edited Markdown files, all 16 recorded PDF path/hash records matched the local files,
 and `git diff --check` passed. No tests were run because this documentation-only task changed
-no solver code, fixture code, or tests. The corrected FHWA box fixtures are not executable
-with the current sharp-corner rectangular geometry; Bodhaine values remain historical-
-method comparisons; and no unresolved coefficient was added to the library. Nothing was
+no solver code, fixture code, or tests. At that handoff the corrected FHWA box fixtures
+were not executable with the then-current sharp-corner rectangular geometry; CS-013
+subsequently added the bounded filleted case. Bodhaine values remain historical-method
+comparisons. Nothing was
 committed, built, versioned, or published.
 
 ### CS-002 - Complete the defaults and configuration policy
@@ -652,7 +653,7 @@ an isolated temporary target; its import was proven to originate there, package 
 reported `26.9.9.1`, and a public circular critical-depth calculation succeeded. This handoff
 creates a local artifact only: nothing was committed, tagged, uploaded, or published.
 Hydraulic and product limitations are listed in
-`docs/releases/26.9.9.1.md`; this packaging milestone does not expand engineering acceptance.
+the maintained release notes; this packaging milestone does not expand engineering acceptance.
 
 Release follow-up (2026-09-09): the package now uses the `yy.m.d.vv` calendar-version
 scheme and the first release is `26.9.9.1`. The retained wheel is 77,379 bytes with SHA-256
@@ -714,30 +715,90 @@ SI units, enum representation, user-default overrides, source provenance, unknow
 policy, migration behaviour, and round-trip tests. Keep JSON parsing out of the
 hydraulic equations.
 
-### CS-010 - Broader product features
+### CS-010 - Constant-crest roadway overtopping
 
-Future work includes design-option enumeration, minimum-size search, plotting/HGL/EGL
-views, additional shapes and materials, roadway overtopping, debris/blockage scenarios,
-and uncertainty/sensitivity analysis. Begin only after their prerequisite result fields
-and hydraulic validation are complete; create separate dated work records when activated.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
+
+Boundary: add a typed constant-elevation roadway crest, evaluate unsubmerged broad-crested
+weir flow using FHWA HDS-5 Equation 3.9, and solve a common headwater that conserves total
+flow between culvert groups and the roadway. Require an explicit SI discharge coefficient;
+do not imply that one coefficient fits every roadway. Fail closed when tailwater exceeds
+the crest because the HDS-5 Figure 3.11C submergence correction is not yet digitised.
+
+Acceptance evidence: `RoadwayWeir`, `calculate_roadway_overtopping`, and the crossing result's
+separate culvert/roadway discharge properties are public and typed; analytical equation,
+inactive-flow, unsupported-submergence, roadway-only, and combined-flow tests pass; inventory
+summaries retain roadway crest and flow; and the method and limitations are documented.
+
+The formerly bundled design search, plotting, shapes/materials, blockage, uncertainty, and
+advanced roadway behaviour are now CS-023 through CS-028.
 
 ### CS-013 - Modern box inlet configurations
 
-Before adopting corrected FHWA-HRT-06-138 Table 11 or 12 data, model the physical inlet
-identity: wingwall flare, crown treatment, corner-fillet size, skew, barrel count,
-span-to-rise applicability, and net area. Reproduce a selected Appendix D case without
-substituting sharp-corner geometry. Keep the report's approximately `0.4 < HW/D < 2.3`
-polynomial separate from HY-8's recomputed South Dakota-box polynomial.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
+
+Boundary: model wingwall flare, crown treatment, corner-fillet size, skew, barrel count,
+span-to-rise applicability, and net area before selecting corrected FHWA-HRT-06-138
+Tables 11 and 12. Reject unsupported combinations and polynomial results outside the
+report's approximately `0.4 < HW/D < 2.3` useful range. Keep these coefficients separate
+from HY-8's recomputed South Dakota-box polynomial.
+
+Acceptance evidence: `FilletedRectangularGeometry` represents all four 45-degree corner
+fillets and supplies net area and depth-dependent section properties. `ModernBoxInlet`
+resolves only supported Figure 93 identities to source-bearing Table 11 and 12 records.
+The direct polynomial uses `Q/(A*sqrt(g*D))`. The Appendix D FC-D-30 Q25 test reproduces
+the published critical depth and final pool water level using Sketch 2, `Ke = 0.32`, the
+filleted section, and the published approach area; no sharp-corner substitution is made.
 
 ### CS-014 - Context-rich NCHRP 734 refinements
 
-Add no NCHRP coefficient until the model represents the context it requires. Candidate
-work includes slipline/host geometry, buried invert and composite roughness, variable
-roughness applicability, and Borda-Carnot outlet loss with downstream channel area. Keep
-the current reservoir/pool `Ko = 1.0` selection available and explicit. Do not implement
-NCHRP's original embedded coefficients: the HY-8 developer correction identifies erroneous
-dimensionless flow and false 50% embedded beveled data, while its replacement polynomial
-includes a synthetic high-flow extension based on an HY-8 trend.
+Status: Split without implementation. Owner: Unassigned. Updated: 2026-09-10.
+
+This umbrella was too broad. Its independent deliverables are CS-030 (slipline host/liner
+geometry and composite roughness), CS-031 (receiving section and Borda-Carnot exit loss),
+CS-032 (buried-invert geometry and coefficient disposition), and CS-033 (depth-dependent
+roughness). No NCHRP equation or coefficient was added while performing the split.
+
+### CS-029 - Discharge-dependent tailwater boundaries
+
+Add a typed, monotonic discharge/elevation rating curve with defined interpolation and
+out-of-range policy, then consider supported rectangular/trapezoidal/irregular channel
+normal-depth boundaries separately. Do not import HY-8 project-card semantics into the
+hydraulic core.
+
+### CS-030 - Slipline host/liner geometry and composite roughness
+
+Represent the host barrel, liner opening, annulus/placement context, and the source and
+applicability of any composite roughness relationship. Do not infer one composite Manning
+value from two material labels.
+
+### CS-031 - Receiving section and Borda-Carnot exit loss
+
+Represent downstream flow area and the sudden-expansion context before implementing the
+NCHRP Borda-Carnot refinement. Preserve the current explicit HDS-5 reservoir/pool
+`Ko = 1.0` method as a separate option.
+
+### CS-032 - Buried-invert geometry and evidence disposition
+
+Represent the reduced opening, natural bottom, embedment depth, and wetted geometry.
+Do not implement NCHRP's original embedded coefficients; the documented dimensionless-flow
+error and false 50-percent embedded beveled data remain disqualifying. Treat the HY-8
+synthetic high-flow extension only as implementation-comparison evidence.
+
+### CS-033 - Depth-dependent roughness
+
+Define the vertical/material zones, conveyance combination method, and supported hydraulic
+states before adding variable roughness. Keep it independent of CS-030 so either method can
+be reviewed and validated without adopting the other.
+
+### CS-034 - Inverse capacity helpers
+
+Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
+
+Expose discharge for a target absolute headwater for one barrel, an identical-barrel group,
+or a complete crossing including roadway flow. Provide HW/D only for a single barrel where
+the reference invert and rise are unambiguous. Preserve zero capacity below activation and
+round-trip the crossing result through the forward common-headwater solver.
 
 ### CS-015 - Austroads worked-example clarification
 
@@ -748,64 +809,47 @@ then use the case only as a workflow and reporting checklist.
 
 ## CS-016 - Documentation site and Pages publication
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
 
 Boundary: design a navigable MkDocs information architecture for the existing maintained
 documentation, add an intentional landing page and API reference, and validate the site
 strictly before enabling GitHub Pages. Do not copy `run-hy8` navigation blindly or publish
 legacy/research material without deciding whether it belongs in the public site.
 
-Acceptance criteria:
+Acceptance evidence:
 
 - MkDocs and its selected theme/API plugins are declared directly in the development extra;
-- `mkdocs.yml` links every intended maintained page without broken or orphaned navigation;
-- `mkdocs build --strict` passes locally and in CI; and
-- Pages deployment uses least-privilege permissions and only runs after a successful build.
-
-## CS-018 - Office network checkout workflow
-
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
-
-Boundary: retain the current simple distribution model in which the verified wheel is
-committed with its source and the office network folder is a Git checkout of the repository.
-Its tracked `dist/` directory is the sole office installation source. Document the checkout
-location, clean-checkout requirement, manual `git pull`, installation command, checksum
-check, and rollback procedure. Do not create a second wheel-copy location or add GitHub
-Release, CI-artifact, self-hosted-runner, or automatic network-sync infrastructure unless
-the user later requests it.
-
-Acceptance criteria: after a release commit is pushed, `git pull` updates a clean office
-checkout to that commit; its `dist/` contains exactly one version-matched project wheel; a
-clean workstation installs that wheel through the existing wrapper; and the installed
-version and wheel checksum match the checked-out release. A documented recovery procedure
-handles a dirty checkout or failed pull without rebuilding or manually copying a wheel.
+- `mkdocs.yml` deliberately navigates every maintained page with strict link validation;
+- `mkdocs build --strict` passes locally, in ordinary CI, and before deployment; and
+- the workflow follows the established `run-hy8` build/deploy split with deployment
+  permissions confined to the dependent deploy job.
 
 ## CS-019 - Compatibility metadata and installed-wheel CI
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
 
 Boundary: reconcile `requires-python` with the versions actually supported, then test the
 pure-Python wheel on intended Windows, Linux, and macOS interpreters. Keep HY-8 comparison
 work Windows-only and separate from portable solver tests. Do not claim support from a
-successful build alone. CI verifies the wheel but does not publish a second copy or update
-the office checkout.
+successful build alone. CI verifies the wheel but does not publish a second copy.
 
-Acceptance criteria: metadata names only supported interpreters, each claimed operating
-system installs and imports the checked-out wheel outside the source tree, and CI records a
-public smoke calculation on every supported matrix entry without creating a release artifact.
+Acceptance evidence: `requires-python >=3.14,<3.15` matches the sole supported baseline and a
+Windows/Linux/macOS Python 3.14 matrix builds, installs, imports, checks metadata version,
+and runs a public geometry calculation outside the source tree without publishing.
 
 ## CS-020 - Public API and package presentation
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
 
 Boundary: define stable public imports, package-version discovery, compatibility and
 deprecation policy, a concise changelog, and well-known documentation/release-note project
 URLs that do not require GitHub Releases. Do not broaden hydraulic support or promote
 provisional calculations as stable.
 
-Acceptance criteria: supported imports and version discovery have installed-wheel tests,
-the stability boundary is documented, release changes are discoverable, and wheel metadata
-contains the agreed project links.
+Acceptance evidence: `culvert_solver.__all__` defines the supported import surface,
+`culvert_solver.__version__` reads installed metadata, public API tests and the portable
+wheel smoke test cover both, the alpha compatibility policy and changelog are navigable,
+and package metadata links documentation and the changelog.
 
 ## CS-021 - Repository maintenance guidance
 
@@ -813,14 +857,11 @@ Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-2
 
 Boundary: add concise contribution and security-reporting guidance, dependency-update
 configuration, and documented branch-protection expectations appropriate to a small
-maintained repository. Include the rule that the office network checkout remains clean,
-receives releases by manual `git pull`, and is not a development workspace. Avoid enterprise
-process that does not reduce an identified risk.
+maintained repository. Avoid enterprise process that does not reduce an identified risk.
 
 Acceptance criteria: contributors can reproduce checks, hydraulic defects have a private
 reporting path where necessary, automated dependency changes run the normal CI, and the
-documented main-branch rules match GitHub settings. Office checkout maintenance and recovery
-steps are documented without introducing a second distribution location.
+documented main-branch rules match GitHub settings.
 
 ## CS-022 - Optional GitHub Release distribution
 
@@ -834,6 +875,52 @@ wheel remains the artifact of record.
 Acceptance criteria if activated: a version tag matches `pyproject.toml`, the already
 verified tracked wheel is attached with a checksum, and the workflow does not create a
 second different build, update the office checkout, or require office-network credentials.
+
+## CS-023 - Design-option and minimum-size search
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: enumerate explicit candidate configurations and select feasible options against
+typed hydraulic constraints. Keep optimisation policy outside the hydraulic equations and
+retain every rejected option with its governing constraint.
+
+## CS-024 - Optional plotting
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: add HGL/EGL, profile, rating-curve, and alternative-comparison plots as an optional
+presentation layer over existing result objects. Do not add plotting dependencies to the
+computational core.
+
+## CS-025 - Additional shapes and materials
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: prioritise additional standard shapes and material records from actual project
+needs, with geometry identities, coefficient applicability, source provenance, and
+analytical tests completed independently of design automation.
+
+## CS-026 - Debris and blockage scenarios
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: research supported blockage representations before altering effective opening
+geometry or losses. Scenario assumptions must remain explicit in inputs and results.
+
+## CS-027 - Uncertainty and sensitivity analysis
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: evaluate the deterministic solver over explicit parameter distributions or
+bounded scenarios. Do not hide empirical uncertainty inside solver tolerances.
+
+## CS-028 - Advanced roadway overtopping
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: extend CS-010 with segmented irregular/sag crest profiles and an evidenced
+downstream-submergence correction. Preserve segment-level flow and correction provenance;
+do not silently extrapolate digitised figures beyond their published ranges.
 
 ## Handoff template
 

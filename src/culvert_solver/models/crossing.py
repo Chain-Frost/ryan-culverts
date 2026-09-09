@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from ..exceptions import InvalidInputError
 from .group import CulvertGroup
+from .roadway import RoadwayWeir
 
 
 @dataclass(frozen=True, slots=True)
@@ -16,11 +17,21 @@ class CulvertCrossing:
     """
 
     groups: tuple[CulvertGroup, ...]
+    roadway: RoadwayWeir | None
 
-    def __init__(self, groups: Sequence[CulvertGroup]) -> None:
+    def __init__(
+        self,
+        groups: Sequence[CulvertGroup],
+        roadway: RoadwayWeir | None = None,
+    ) -> None:
         if not groups:
             raise InvalidInputError("A crossing must contain at least one culvert group.")
+        if roadway is not None and not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+            roadway, RoadwayWeir
+        ):
+            raise InvalidInputError("roadway must be a RoadwayWeir or None.")
         object.__setattr__(self, "groups", tuple(groups))
+        object.__setattr__(self, "roadway", roadway)
 
     @property
     def num_groups(self) -> int:
@@ -56,3 +67,10 @@ class CulvertCrossing:
     def max_outlet_invert(self) -> float:
         """Highest outlet invert elevation among all groups in metres."""
         return max(g.barrel.outlet_invert for g in self.groups)
+
+    @property
+    def min_headwater_reference_elevation(self) -> float:
+        """Lowest inlet or roadway crest that can begin conveying upstream flow."""
+        if self.roadway is None:
+            return self.min_inlet_invert
+        return min(self.min_inlet_invert, self.roadway.crest_elevation)

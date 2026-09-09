@@ -20,7 +20,8 @@ The library must:
 - support crossings consisting of multiple culvert groups with different sizes, shapes, materials, invert levels and hydraulic properties;
 - preserve sufficient structured output for later plotting and reporting without requiring redesign of the numerical core.
 
-Roadway overtopping is **not part of the initial implementation**.
+The first post-foundation roadway increment is limited to a constant-elevation,
+unsubmerged broad-crested weir. Irregular crests and submergence remain later work.
 
 External packages such as HY-8, HEC-RAS, SWMM and STREAM-1D are primarily for later verification and comparison, not runtime dependencies.
 
@@ -327,12 +328,10 @@ where:
 
 ---
 
-## 7. Initial Scope Exclusions
+## 7. Foundation Scope Exclusions
 
 The following should **not** be implemented during the initial hydraulic build unless required for the architecture:
 
-- roadway overtopping;
-- roadway weir flow;
 - bridge hydraulics;
 - full river-network simulation;
 - 2D hydraulics;
@@ -1131,6 +1130,6 @@ The preferred order is:
 19. external HY-8 verification;
 20. external HEC-RAS / SWMM / STREAM-1D verification where appropriate;
 21. engineering acceptance review;
-22. only then consider broader design automation, plotting and roadway overtopping.
+22. only then consider broader design automation, plotting, and advanced roadway models.
 
 This sequence intentionally places verification against external applications near the end, while keeping analytical and internal validation tightly coupled to each stage of implementation.

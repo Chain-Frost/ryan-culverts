@@ -14,6 +14,7 @@ There is no compatibility layer for the retired `culvertflow` package.
 | `geometry.base` | Cross-section geometry interface and crown/closed-conduit contract |
 | `geometry.circular` | Analytical circular segment geometry |
 | `geometry.rectangular` | Analytical rectangular box culvert geometry |
+| `geometry.filleted_rectangular` | Rectangular boxes with equal 45-degree internal corner fillets and net area |
 | `hydraulics.primitives` | Velocity, velocity head, specific energy, Froude and Manning formulas |
 | `hydraulics.critical` | Critical depth analytical and bracketed root solvers |
 | `hydraulics.normal` | Uniform flow normal depth with circular conveyance branch selection |
@@ -24,15 +25,18 @@ There is no compatibility layer for the retired `culvertflow` package.
 | `models.group` | Parallel identical culvert barrels with quantity scaling |
 | `models.tailwater` | Downstream tailwater elevation boundary condition |
 | `models.crossing` | Multi-group culvert crossing aggregation |
+| `models.roadway` | Constant-elevation roadway crest and coefficient provenance |
 | `models.results` | Results, adopted parameter selections, and flow classifications |
 | `models.collection` | Road inventory, normalized summaries, and parameter catalogues |
 | `inlet_control.coefficients` | Empirical regression constants and source records from HDS-5 Table A.1 |
 | `inlet_control.fhwa` | Pure SI equations for Form 1/2 unsubmerged, submerged, and transition |
 | `inlet_control.solver` | Inlet headwater, regime, headwater ratio, and high-head applicability warnings |
+| `inlet_control.modern_box` | Typed FHWA-HRT-06-138 Figure 93 configurations and bounded Table 11/12 relationships |
 | `outlet_control.losses` | Entrance (HDS-5 Table C.2), friction, and exit head loss formulations |
 | `outlet_control.full_flow` | Full-flow energy balance, effective tailwater depth, and headwater solver |
 | `outlet_control.partial_flow` | Partially full outlet-control headwater solver using backwater profiles |
 | `profiles.direct_step` | Direct-step free-surface water profile solver for prismatic culverts |
+| `roadway.overtopping` | Unsubmerged HDS-5 broad-crested roadway-weir flow |
 | `solver.regime` | Hydraulic regime selection comparing inlet and outlet control headwaters |
 | `solver.barrel` | Single-barrel culvert hydraulic solver generating BarrelHydraulicResult |
 | `solver.group` | Culvert group hydraulic solver scaling identical parallel barrels |
@@ -47,6 +51,18 @@ There is no compatibility layer for the retired `culvertflow` package.
 Public names are exported once from `culvert_solver`. No environment flags or
 mutable global runner registration affect calculations. Immutable default
 tolerances may safely be shared across concurrent calls.
+
+`CulvertCrossing` may carry one optional `RoadwayWeir`. The common-headwater solver
+evaluates culvert capacity and roadway capacity independently at each trial elevation, then
+solves their sum against the specified crossing discharge. Results preserve culvert and
+roadway flow separately. The initial roadway boundary is intentionally narrow: one
+constant-elevation crest, an explicit user-selected SI coefficient, and tailwater no higher
+than the crest. Irregular sag segmentation and submerged-weir correction belong to CS-028.
+
+The same crossing capacity function is public in the inverse direction: callers may obtain
+total culvert-plus-roadway discharge for an absolute target headwater. Group and barrel
+forms are also public. HW/D convenience is intentionally barrel-only because a mixed
+crossing has no unique invert or rise.
 
 ## Defaults and applicability boundary
 
@@ -86,6 +102,9 @@ or non-public specification, while publication, edition, locator, and applicabil
 remain mandatory. File, JSON, spreadsheet, GIS, and presentation
 adapters remain outside the core until a downstream interface is chosen. See
 CS-005 and CS-011 in the work plan.
+
+Crossing summaries retain configured roadway crest elevation and calculated roadway flow,
+and roadway coefficient provenance participates in the inventory source register.
 
 Barrel results also retain the evaluated inlet-, outlet-, and full-flow headwater
 candidates where physically applicable, the selected profile curve, hydraulic-jump

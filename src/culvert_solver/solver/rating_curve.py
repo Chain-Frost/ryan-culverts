@@ -3,6 +3,12 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+from culvert_solver.models.results import (
+    BarrelHydraulicResult,
+    CrossingHydraulicResult,
+    GroupHydraulicResult,
+)
+
 from .._validation import finite, positive_integer
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
@@ -75,7 +81,7 @@ def generate_discharge_range(
     if n < 2:
         raise InvalidInputError("num_points must be at least 2.")
 
-    step = (q_max - q_min) / float(n - 1)
+    step: float = (q_max - q_min) / float(n - 1)
     return tuple(q_min + i * step for i in range(n))
 
 
@@ -118,11 +124,11 @@ def generate_barrel_rating_curve(
 
     pts: list[RatingCurvePoint] = []
     for q_raw in discharges:
-        q = finite(q_raw, "discharge")
+        q: float = finite(q_raw, "discharge")
         if q <= 0:
             raise InvalidInputError("all discharge values must be strictly positive.")
 
-        res = solve_barrel_hydraulics(
+        res: BarrelHydraulicResult = solve_barrel_hydraulics(
             barrel=barrel,
             discharge=q,
             tailwater=tailwater,
@@ -145,7 +151,7 @@ def generate_barrel_rating_curve(
         )
         pts.append(pt)
 
-    sorted_pts = tuple(sorted(pts, key=lambda p: p.discharge))
+    sorted_pts: tuple[RatingCurvePoint, ...] = tuple(sorted(pts, key=lambda p: p.discharge))
     return RatingCurveResult(
         points=sorted_pts,
         min_discharge=sorted_pts[0].discharge,
@@ -190,15 +196,15 @@ def generate_crossing_rating_curve(
     else:
         tw_elev = finite(tailwater, "tailwater")
 
-    tw_depth = max(0.0, tw_elev - crossing.min_outlet_invert)
+    tw_depth: float = max(0.0, tw_elev - crossing.min_outlet_invert)
 
     pts: list[RatingCurvePoint] = []
     for q_raw in discharges:
-        q = finite(q_raw, "discharge")
+        q: float = finite(q_raw, "discharge")
         if q <= 0:
             raise InvalidInputError("all discharge values must be strictly positive.")
 
-        c_res = solve_crossing_hydraulics(
+        c_res: CrossingHydraulicResult = solve_crossing_hydraulics(
             crossing=crossing,
             total_discharge=q,
             tailwater=tw_elev,
@@ -208,19 +214,31 @@ def generate_crossing_rating_curve(
 
         # Report the maximum active outlet velocity. A multi-group point is explicitly
         # mixed when active groups do not share one control or regime.
-        active_results = tuple(
+        active_results: tuple[GroupHydraulicResult, ...] = tuple(
             group_result
             for group_result in c_res.group_results
             if group_result.barrel_discharge > 0.0
         )
-        v_out_max = max(
-            group_result.barrel_result.velocity_outlet for group_result in active_results
+        v_out_max: float = max(
+            (group_result.barrel_result.velocity_outlet for group_result in active_results),
+            default=0.0,
         )
-        control_types = {result.barrel_result.control_type for result in active_results}
-        regimes = {result.barrel_result.regime for result in active_results}
-        control_type = next(iter(control_types)) if len(control_types) == 1 else ControlType.MIXED
-        regime = next(iter(regimes)) if len(regimes) == 1 else FlowRegime.MIXED
-        point_warnings = tuple(
+        control_types: set[ControlType] = {
+            result.barrel_result.control_type for result in active_results
+        }
+        regimes: set[FlowRegime] = {result.barrel_result.regime for result in active_results}
+        control_type: ControlType = (
+            next(iter(control_types)) if len(control_types) == 1 else ControlType.MIXED
+        )
+        regime: FlowRegime = next(iter(regimes)) if len(regimes) == 1 else FlowRegime.MIXED
+        if c_res.roadway_discharge > 0.0:
+            if active_results:
+                control_type = ControlType.MIXED
+                regime = FlowRegime.MIXED
+            else:
+                control_type = ControlType.ROADWAY
+                regime = FlowRegime.ROADWAY_OVERTOPPING
+        point_warnings: tuple[HydraulicWarning, ...] = tuple(
             dict.fromkeys(
                 warning
                 for group_result in active_results
@@ -228,7 +246,7 @@ def generate_crossing_rating_curve(
             )
         )
 
-        hw_depth = c_res.headwater_elevation - crossing.min_inlet_invert
+        hw_depth: float = c_res.headwater_elevation - crossing.min_headwater_reference_elevation
 
         pt = RatingCurvePoint(
             discharge=q,
@@ -243,7 +261,7 @@ def generate_crossing_rating_curve(
         )
         pts.append(pt)
 
-    sorted_pts = tuple(sorted(pts, key=lambda p: p.discharge))
+    sorted_pts: tuple[RatingCurvePoint, ...] = tuple(sorted(pts, key=lambda p: p.discharge))
     return RatingCurveResult(
         points=sorted_pts,
         min_discharge=sorted_pts[0].discharge,

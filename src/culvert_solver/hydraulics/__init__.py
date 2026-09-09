@@ -12,6 +12,7 @@ from .primitives import (
     minor_head_loss,
     specific_energy,
     velocity_head,
+    water_surface_elevation_from_energy_grade,
 )
 
 __all__: list[str] = [
@@ -30,4 +31,5 @@ __all__: list[str] = [
     "momentum_function",
     "specific_energy",
     "velocity_head",
+    "water_surface_elevation_from_energy_grade",
 ]

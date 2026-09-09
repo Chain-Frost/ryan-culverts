@@ -1,7 +1,13 @@
 """Culvert hydraulic solver modules."""
 
 from .barrel import solve_barrel_hydraulics
-from .crossing import solve_crossing_hydraulics
+from .crossing import (
+    solve_barrel_discharge_for_headwater,
+    solve_barrel_discharge_for_headwater_ratio,
+    solve_crossing_discharge_for_headwater,
+    solve_crossing_hydraulics,
+    solve_group_discharge_for_headwater,
+)
 from .group import solve_group_hydraulics
 from .rating_curve import (
     RatingCurvePoint,
@@ -20,6 +26,10 @@ __all__ = [
     "generate_crossing_rating_curve",
     "generate_discharge_range",
     "solve_barrel_hydraulics",
+    "solve_barrel_discharge_for_headwater",
+    "solve_barrel_discharge_for_headwater_ratio",
+    "solve_crossing_discharge_for_headwater",
     "solve_crossing_hydraulics",
     "solve_group_hydraulics",
+    "solve_group_discharge_for_headwater",
 ]

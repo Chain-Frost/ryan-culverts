@@ -64,9 +64,9 @@ the report; omitting $g$ changes the independent variable and invalidates the fi
 | Crown rounded at 8-in radius, no fillets, 2:1 to 4:1 S/R | 0.199715 | 0.446748 | -0.02414 | -0.02334 | 0.006761 | -0.00048 |
 
 Source locator: corrected Table 12, printed page 86 (local PDF page 99).
-Table 11 is on printed page 85 (local PDF page 98). Values remain research
-transcriptions until independently checked and represented with executable
-applicability constraints.
+Table 11 is on printed page 85 (local PDF page 98). The values are implemented by the
+typed, fail-closed `ModernBoxInlet` catalogue; the local corrected PDF remains the
+authoritative transcription check.
 
 The report states on printed pages 72–73 (local PDF pages 85–86) that these
 polynomials cover the measured range and have a useful operating range of approximately
@@ -78,9 +78,10 @@ not be attributed to corrected Table 12.
 ## 4. Analysis and Impact
 
 - Multi-barrel configurations have a pronounced effect on both the entrance loss coefficient $K_e$ and the polynomial regression fits.
-- The repository's `resolve_inlet_coefficients` will need to be capable of resolving based on span-to-rise ratios and multi-barrel quantities if these box geometries are fully supported.
+- `resolve_modern_box_inlet_coefficients` uses span-to-rise ratio, multi-barrel quantity,
+  flare, crown treatment, skew, and fillet size; unsupported combinations do not fall back.
 - Geometry identity must also include wingwall flare, top-edge treatment, corner-fillet
   size, skew, and net area. A barrel count alone is insufficient.
 - Appendix D's FC-D-30 `Q25` and `Q100` cases are recorded in
-  [`fixture_candidates.md`](fixture_candidates.md); current sharp-corner rectangular
-  geometry cannot reproduce them without changing the published problem.
+  [`fixture_candidates.md`](fixture_candidates.md). The Q25 FC-D-30 case is now exercised
+  with `FilletedRectangularGeometry`, Sketch 2, and the published approach area.

@@ -6,13 +6,20 @@ alpha release for integration testing; it is not engineering design software.
 
 The [long-term development plan](docs/work/long-term-development-plan.md) defines the scope and
 development sequence. The `culvert_solver` package contains provisional circular and box
-hydraulics through rating-curve generation, including mixed groups and road-level
-inventories. Geometry, numerical foundations, and several equation-level calculations
+hydraulics through rating-curve generation, including mixed groups, constant-crest
+unsubmerged roadway overtopping, and road-level inventories. Geometry, numerical
+foundations, and several equation-level calculations
 have analytical or published-example tests; combined-system validation remains bounded.
-See the [26.9.9.2 release notes](docs/releases/26.9.9.2.md) before using the package.
+See the maintained [release notes](docs/releases/README.md) before using the package.
 
 Agents should start with the [work register](docs/work/README.md), which separates
 active remediation from deferred scope and links the current acceptance criteria.
+Coding agents, including web-only agents without HY-8, must also follow
+[the repository agent instructions](AGENTS.md).
+
+The [documentation site](https://chain-frost.github.io/ryan-culverts/) is built from the
+maintained user and engineering documentation, generated API reference, and changelog;
+GitHub Pages must be enabled for the repository before its first deployment.
 
 The previous `culvertflow` prototype has been retired. See the
 [cleanup review](docs/legacy/README.md) for retained evidence, potential reuse from
@@ -26,8 +33,8 @@ Development records: [progress](docs/progress.md),
 [architecture](docs/architecture.md), [validation](docs/validation.md) and
 [HY-8 capability matrix](docs/hy8_feature_parity.md).
 
-Use your selected Python installation. Python 3.14 is the current tested baseline;
-other versions are not blocked but are unsupported. See the
+Use your selected Python installation. Python 3.14 is the current tested and metadata
+baseline. See the
 [Python support policy](docs/packaging.md#python-support-policy).
 
 ```powershell

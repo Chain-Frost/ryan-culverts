@@ -10,6 +10,7 @@ class ControlType(StrEnum):
     MIXED = "mixed"
     INLET = "inlet_control"
     OUTLET = "outlet_control"
+    ROADWAY = "roadway_overtopping"
 
 
 class GeometryShape(StrEnum):

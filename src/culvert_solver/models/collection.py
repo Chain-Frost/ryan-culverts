@@ -43,6 +43,13 @@ class CulvertInventoryItem:
                 raise InvalidInputError(
                     "The hydraulic result groups do not match this crossing configuration."
                 )
+            result_roadway = (
+                None if self.result.roadway_result is None else self.result.roadway_result.roadway
+            )
+            if result_roadway != self.configuration.roadway:
+                raise InvalidInputError(
+                    "The hydraulic result roadway does not match this crossing configuration."
+                )
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,6 +116,8 @@ class CrossingSummary:
     headwater_elevation: float | None
     total_discharge: float | None
     tailwater_elevation: float | None
+    roadway_crest_elevation: float | None = None
+    roadway_discharge: float | None = None
     parameter_set_ids: tuple[str, ...] = ()
     warning_codes: tuple[HydraulicWarningCode, ...] = ()
     applicability_notice_codes: tuple[ApplicabilityNoticeCode, ...] = ()
@@ -314,11 +323,19 @@ class InventorySummary:
                     headwater_elevation=(None if result is None else result.headwater_elevation),
                     total_discharge=None if result is None else result.total_discharge,
                     tailwater_elevation=(None if result is None else result.tailwater_elevation),
+                    roadway_crest_elevation=(
+                        None
+                        if item.configuration.roadway is None
+                        else item.configuration.roadway.crest_elevation
+                    ),
+                    roadway_discharge=(None if result is None else result.roadway_discharge),
                     parameter_set_ids=tuple(crossing_parameter_ids),
                     warning_codes=tuple(crossing_warning_codes),
                     applicability_notice_codes=tuple(crossing_applicability_notice_codes),
                 )
             )
+            if item.configuration.roadway is not None:
+                register_source(item.configuration.roadway.coefficient_source)
             for group in item.configuration.groups:
                 barrel = group.barrel
                 if barrel.material is not None:

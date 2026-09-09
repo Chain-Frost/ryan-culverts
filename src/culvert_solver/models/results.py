@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from ..outlet_control.losses import ExitLossSelection
     from ..profiles.direct_step import InletControlProfile, WaterSurfaceProfile
     from ..references.models import SourceReference
+    from ..roadway.overtopping import RoadwayOvertoppingResult
     from ..solver.resolvers import EntranceLossSelection, InletCoefficientSelection
     from .materials import RoughnessApplicabilityNotice
 
@@ -36,6 +37,7 @@ class FlowRegime(StrEnum):
     OUTLET_CONTROL_FULL = "outlet_control_full"
     OUTLET_CONTROL_FREE_SURFACE = "outlet_control_free_surface"
     OUTLET_CONTROL_MIXED = "outlet_control_mixed"
+    ROADWAY_OVERTOPPING = "roadway_overtopping"
 
 
 @dataclass(frozen=True, slots=True)
@@ -126,3 +128,14 @@ class CrossingHydraulicResult:
     tailwater_elevation: float
     group_results: tuple[GroupHydraulicResult, ...]
     headwater_convergence: ConvergenceRecord | None = None
+    roadway_result: RoadwayOvertoppingResult | None = None
+
+    @property
+    def culvert_discharge(self) -> float:
+        """Total discharge conveyed through culvert groups in cubic metres per second."""
+        return sum(result.total_discharge for result in self.group_results)
+
+    @property
+    def roadway_discharge(self) -> float:
+        """Roadway-overtopping discharge, or zero when no roadway flow is active."""
+        return 0.0 if self.roadway_result is None else self.roadway_result.discharge

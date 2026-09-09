@@ -25,8 +25,8 @@ class InletCoefficients:
     """Empirical regression constants and equation form for culvert inlet control."""
 
     name: str
-    chart: int
-    scale: int
+    chart: int | None
+    scale: int | None
     form: InletEquationForm
     k: float
     m: float
@@ -39,8 +39,12 @@ class InletCoefficients:
     def __post_init__(self) -> None:
         if not self.name.strip():
             raise InvalidInputError("name must be nonempty text.")
-        chart_val: int = positive_integer(self.chart, "chart")
-        scale_val: int = positive_integer(self.scale, "scale")
+        chart_val: None | int = (
+            None if self.chart is None else positive_integer(self.chart, "chart")
+        )
+        scale_val: None | int = (
+            None if self.scale is None else positive_integer(self.scale, "scale")
+        )
         try:
             form_val = InletEquationForm(self.form)
         except (TypeError, ValueError) as exc:
