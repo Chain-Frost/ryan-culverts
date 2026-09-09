@@ -13,8 +13,10 @@ configuration or Hatch environment is required.
 | `[tool.hatch.build.targets.wheel]` | Universal-wheel package contents |
 
 The distribution name is `ryan-culverts`; the Python import is `culvert_solver`.
-Version `0.2.0` is the first packaged alpha release, recorded once in `pyproject.toml`.
-It is intended for integration and packaging tests, not engineering design acceptance.
+Version `26.9.9.1` is the first packaged alpha release, recorded once in
+`pyproject.toml`. Releases use the PEP 440-normalized calendar scheme `yy.m.d.vv`, where
+`vv` starts at `1` and increments for each release made on the same date. It is intended
+for integration and packaging tests, not engineering design acceptance.
 
 ## Python support policy
 
@@ -103,7 +105,7 @@ on Windows, Linux, and macOS. Only Python 3.14 is presently tested.
 Install a built wheel directly by passing its actual path to pip. For the current version:
 
 ```powershell
-python -m pip install --user dist/ryan_culverts-0.2.0-py3-none-any.whl
+python -m pip install --user dist/ryan_culverts-26.9.9.1-py3-none-any.whl
 ```
 
 No publication or release automation is configured. Building does not upload anything.

@@ -1,7 +1,7 @@
 # ryan-culverts
 
 An early-stage culvert hydraulics library built around primary hydraulic references,
-analytical validation, and mixed-group crossings. Version `0.2.0` is the first packaged
+analytical validation, and mixed-group crossings. Version `26.9.9.1` is the first packaged
 alpha release for integration testing; it is not engineering design software.
 
 The [long-term development plan](docs/work/long-term-development-plan.md) defines the scope and
@@ -9,14 +9,14 @@ development sequence. The `culvert_solver` package contains provisional circular
 hydraulics through rating-curve generation, including mixed groups and road-level
 inventories. Geometry, numerical foundations, and several equation-level calculations
 have analytical or published-example tests; combined-system validation remains bounded.
-See the [0.2.0 release notes](docs/releases/0.2.0.md) before using the package.
+See the [26.9.9.1 release notes](docs/releases/26.9.9.1.md) before using the package.
 
 Agents should start with the [work register](docs/work/README.md), which separates
 active remediation from deferred scope and links the current acceptance criteria.
 
 The previous `culvertflow` prototype has been retired. See the
 [cleanup review](docs/legacy/README.md) for retained evidence, potential reuse from
-Git history, and decisions needed before implementation.
+the preserved scenarios, and decisions made before implementation.
 
 Additional implementation references are recorded in the
 [reference register](docs/references.md).

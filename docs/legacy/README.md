@@ -44,27 +44,13 @@ source and are not part of the new implementation.
 The user's existing `dist/` and `third_party/` deletions were preserved. No new
 implementation or placeholder package was introduced ahead of Phase 0.
 
-## Reuse candidates in Git history
+## Discarded prototype source
 
-The full previous implementation remains at commit
-`b8574bc5432424a28d2e8fa868cbce208a577686`.
-
-| Original path | Potential reuse and conditions |
-| --- | --- |
-| `culvertflow/shapes.py` | Circular segment area/perimeter and box formulas. Decouple from old models and validate limits; the circular top-width function returns diameter at full depth and needs review under an explicit crown convention. |
-| `culvertflow/numerics.py` | Bracketed bisection with finite-value checks and explicit failure. Separate residual and interval tolerances; test nonfinite tolerances and difficult brackets before reuse. |
-| `tests/test_outlet.py` | Test ideas for loss sensitivity, barrel scaling, elevation translation and inverse solutions. Rebuild against new contracts and independent expectations. |
-| `culvertflow/cases.py` | Historical CSV interpretation. Consult when translating retained inputs; avoid carrying ambiguous units and implicit defaults into the new API. |
-| `culvertflow/integrations/aquaveo.py`, `scripts/run_case_batch.py` | Historical report parsing and diagnostics, for reference when building later external verification tooling. |
-
-For example:
-
-```powershell
-git show b8574bc:culvertflow/numerics.py
-```
-
-These are review candidates, not validated production components. Git pointers
-preserve access without maintaining another executable copy of the old architecture.
+The previous `culvertflow` implementation and its obsolete development history were
+intentionally discarded. They are not compatibility references or reuse candidates. The
+maintained `src/culvert_solver` implementation, its primary literature, and its current
+tests are the only software baseline. Any future method must be derived and validated from
+those sources rather than reconstructed from the retired prototype.
 
 ## Retained evidence
 

@@ -5,9 +5,9 @@ under `reference_docs/`. The PDFs are evidence inputs; the Markdown extracts are
 not executable defaults until their transcription and applicability are tested.
 
 The superseded root-level research prompt and two raw agent reports were removed during
-the `0.2.0` release cleanup. One report was incomplete and the other contained non-durable
-tool citations from an older baseline. Their reviewed findings are represented by the
-source-pinned records below; the original intake remains available in Git history.
+the `26.9.9.1` release cleanup. One report was incomplete and the other contained
+non-durable tool citations from an older baseline. Their reviewed findings are represented
+by the source-pinned records below; the discarded raw intake is no longer retained.
 
 Current reviewed extracts:
 

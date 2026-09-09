@@ -17,6 +17,9 @@ Windows paths:
 - `E:\Github\run-hy8\pyproject.toml`
 - `E:\Github\run-hy8\build_package.bat`
 - `E:\Github\run-hy8\install_package.bat`
+- `E:\Github\run-hy8\mkdocs.yml`
+- `E:\Github\run-hy8\.github\workflows\ci.yml`
+- `E:\Github\run-hy8\.github\workflows\pages.yml`
 
 The supplied `docs\DEVELOPMENT\_GUIDE.md` path did not exist; the actual filename
 is `docs\DEVELOPMENT_GUIDE.md`.
@@ -33,6 +36,7 @@ is `docs\DEVELOPMENT_GUIDE.md`.
 | Documentation ownership | Packaging owns setup; architecture owns design; progress owns phase status |
 | Library/process separation | Keep pauses, installers and external executables outside the hydraulic core |
 | Concurrent-agent safety | Separate artifact paths and avoid replacing shared editable installs |
+| Continuous integration | Adapt the Windows checks to run on pushes and pull requests |
 
 `ryan-tools/requirements.txt` contains only `-e .[dev]`. It is an install shortcut,
 not a duplicate dependency list or lockfile. That approach is valid; this repo
@@ -42,6 +46,15 @@ Hatchling and setuptools both implement standard Python builds. Changing backend
 alone offers no demonstrated benefit to the existing repositories. Keep their
 working resource/package mappings unless a specific maintenance problem warrants
 a separately tested migration.
+
+The `run-hy8` Windows CI structure is directly reusable and has been adapted here with
+this repository's lint, format, typing, test, Markdown, build, and wheel-verification
+commands. The CI installation pins `run-hy8` commit `9a0ab0c` so strict checking of the
+optional external-comparison script does not depend on an undeclared runner installation.
+Its MkDocs and Pages workflows are relevant but not yet directly reusable:
+this repository has no site landing page, API page, reviewed navigation, or declared
+documentation dependencies. CS-016 records that work rather than deploying an accidental
+or incomplete public site.
 
 ## Improvements worth considering in run-hy8
 

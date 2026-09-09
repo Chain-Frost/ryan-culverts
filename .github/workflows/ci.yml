@@ -1,0 +1,61 @@
+name: Python CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          lfs: true
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install development dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+          python -m pip install "run-hy8 @ git+https://github.com/Chain-Frost/run-hy8.git@9a0ab0c54d4760738443b22793a660059ac13041"
+
+      - name: Lint and format check
+        shell: pwsh
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+
+      - name: Type check
+        shell: pwsh
+        run: python -m pyright
+
+      - name: Test
+        shell: pwsh
+        run: python -m pytest
+
+      - name: Check Markdown
+        shell: pwsh
+        run: python -m pymarkdown -d MD013 scan -r README.md docs
+
+      - name: Check patch whitespace
+        shell: pwsh
+        run: git diff --check
+
+      - name: Build and verify wheel
+        shell: pwsh
+        run: |
+          python scripts/build_package.py
+          python scripts/verify_wheel.py

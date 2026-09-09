@@ -97,7 +97,7 @@ parallel. Finish CS-011 after CS-005, CS-007 after CS-004/006, and CS-012 last.
 | CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression |
 | CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned comparison that changes a disposition |
 | CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation |
-| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the local 0.2.0 wheel for integration tests; version later changes deliberately |
+| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the local 26.9.9.1 wheel for integration tests; increment the final field for another release today |
 
 ### CS-001 - Close the Phase 0 research gate
 
@@ -620,7 +620,7 @@ Acceptance:
 Depends on: CS-003, CS-004, CS-005, CS-006, CS-007, CS-011, and whichever portion of
 CS-002 is claimed as supported by the release.
 
-Handoff (2026-09-09): version `0.2.0` is the first packaged alpha milestone for local
+Handoff (2026-09-09): version `26.9.9.1` is the first packaged alpha milestone for local
 integration testing. The metadata, README, packaging guide, and release notes consistently
 retain the provisional engineering boundary. Thin Windows wrappers based on the proven
 `ryan-tools` workflow now build, verify, select, and optionally install the latest local
@@ -630,8 +630,8 @@ package content, and excluded development/reference inputs.
 
 The repository cleanup removed the superseded root research prompt, an incomplete raw
 report, and an older report with non-durable tool citations. Their reviewed findings remain
-in the source-pinned `docs/research/` records and the original files remain recoverable from
-Git history. The current work plan, legacy scenario evidence, primary PDFs, and HY-8
+in the source-pinned `docs/research/` records; the raw files and obsolete history were
+intentionally discarded. The current work plan, legacy scenario evidence, primary PDFs, and HY-8
 comparison evidence were retained because current documentation still relies on them.
 
 Follow-up layout cleanup moved the long-term plan from the repository root to `docs/work/`,
@@ -646,12 +646,17 @@ now-empty `hy8/` directory.
 Verification and limitations: `python -m pytest -q` passed 274 tests. Repository-wide Ruff
 check and format, strict Pyright including `scripts/`, Markdown lint with MD013 excluded,
 and `git diff --check` passed. `package_and_install.bat --dry-run` built and verified the
-`0.2.0` universal wheel without altering the user installation. The wheel installed into
+`26.9.9.1` universal wheel without altering the user installation. The wheel installed into
 an isolated temporary target; its import was proven to originate there, package metadata
-reported `0.2.0`, and a public circular critical-depth calculation succeeded. This handoff
+reported `26.9.9.1`, and a public circular critical-depth calculation succeeded. This handoff
 creates a local artifact only: nothing was committed, tagged, uploaded, or published.
 Hydraulic and product limitations are listed in
-`docs/releases/0.2.0.md`; this packaging milestone does not expand engineering acceptance.
+`docs/releases/26.9.9.1.md`; this packaging milestone does not expand engineering acceptance.
+
+Release follow-up (2026-09-09): the package now uses the `yy.m.d.vv` calendar-version
+scheme and the first release is `26.9.9.1`. The retained wheel is 77,379 bytes with SHA-256
+`29880984ad4f40f808d993193729287c57e34107a900e96c676ba19af8d3b7d6`. A Windows GitHub
+Actions workflow runs the repository checks and wheel build on pushes and pull requests.
 
 Final wheel-only verification: `package_and_force_install.bat --dry-run` exercised the
 build, archive checks, latest-wheel selection, and `--force-reinstall --no-deps` command
@@ -708,6 +713,22 @@ Resolve AGRD05B-23 edition 1.2 Section 3.15.1's full-flow velocity inconsistency
 using it as a numerical fixture: printed page 105 states `2.5 m/s`, then tabulates `2.75
 m/s` and uses the latter to obtain `3.08 m/s`. Seek an erratum or corrected edition; until
 then use the case only as a workflow and reporting checklist.
+
+## CS-016 - Documentation site and Pages publication
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: design a navigable MkDocs information architecture for the existing maintained
+documentation, add an intentional landing page and API reference, and validate the site
+strictly before enabling GitHub Pages. Do not copy `run-hy8` navigation blindly or publish
+legacy/research material without deciding whether it belongs in the public site.
+
+Acceptance criteria:
+
+- MkDocs and its selected theme/API plugins are declared directly in the development extra;
+- `mkdocs.yml` links every intended maintained page without broken or orphaned navigation;
+- `mkdocs build --strict` passes locally and in CI; and
+- Pages deployment uses least-privilege permissions and only runs after a successful build.
 
 ## Handoff template
 

@@ -1,8 +1,9 @@
 # Development progress
 
-## 2026-09-09 - CS-012 initial 0.2.0 package handoff
+## 2026-09-09 - CS-012 initial 26.9.9.1 package handoff
 
-Created the first packaged alpha milestone at version `0.2.0` for local integration tests.
+Created the first packaged alpha milestone at version `26.9.9.1` for local integration
+tests using the repository's `yy.m.d.vv` calendar-version convention.
 The release metadata, README, packaging guide, and dedicated release notes state the
 supported calculations, evidence boundary, and known limitations without presenting the
 provisional combined solver as engineering design software.
@@ -17,8 +18,9 @@ wrappers support intentional recovery or replacement without changing the normal
 
 Removed three superseded root research-intake files: the original prompt, an incomplete
 raw report, and an older report containing non-durable tool citations. Their reviewed,
-source-pinned conclusions remain under `docs/research/`, and Git history retains the raw
-files. The long-term work plan, legacy scenario inputs, primary PDFs, and HY-8 comparison
+source-pinned conclusions remain under `docs/research/`; the raw files and their obsolete
+history were intentionally discarded. The long-term work plan, legacy scenario inputs,
+primary PDFs, and HY-8 comparison
 evidence remain because they still support current decisions and validation records.
 
 The final layout audit moved the long-term plan into `docs/work/`, retained the HY-8
@@ -30,16 +32,22 @@ includes normal and force-reinstall wrappers.
 
 All 274 tests passed. Repository-wide Ruff check and format, strict Pyright including the
 packaging helpers, Markdown lint with MD013 excluded, and `git diff --check` passed. The
-combined dry-run wrapper built and verified the `0.2.0` universal wheel. It installed into
+combined dry-run wrapper built and verified the `26.9.9.1` universal wheel. It installed into
 an isolated temporary target and passed public import, metadata-version, and critical-depth
 calculation checks. No user installation was changed,
 and nothing was committed, tagged, uploaded, or published.
 
 Final wheel-only gates passed after the layout changes: 274 tests, Ruff check and format,
 strict Pyright, Markdown lint, `git diff --check`, package verification, and an isolated
-installed-wheel calculation. The retained `0.2.0` wheel SHA-256 is
-`50728cf4efd013c034de87b914d5ef6a556f3c961f8d93605eacd67b325b50d5`; no source archive
+installed-wheel calculation. The retained `26.9.9.1` wheel SHA-256 is
+`29880984ad4f40f808d993193729287c57e34107a900e96c676ba19af8d3b7d6`; no source archive
 is produced or retained.
+
+The release follow-up adopted the `yy.m.d.vv` calendar-version convention, added a
+Windows GitHub Actions workflow based on the inspected `run-hy8` CI, and deliberately
+discarded the rewritten repository's recovery bundle and obsolete local history. The
+MkDocs and Pages files were not copied: CS-016 records the information architecture,
+dependency, strict-build, and publication work required before enabling a public site.
 
 ## 2026-09-09 - CS-008 external discrepancy completion
 
@@ -438,8 +446,8 @@ strict Pyright, Markdown lint, package build, installed-wheel import checks, and
 
 ## 2026-09-06 — Research intake and numerical foundations
 
-Baseline: `1f4de19` (cleanup committed by the user). The old implementation remains
-available in earlier Git history; new implementation starts in `src/culvert_solver`.
+The September repository reset discarded the old implementation and its development
+history. The maintained implementation starts in `src/culvert_solver`.
 
 Completed in this milestone:
 

@@ -50,7 +50,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression. |
 | CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned external comparison that changes a disposition. |
 | CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation. |
-| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the local 0.2.0 wheel for integration tests; version later changes deliberately. |
+| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the local 26.9.9.1 wheel for integration tests; increment the final field for another release today. |
 
 ## Deferred work
 
@@ -61,6 +61,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-013 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add typed modern-box inlet geometry before using corrected FHWA-HRT-06-138 coefficients. |
 | CS-014 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Design context-rich NCHRP slipline, exit-loss, and composite-roughness support. |
 | CS-015 | Pending source clarification | Unassigned | 2026-09-09 | 2026-09-20 | Resolve the AGRD05B-23 Section 3.15.1 velocity inconsistency before numerical use. |
+| CS-016 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Design and strictly validate an MkDocs site before enabling GitHub Pages deployment. |
 
 Agents must update the status, owner, date, next review, and next action when
 taking over or handing off a task. Do not mark a task complete solely because
