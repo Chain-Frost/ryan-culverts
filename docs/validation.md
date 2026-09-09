@@ -14,6 +14,23 @@ hydraulic-jump benchmarks, mixed free-surface/pressurised transitions, and versi
 HEC-RAS comparisons. Performance thresholds are development
 regressions and do not imply hydraulic correctness.
 
+## Manning channel tailwater fixtures
+
+CS-029's first bounded increment adds hand-calculated SI fixtures for rectangular,
+symmetric trapezoidal, asymmetric trapezoidal, and triangular sections. The asymmetric
+fixture uses `b=4 m`, side slopes `3H:1V` and `2H:1V`, `y=1.2 m`, `n=0.035`, and
+`Sf=0.002`: `A=8.4 m2`, `P=10.4780147652 m`, section factor
+`A R^(2/3)=7.2490229165 m^(8/3)`, and `Q=9.2624617210 m3/s`. The solved depth tolerance
+is `1e-7 m`; geometry checks use `1e-9` relative or absolute tolerance where applicable.
+
+Tests separately force automatic bracket expansion, zero-flow and invalid-slope
+contracts, total-crossing-flow resolution before an unequal group split, full provenance
+retention, and per-point tailwater recalculation in a rating curve. Existing fixed-stage,
+roadway, barrel, crossing, and rating tests remain regression gates. These equation-level
+fixtures validate the transcription and integration, but no HEC-RAS or surveyed receiving
+channel comparison has yet been recorded. The boundary therefore remains a documented
+uniform-flow approximation rather than a validated downstream backwater model.
+
 ## Corrected modern-box fixture
 
 `tests/test_modern_box.py` checks the corrected FHWA-HRT-06-138 transcription and

@@ -1,12 +1,17 @@
 """Culvert group hydraulic solver for parallel identical barrels."""
 
+from dataclasses import replace
+
+from culvert_solver.models.results import BarrelHydraulicResult
+from culvert_solver.models.tailwater import TailwaterResolution
+
 from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
 from ..inlet_control.coefficients import InletCoefficients
 from ..models.group import CulvertGroup
 from ..models.results import GroupHydraulicResult
-from ..models.tailwater import TailwaterCondition
+from ..models.tailwater import TailwaterInput, resolve_tailwater
 from ..outlet_control.losses import EntranceLossCoefficient
 from ..references.models import SourceReference
 from .barrel import solve_barrel_hydraulics
@@ -16,7 +21,7 @@ from .config import SolverConfiguration
 def solve_group_hydraulics(
     group: CulvertGroup,
     total_discharge: float,
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     inlet_coefficients: InletCoefficients | None = None,
     entrance_loss_coefficient: float | EntranceLossCoefficient | None = None,
@@ -60,22 +65,25 @@ def solve_group_hydraulics(
     if q_tot <= 0:
         raise InvalidInputError("total_discharge must be strictly positive.")
 
+    tailwater_resolution: TailwaterResolution = resolve_tailwater(tailwater, q_tot, g=g)
     q_barrel: float = q_tot / float(group.quantity)
 
-    barrel_res = solve_barrel_hydraulics(
+    barrel_res: BarrelHydraulicResult = solve_barrel_hydraulics(
         barrel=group.barrel,
         discharge=q_barrel,
-        tailwater=tailwater,
+        tailwater=tailwater_resolution.elevation,
         inlet_coefficients=inlet_coefficients,
         entrance_loss_coefficient=entrance_loss_coefficient,
         entrance_loss_source=entrance_loss_source,
         configuration=configuration,
         g=g,
     )
+    barrel_res = replace(barrel_res, tailwater_resolution=tailwater_resolution)
 
     return GroupHydraulicResult(
         group=group,
         total_discharge=q_tot,
         barrel_discharge=q_barrel,
         barrel_result=barrel_res,
+        tailwater_resolution=tailwater_resolution,
     )

@@ -1,6 +1,9 @@
 """Culvert crossing hydraulic solver aggregating multiple culvert groups."""
 
 import math
+from dataclasses import replace
+
+from culvert_solver.models.tailwater import TailwaterResolution
 
 from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
@@ -17,7 +20,7 @@ from ..models.results import (
     FlowRegime,
     GroupHydraulicResult,
 )
-from ..models.tailwater import TailwaterCondition
+from ..models.tailwater import TailwaterCondition, TailwaterInput, resolve_tailwater
 from ..numerical.roots import RootResult, solve_brent
 from ..numerical.tolerances import RootTolerances
 from ..outlet_control.losses import EntranceLossCoefficient
@@ -123,9 +126,7 @@ def solve_crossing_discharge_for_headwater(
         raise InvalidInputError("crossing must be an instance of CulvertCrossing.")
     hw_elev: float = finite(headwater_elevation, "headwater_elevation")
     tw_elev: float = (
-        tailwater.elevation
-        if isinstance(tailwater, TailwaterCondition)
-        else finite(tailwater, "tailwater")
+        tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
     )
     if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
         raise InvalidInputError(
@@ -245,7 +246,7 @@ def _solve_barrel_discharge_for_headwater(
 def solve_crossing_hydraulics(
     crossing: CulvertCrossing,
     total_discharge: float,
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     configuration: SolverConfiguration | None = None,
     g: float = GRAVITATIONAL_ACCELERATION,
@@ -281,11 +282,8 @@ def solve_crossing_hydraulics(
     if q_tot <= 0:
         raise InvalidInputError("total_discharge must be strictly positive.")
 
-    tw_elev: float
-    if isinstance(tailwater, TailwaterCondition):
-        tw_elev = tailwater.elevation
-    else:
-        tw_elev = finite(tailwater, "tailwater")
+    tailwater_resolution: TailwaterResolution = resolve_tailwater(tailwater=tailwater, discharge=q_tot, g=g)
+    tw_elev: float = tailwater_resolution.elevation
 
     if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
         raise InvalidInputError(
@@ -303,11 +301,21 @@ def solve_crossing_hydraulics(
             configuration=configuration,
             g=g,
         )
+        barrel_result: BarrelHydraulicResult = replace(
+            g_res0.barrel_result,
+            tailwater_resolution=tailwater_resolution,
+        )
+        g_res0 = replace(
+            g_res0,
+            barrel_result=barrel_result,
+            tailwater_resolution=tailwater_resolution,
+        )
         return CrossingHydraulicResult(
             headwater_elevation=g_res0.barrel_result.headwater_elevation,
             total_discharge=q_tot,
             tailwater_elevation=tw_elev,
             group_results=(g_res0,),
+            tailwater_resolution=tailwater_resolution,
         )
 
     # Multi-group crossing: solve common HW elevation
@@ -358,13 +366,14 @@ def solve_crossing_hydraulics(
         )
         q_grp: float = float(grp.quantity) * q_b
         if q_b > 0:
-            b_res = solve_barrel_hydraulics(
+            b_res: BarrelHydraulicResult = solve_barrel_hydraulics(
                 barrel=grp.barrel,
                 discharge=q_b,
                 tailwater=tw_elev,
                 configuration=configuration,
                 g=g,
             )
+            b_res = replace(b_res, tailwater_resolution=tailwater_resolution)
         else:
             # Preserve an exact dry/inactive result instead of fabricating a tiny flow.
             b_res = BarrelHydraulicResult(
@@ -381,6 +390,7 @@ def solve_crossing_hydraulics(
                 critical_depth=0.0,
                 normal_depth=None,
                 profile_curve=None,
+                tailwater_resolution=tailwater_resolution,
             )
 
         g_res = GroupHydraulicResult(
@@ -396,6 +406,7 @@ def solve_crossing_hydraulics(
                     result=discharge_root,
                 )
             ),
+            tailwater_resolution=tailwater_resolution,
         )
         group_results.append(g_res)
 
@@ -419,4 +430,5 @@ def solve_crossing_hydraulics(
             result=hw_root,
         ),
         roadway_result=roadway_result,
+        tailwater_resolution=tailwater_resolution,
     )

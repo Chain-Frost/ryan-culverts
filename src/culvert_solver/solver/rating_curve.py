@@ -17,7 +17,7 @@ from ..models.barrel import CulvertBarrel
 from ..models.crossing import CulvertCrossing
 from ..models.enums import ControlType
 from ..models.results import FlowRegime, HydraulicWarning
-from ..models.tailwater import TailwaterCondition
+from ..models.tailwater import TailwaterInput, TailwaterResolution
 from ..outlet_control.losses import EntranceLossCoefficient
 from .barrel import solve_barrel_hydraulics
 from .config import SolverConfiguration
@@ -37,6 +37,7 @@ class RatingCurvePoint:
     control_type: ControlType
     regime: FlowRegime
     warnings: tuple[HydraulicWarning, ...] = ()
+    tailwater_resolution: TailwaterResolution | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,7 +89,7 @@ def generate_discharge_range(
 def generate_barrel_rating_curve(
     barrel: CulvertBarrel,
     discharges: Sequence[float],
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     inlet_coefficients: InletCoefficients | None = None,
     entrance_loss_coefficient: float | EntranceLossCoefficient | None = None,
@@ -148,6 +149,7 @@ def generate_barrel_rating_curve(
             control_type=res.control_type,
             regime=res.regime,
             warnings=res.warnings,
+            tailwater_resolution=res.tailwater_resolution,
         )
         pts.append(pt)
 
@@ -162,7 +164,7 @@ def generate_barrel_rating_curve(
 def generate_crossing_rating_curve(
     crossing: CulvertCrossing,
     discharges: Sequence[float],
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     configuration: SolverConfiguration | None = None,
     g: float = GRAVITATIONAL_ACCELERATION,
@@ -190,14 +192,6 @@ def generate_crossing_rating_curve(
     if not discharges:
         raise InvalidInputError("discharges must contain at least one value.")
 
-    tw_elev: float
-    if isinstance(tailwater, TailwaterCondition):
-        tw_elev = tailwater.elevation
-    else:
-        tw_elev = finite(tailwater, "tailwater")
-
-    tw_depth: float = max(0.0, tw_elev - crossing.min_outlet_invert)
-
     pts: list[RatingCurvePoint] = []
     for q_raw in discharges:
         q: float = finite(q_raw, "discharge")
@@ -207,7 +201,7 @@ def generate_crossing_rating_curve(
         c_res: CrossingHydraulicResult = solve_crossing_hydraulics(
             crossing=crossing,
             total_discharge=q,
-            tailwater=tw_elev,
+            tailwater=tailwater,
             configuration=configuration,
             g=g,
         )
@@ -247,17 +241,19 @@ def generate_crossing_rating_curve(
         )
 
         hw_depth: float = c_res.headwater_elevation - crossing.min_headwater_reference_elevation
+        tw_depth = max(0.0, c_res.tailwater_elevation - crossing.min_outlet_invert)
 
         pt = RatingCurvePoint(
             discharge=q,
             headwater_elevation=c_res.headwater_elevation,
             headwater_depth=hw_depth,
-            tailwater_elevation=tw_elev,
+            tailwater_elevation=c_res.tailwater_elevation,
             tailwater_depth=tw_depth,
             outlet_velocity=v_out_max,
             control_type=control_type,
             regime=regime,
             warnings=point_warnings,
+            tailwater_resolution=c_res.tailwater_resolution,
         )
         pts.append(pt)
 

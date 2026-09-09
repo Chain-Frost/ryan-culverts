@@ -1,5 +1,22 @@
 # Development progress
 
+## 2026-09-10 - Manning channel tailwater increment
+
+Integrated the supplied Manning-tailwater bundle into the current repository without
+overlaying its older solver replacements. Added a separate open-channel geometry contract,
+rectangular and asymmetric trapezoidal/triangular sections, a bracketed Manning normal-depth
+solver, and a typed `ManningChannelTailwater`. Barrel, group, crossing, and rating results
+retain the resolved boundary and source. Crossings resolve receiving stage once from total
+crossing flow before allocation; rating curves recalculate it at every point. Fixed
+tailwater, roadway overtopping, and the existing inverse-capacity helpers remain intact.
+
+The bundle's `A R^(2/3)` field was corrected to `section_factor`; `conveyance` now means
+`A R^(2/3)/n`. CS-029 remains partial because its planned user-supplied stage-discharge
+rating boundary and an external receiving-channel comparison are still outstanding.
+
+Verification: 331 tests passed; Ruff check and format, strict Pyright, Markdown lint,
+strict MkDocs build, and `git diff --check` passed.
+
 ## 2026-09-10 - CS-010, CS-016, CS-019, and CS-020 development pass
 
 Split the former broad CS-010 backlog item and completed its first roadway-specific scope.

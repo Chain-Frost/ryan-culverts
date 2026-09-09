@@ -761,10 +761,29 @@ roughness). No NCHRP equation or coefficient was added while performing the spli
 
 ### CS-029 - Discharge-dependent tailwater boundaries
 
+Status: Partial. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
+
 Add a typed, monotonic discharge/elevation rating curve with defined interpolation and
 out-of-range policy, then consider supported rectangular/trapezoidal/irregular channel
 normal-depth boundaries separately. Do not import HY-8 project-card semantics into the
 hydraulic core.
+
+Handoff (2026-09-10): the supplied bundle's Manning increment is integrated without
+replacing newer roadway or inverse-solver work. Rectangular and asymmetric trapezoidal
+(including triangular) open-channel sections feed a generic Brent-solved normal-depth
+calculation. Standalone barrels use barrel flow, standalone groups use total group flow,
+and crossings resolve one receiving stage from total crossing flow before allocation.
+Results retain the resolved method, source, normal-depth calculation, and convergence.
+Hand-calculated fixtures cover four section configurations and crossing/rating flow basis.
+
+Remaining before completion: implement the planned user-supplied monotonic `(Q, WSE)`
+rating boundary with explicit interpolation and out-of-range policy, and record an
+independent external comparison for the Manning boundary. Irregular sections, compound
+roughness, and downstream gradually varied flow remain separately scoped future work.
+
+Verification: `python -m pytest -q` passed 331 tests. Repository-wide Ruff check and
+format, strict Pyright, Markdown lint with MD013 excluded, strict MkDocs build, and
+`git diff --check` passed.
 
 ### CS-030 - Slipline host/liner geometry and composite roughness
 

@@ -6,6 +6,8 @@ provisional combined solvers. External engineering validation is not yet complet
 
 from importlib.metadata import PackageNotFoundError, version
 
+from .channel.geometry import OpenChannelSection, RectangularChannel, TrapezoidalChannel
+from .channel.uniform import ChannelNormalDepthResult, calculate_channel_normal_depth
 from .constants import (
     GRAVITATIONAL_ACCELERATION,
     STANDARD_WATER_DENSITY,
@@ -125,7 +127,15 @@ from .models.results import (
     HydraulicWarning,
 )
 from .models.roadway import FHWA_HDS5_ROADWAY_OVERTOPPING, RoadwayWeir
-from .models.tailwater import TailwaterCondition
+from .models.tailwater import (
+    FHWA_HDS5_NORMAL_DEPTH_TAILWATER,
+    ManningChannelTailwater,
+    TailwaterBoundary,
+    TailwaterCondition,
+    TailwaterMethod,
+    TailwaterResolution,
+    resolve_tailwater,
+)
 from .numerical.roots import RootResult, solve_bracketed, solve_brent
 from .numerical.tolerances import RootTolerances
 from .outlet_control.full_flow import (
@@ -233,6 +243,7 @@ __all__: list[str] = [
     "BarrelHydraulicResult",
     "BoxCrownTreatment",
     "BoxWingwallTreatment",
+    "ChannelNormalDepthResult",
     "CircularGeometry",
     "ConvergenceError",
     "CriticalDepthResult",
@@ -262,6 +273,7 @@ __all__: list[str] = [
     "FHWA_MODERN_BOX_HW_D_MAX",
     "FHWA_MODERN_BOX_HW_D_MIN",
     "FilletedRectangularGeometry",
+    "FHWA_HDS5_NORMAL_DEPTH_TAILWATER",
     "FHWA_HDS5_ROADWAY_OVERTOPPING",
     "FullFlowOutletResult",
     "GeometryShape",
@@ -280,8 +292,10 @@ __all__: list[str] = [
     "InletSelectionBasis",
     "InvalidInputError",
     "InventorySummary",
-    "NormalDepthResult",
+    "ManningChannelTailwater",
     "ManningRoughnessSelection",
+    "NormalDepthResult",
+    "OpenChannelSection",
     "ModernBoxInlet",
     "ModernBoxInletCoefficients",
     "ModernBoxInletResult",
@@ -290,6 +304,7 @@ __all__: list[str] = [
     "ProfileCurve",
     "RatingCurvePoint",
     "RatingCurveResult",
+    "RectangularChannel",
     "RectangularGeometry",
     "RootResult",
     "RootTolerances",
@@ -304,7 +319,11 @@ __all__: list[str] = [
     "STANDARD_WATER_KINEMATIC_VISCOSITY",
     "SolverConfiguration",
     "SourceReference",
+    "TailwaterBoundary",
     "TailwaterCondition",
+    "TailwaterMethod",
+    "TailwaterResolution",
+    "TrapezoidalChannel",
     "WaterSurfaceProfile",
     "__version__",
     "BOX_LOSS_FLARED_30_75",
@@ -313,6 +332,7 @@ __all__: list[str] = [
     "PIPE_CMP_LOSS_PROJECTING",
     "PIPE_LOSS_SOCKET_END",
     "PIPE_LOSS_SQUARE_EDGE",
+    "calculate_channel_normal_depth",
     "calculate_critical_depth",
     "calculate_entrance_loss",
     "calculate_exit_loss",
@@ -349,6 +369,7 @@ __all__: list[str] = [
     "resolve_inlet_coefficients",
     "resolve_manning_roughness",
     "resolve_modern_box_inlet_coefficients",
+    "resolve_tailwater",
     "solve_barrel_hydraulics",
     "solve_barrel_discharge_for_headwater",
     "solve_barrel_discharge_for_headwater_ratio",

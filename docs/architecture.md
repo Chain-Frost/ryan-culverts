@@ -10,6 +10,8 @@ There is no compatibility layer for the retired `culvertflow` package.
 
 | Module | Responsibility |
 | --- | --- |
+| `channel.geometry` | Rectangular and asymmetric trapezoidal prismatic open-channel sections |
+| `channel.uniform` | Manning normal depth, section factor, conveyance, and root diagnostics |
 | `constants` | Standard gravitational acceleration and water properties with source records |
 | `geometry.base` | Cross-section geometry interface and crown/closed-conduit contract |
 | `geometry.circular` | Analytical circular segment geometry |
@@ -23,7 +25,7 @@ There is no compatibility layer for the retired `culvertflow` package.
 | `models.enums` | Closed control, geometry, equation, profile, and CSP-corrugation categories |
 | `models.barrel` | Physical culvert barrel with authoritative inverts and derived slope |
 | `models.group` | Parallel identical culvert barrels with quantity scaling |
-| `models.tailwater` | Downstream tailwater elevation boundary condition |
+| `models.tailwater` | Fixed and discharge-dependent tailwater boundaries and provenance |
 | `models.crossing` | Multi-group culvert crossing aggregation |
 | `models.roadway` | Constant-elevation roadway crest and coefficient provenance |
 | `models.results` | Results, adopted parameter selections, and flow classifications |
@@ -58,6 +60,15 @@ solves their sum against the specified crossing discharge. Results preserve culv
 roadway flow separately. The initial roadway boundary is intentionally narrow: one
 constant-elevation crest, an explicit user-selected SI coefficient, and tailwater no higher
 than the crest. Irregular sag segmentation and submerged-weir correction belong to CS-028.
+
+Open-channel sections deliberately use a separate `OpenChannelSection` protocol rather
+than pretending to be closed culvert geometry. A Manning channel boundary resolves stage
+from the receiving flow before culvert allocation: barrel flow for a standalone barrel,
+total group flow for a standalone group, and total crossing flow once for a crossing.
+Each rating point resolves the boundary again. The resulting method, discharge, channel
+invert, normal depth, source, and root diagnostics are retained on results. Inverse
+discharge-for-headwater helpers still require fixed tailwater because accepting a
+flow-dependent boundary there would create a different nested solve.
 
 The same crossing capacity function is public in the inverse direction: callers may obtain
 total culvert-plus-roadway discharge for an absolute target headwater. Group and barrel

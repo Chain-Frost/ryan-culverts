@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from ..roadway.overtopping import RoadwayOvertoppingResult
     from ..solver.resolvers import EntranceLossSelection, InletCoefficientSelection
     from .materials import RoughnessApplicabilityNotice
+    from .tailwater import TailwaterResolution
 
 
 class FlowRegime(StrEnum):
@@ -106,6 +107,7 @@ class BarrelHydraulicResult:
     full_flow_losses: HeadLossComponents | None = None
     profile: WaterSurfaceProfile | InletControlProfile | None = None
     convergence: tuple[ConvergenceRecord, ...] = ()
+    tailwater_resolution: TailwaterResolution | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,6 +119,7 @@ class GroupHydraulicResult:
     barrel_discharge: float
     barrel_result: BarrelHydraulicResult
     discharge_convergence: ConvergenceRecord | None = None
+    tailwater_resolution: TailwaterResolution | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,6 +132,7 @@ class CrossingHydraulicResult:
     group_results: tuple[GroupHydraulicResult, ...]
     headwater_convergence: ConvergenceRecord | None = None
     roadway_result: RoadwayOvertoppingResult | None = None
+    tailwater_resolution: TailwaterResolution | None = None
 
     @property
     def culvert_discharge(self) -> float:

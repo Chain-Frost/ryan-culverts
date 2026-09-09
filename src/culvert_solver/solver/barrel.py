@@ -1,10 +1,16 @@
 """Single-barrel culvert hydraulic solver."""
 
+from dataclasses import replace
+
+from culvert_solver.models.tailwater import TailwaterResolution
+
+from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
+from ..exceptions import InvalidInputError
 from ..inlet_control.coefficients import InletCoefficients
 from ..models.barrel import CulvertBarrel
 from ..models.results import BarrelHydraulicResult
-from ..models.tailwater import TailwaterCondition
+from ..models.tailwater import TailwaterInput, resolve_tailwater
 from ..outlet_control.losses import EntranceLossCoefficient
 from ..references.models import SourceReference
 from .config import SolverConfiguration
@@ -14,7 +20,7 @@ from .regime import determine_governing_regime
 def solve_barrel_hydraulics(
     barrel: CulvertBarrel,
     discharge: float,
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     inlet_coefficients: InletCoefficients | None = None,
     entrance_loss_coefficient: float | EntranceLossCoefficient | None = None,
@@ -52,13 +58,18 @@ def solve_barrel_hydraulics(
     -----
     Hydraulic jumps and mixed free-surface/pressurised profiles are not yet supported.
     """
-    return determine_governing_regime(
+    q: float = finite(discharge, "discharge")
+    if q <= 0.0:
+        raise InvalidInputError("discharge must be strictly positive.")
+    tailwater_resolution: TailwaterResolution = resolve_tailwater(tailwater=tailwater, discharge=q, g=g)
+    result: BarrelHydraulicResult = determine_governing_regime(
         barrel=barrel,
-        discharge=discharge,
-        tailwater=tailwater,
+        discharge=q,
+        tailwater=tailwater_resolution.elevation,
         inlet_coefficients=inlet_coefficients,
         entrance_loss_coefficient=entrance_loss_coefficient,
         entrance_loss_source=entrance_loss_source,
         configuration=configuration,
         g=g,
     )
+    return replace(result, tailwater_resolution=tailwater_resolution)

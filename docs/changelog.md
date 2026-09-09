@@ -5,6 +5,9 @@ This file records user-visible changes. Detailed validation evidence remains in
 
 ## Unreleased
 
+- Added rectangular and asymmetric trapezoidal/triangular open-channel geometry and a
+  source-traceable Manning normal-depth tailwater boundary that uses receiving flow at the
+  barrel, group, or crossing boundary and recalculates stage at each rating point.
 - Added public barrel, group, and crossing discharge-for-headwater helpers, including a
   single-barrel HW/D convenience and forward/inverse round-trip coverage.
 - Added filleted rectangular box geometry and a fail-closed corrected FHWA-HRT-06-138

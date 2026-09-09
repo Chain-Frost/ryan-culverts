@@ -179,6 +179,24 @@ overtopping depth. The crossing solver adds this flow to the independently calcu
 culvert-group flows at a common headwater. Tailwater above the crest fails explicitly
 because the Figure 3.11C submergence correction has not been digitised or validated;
 irregular sag curves and segment summation are also deferred.
+
+The initial discharge-dependent tailwater option is a prismatic-channel normal-depth
+boundary. For bottom width `b`, left and right horizontal-to-vertical side slopes `zL`
+and `zR`, and depth `y`, it uses:
+
+```text
+A = b y + 0.5 (zL + zR) y^2
+P = b + y sqrt(1 + zL^2) + y sqrt(1 + zR^2)
+T = b + (zL + zR) y
+Q = (1/n) A (A/P)^(2/3) sqrt(Sf)
+```
+
+The solver brackets and solves `Q(y) - Qtarget = 0` with Brent's method, then returns
+`tailwater elevation = channel invert elevation + y`. `Sf` remains explicitly the
+friction/energy slope; using bed slope estimates it only under uniform flow. Consistent
+with HDS-5 Section 1.4.4, this is an approximation for a downstream channel without a
+controlling backwater influence. It is not valid as a general reach model for downstream
+impoundment, constriction, junction, tidal, or other backwater controls.
 For HDS-5 Section 3.5 steep-slope inlet-control cases, the solver routes an S2 profile
 downstream from immediately below critical depth toward normal depth. Tailwater no higher
 than normal depth directly implies a swept-out jump. For higher sub-crown tailwater, the
