@@ -762,19 +762,23 @@ Acceptance criteria:
 - `mkdocs build --strict` passes locally and in CI; and
 - Pages deployment uses least-privilege permissions and only runs after a successful build.
 
-## CS-018 - Office-share distribution workflow
+## CS-018 - Office network checkout workflow
 
 Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
 
 Boundary: retain the current simple distribution model in which the verified wheel is
-committed with its source and copied unchanged to an office network share. Document one
-configured share layout, installation command, checksum check, and rollback procedure.
-Do not add GitHub Release, CI-artifact, self-hosted-runner, or automatic network-sync
-infrastructure unless the user later requests it.
+committed with its source and the office network folder is a Git checkout of the repository.
+Its tracked `dist/` directory is the sole office installation source. Document the checkout
+location, clean-checkout requirement, manual `git pull`, installation command, checksum
+check, and rollback procedure. Do not create a second wheel-copy location or add GitHub
+Release, CI-artifact, self-hosted-runner, or automatic network-sync infrastructure unless
+the user later requests it.
 
-Acceptance criteria: a clean workstation can install the copied wheel through the existing
-wrapper, the share contains one clearly current wheel, rollback is documented and tested,
-and the copied file hash matches the committed wheel.
+Acceptance criteria: after a release commit is pushed, `git pull` updates a clean office
+checkout to that commit; its `dist/` contains exactly one version-matched project wheel; a
+clean workstation installs that wheel through the existing wrapper; and the installed
+version and wheel checksum match the checked-out release. A documented recovery procedure
+handles a dirty checkout or failed pull without rebuilding or manually copying a wheel.
 
 ## CS-019 - Compatibility metadata and installed-wheel CI
 
@@ -783,11 +787,12 @@ Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-2
 Boundary: reconcile `requires-python` with the versions actually supported, then test the
 pure-Python wheel on intended Windows, Linux, and macOS interpreters. Keep HY-8 comparison
 work Windows-only and separate from portable solver tests. Do not claim support from a
-successful build alone.
+successful build alone. CI verifies the wheel but does not publish a second copy or update
+the office checkout.
 
 Acceptance criteria: metadata names only supported interpreters, each claimed operating
-system installs and imports the wheel outside the source tree, and CI records a public
-smoke calculation on every supported matrix entry.
+system installs and imports the checked-out wheel outside the source tree, and CI records a
+public smoke calculation on every supported matrix entry without creating a release artifact.
 
 ## CS-020 - Public API and package presentation
 
@@ -795,7 +800,8 @@ Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-2
 
 Boundary: define stable public imports, package-version discovery, compatibility and
 deprecation policy, a concise changelog, and well-known documentation/release-note project
-URLs. Do not broaden hydraulic support or promote provisional calculations as stable.
+URLs that do not require GitHub Releases. Do not broaden hydraulic support or promote
+provisional calculations as stable.
 
 Acceptance criteria: supported imports and version discovery have installed-wheel tests,
 the stability boundary is documented, release changes are discoverable, and wheel metadata
@@ -807,23 +813,27 @@ Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-2
 
 Boundary: add concise contribution and security-reporting guidance, dependency-update
 configuration, and documented branch-protection expectations appropriate to a small
-maintained repository. Avoid enterprise process that does not reduce an identified risk.
+maintained repository. Include the rule that the office network checkout remains clean,
+receives releases by manual `git pull`, and is not a development workspace. Avoid enterprise
+process that does not reduce an identified risk.
 
 Acceptance criteria: contributors can reproduce checks, hydraulic defects have a private
 reporting path where necessary, automated dependency changes run the normal CI, and the
-documented main-branch rules match GitHub settings.
+documented main-branch rules match GitHub settings. Office checkout maintenance and recovery
+steps are documented without introducing a second distribution location.
 
 ## CS-022 - Optional GitHub Release distribution
 
 Status: Optional. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-12-01.
 
-Boundary: reconsider tag-driven GitHub Releases only if distributing the committed wheel
-through the office share becomes insufficient for remote users, traceability, or rollback.
-CI artifacts are temporary build evidence, not an office installation channel.
+Boundary: reconsider tag-driven GitHub Releases only if the Git-pulled office network
+checkout becomes insufficient for remote users, traceability, or rollback. CI artifacts
+are temporary build evidence, not an office installation channel, and the tracked `dist/`
+wheel remains the artifact of record.
 
 Acceptance criteria if activated: a version tag matches `pyproject.toml`, the already
-verified wheel is attached with a checksum, and the workflow does not create a second
-different build or require office-network credentials.
+verified tracked wheel is attached with a checksum, and the workflow does not create a
+second different build, update the office checkout, or require office-network credentials.
 
 ## Handoff template
 

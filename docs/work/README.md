@@ -63,11 +63,11 @@ or create a release artifact merely to complete an earlier task.
 | CS-014 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Design context-rich NCHRP slipline, exit-loss, and composite-roughness support. |
 | CS-015 | Pending source clarification | Unassigned | 2026-09-09 | 2026-09-20 | Resolve the AGRD05B-23 Section 3.15.1 velocity inconsistency before numerical use. |
 | CS-016 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Design and strictly validate an MkDocs site before enabling GitHub Pages deployment. |
-| CS-018 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Document and test the simple office-share publication, installation, and rollback workflow. |
-| CS-019 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Align Python support metadata and add cross-platform installed-wheel CI without changing distribution channels. |
-| CS-020 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Define public API stability, version discovery, changelog, and package project URLs. |
-| CS-021 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add concise contribution, security-reporting, dependency-maintenance, and branch-protection guidance. |
-| CS-022 | Optional | Unassigned | 2026-09-09 | 2026-12-01 | Reconsider GitHub Releases only if office-share distribution no longer meets user needs. |
+| CS-018 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Document and test installation from the office checkout's tracked `dist/` after a manual `git pull`. |
+| CS-019 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Align Python support metadata and add cross-platform installed-wheel CI without publishing another artifact. |
+| CS-020 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Define public API stability, version discovery, changelog, and non-release package project URLs. |
+| CS-021 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add concise maintenance guidance, including keeping the office checkout clean and pull-only. |
+| CS-022 | Optional | Unassigned | 2026-09-09 | 2026-12-01 | Reconsider GitHub Releases only if the Git-pulled office checkout no longer meets user needs. |
 
 Agents must update the status, owner, date, next review, and next action when
 taking over or handing off a task. Do not mark a task complete solely because

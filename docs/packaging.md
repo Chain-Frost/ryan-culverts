@@ -121,8 +121,10 @@ Install a built wheel directly by passing its actual path to pip. For the curren
 ```
 
 No package-index or GitHub Release publication is configured. Building does not upload or
-copy anything. The verified wheel is committed with its source changes and may then be
-copied unchanged to the office network distribution folder.
+copy anything. The office network distribution folder is a Git checkout of this repository,
+and its tracked `dist/` directory is the installation source. After a release is committed
+and pushed, update that clean checkout with `git pull`; do not maintain or copy the wheel to
+a second distribution folder.
 
 ## Windows and concurrent work
 

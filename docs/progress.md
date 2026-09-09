@@ -22,9 +22,10 @@ acceptance boundary did not change.
 
 Remaining limitations: release dates use the packaging machine's local date, so a developer
 working from another location must pull before packaging and keep the system clock correct.
-The script does not copy to the office share, commit, push, tag, or publish. CS-018 through
-CS-022 record the deliberately deferred professional-package improvements under the chosen
-simple Git-plus-network-share distribution model.
+The script does not commit, push, update the office checkout, tag, or publish. The office
+network checkout is updated deliberately with `git pull`, and users install from its tracked
+`dist/` folder. CS-018 through CS-022 record the remaining professional-package improvements
+under this simple Git-plus-network-checkout distribution model.
 
 ## 2026-09-09 - CS-012 initial 26.9.9.1 package handoff
 
