@@ -1,7 +1,7 @@
 # ryan-culverts
 
 An early-stage culvert hydraulics library built around primary hydraulic references,
-analytical validation, and mixed-group crossings. Version `26.9.9.1` is the first packaged
+analytical validation, and mixed-group crossings. Version `26.9.9.2` is the current packaged
 alpha release for integration testing; it is not engineering design software.
 
 The [long-term development plan](docs/work/long-term-development-plan.md) defines the scope and
@@ -9,7 +9,7 @@ development sequence. The `culvert_solver` package contains provisional circular
 hydraulics through rating-curve generation, including mixed groups and road-level
 inventories. Geometry, numerical foundations, and several equation-level calculations
 have analytical or published-example tests; combined-system validation remains bounded.
-See the [26.9.9.1 release notes](docs/releases/26.9.9.1.md) before using the package.
+See the [26.9.9.2 release notes](docs/releases/26.9.9.2.md) before using the package.
 
 Agents should start with the [work register](docs/work/README.md), which separates
 active remediation from deferred scope and links the current acceptance criteria.
@@ -46,7 +46,8 @@ Dependencies and build metadata live in `pyproject.toml`; there is no separate
 builds the universal wheel through `python -m build --wheel`. See the
 [packaging workflow](docs/packaging.md) for install and build commands.
 
-On Windows, `.\package.bat` builds and verifies the universal wheel,
+On Windows, `.\package.bat` increments the calendar version, builds and verifies the
+universal wheel, then replaces the previous project wheel only after success.
 `.\install-latest-wheel.bat` installs the newest local wheel, and
 `.\package_and_install.bat` performs both steps with fail-fast exit handling. Use
 `.\force-reinstall.bat` for the existing wheel or `.\package_and_force_install.bat` to

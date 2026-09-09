@@ -1,5 +1,31 @@
 # Development progress
 
+## 2026-09-09 - CS-017 transactional calendar-version packaging
+
+`package.bat` now advances the normalized `yy.m.d.vv` calendar version automatically.
+The exercised release path advanced `26.9.9.1` to `26.9.9.2`; a different local date
+resets the final revision to `1`, while a local clock earlier than the current release date
+fails closed. `--version` accepts only a normalized, newer explicit version, and CI uses
+`--no-bump` to build the committed version without modifying it.
+
+The new wheel is built and verified in temporary storage. Build or verification failure
+restores `pyproject.toml` and leaves the previous wheel untouched. Successful promotion
+places the verified wheel in `dist/` before deleting older `ryan_culverts` wheel/source
+artifacts; unrelated distributions are preserved. The final folder contains only
+`ryan_culverts-26.9.9.2-py3-none-any.whl` (77,413 bytes, SHA-256
+`974df027cea6c74d4e2f2083261fed4e4e528c10da56797c6c41eba813e7cb82`).
+
+Focused packaging tests passed 13 cases. The full suite passed 287 tests; repository-wide
+Ruff lint/format, strict Pyright, Markdown lint, `git diff --check`, archive verification,
+and an isolated zip-import metadata check all passed. The hydraulic implementation and
+acceptance boundary did not change.
+
+Remaining limitations: release dates use the packaging machine's local date, so a developer
+working from another location must pull before packaging and keep the system clock correct.
+The script does not copy to the office share, commit, push, tag, or publish. CS-018 through
+CS-022 record the deliberately deferred professional-package improvements under the chosen
+simple Git-plus-network-share distribution model.
+
 ## 2026-09-09 - CS-012 initial 26.9.9.1 package handoff
 
 Created the first packaged alpha milestone at version `26.9.9.1` for local integration

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import tomllib
 import zipfile
@@ -81,12 +82,23 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     """Verify the wheel and print its reproducibility identifier."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "wheel",
+        nargs="?",
+        type=Path,
+        help="Specific staged wheel to verify; defaults to the current wheel under dist/.",
+    )
+    args = parser.parse_args(argv)
     version, licence = _project_metadata()
-    wheel = DIST_DIR / f"{DISTRIBUTION_PREFIX}{version}-py3-none-any.whl"
+    expected_name = f"{DISTRIBUTION_PREFIX}{version}-py3-none-any.whl"
+    wheel = args.wheel.resolve() if args.wheel is not None else DIST_DIR / expected_name
     if not wheel.is_file():
         raise FileNotFoundError("Build the current wheel first.")
+    if wheel.name != expected_name:
+        raise ValueError(f"Expected wheel named {expected_name}, found {wheel.name}.")
     repository_license = _normalized((PROJECT_ROOT / "LICENSE").read_bytes())
     _verify_wheel(wheel, version, licence, repository_license)
     print(f"Verified: {wheel.name} ({wheel.stat().st_size} bytes, sha256={_sha256(wheel)})")

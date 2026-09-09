@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ryan-culverts"
-version = "26.9.9.1"
+version = "26.9.9.2"
 description = "Independent SI culvert hydraulics: numerical foundations and traceable methods."
 readme = "README.md"
 # Declare the Python 3 family without restricting minor versions to our test baseline.

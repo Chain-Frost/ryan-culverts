@@ -97,7 +97,8 @@ parallel. Finish CS-011 after CS-005, CS-007 after CS-004/006, and CS-012 last.
 | CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression |
 | CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned comparison that changes a disposition |
 | CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation |
-| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the local 26.9.9.1 wheel for integration tests; increment the final field for another release today |
+| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the current verified wheel for integration tests; packaging now increments the calendar version |
+| CS-017 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use `package.bat`; reopen only for a packaging failure or changed version policy |
 
 ### CS-001 - Close the Phase 0 research gate
 
@@ -673,6 +674,37 @@ rule were removed. SHA-256 checks confirmed every retained reference file agains
 the three PDFs and binary data file. The full 274-test suite and every repository/package
 gate remained green after the move.
 
+## CS-017 - Transactional calendar-version packaging
+
+Status: Complete. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: make the existing local wheel workflow increment the normalized `yy.m.d.vv`
+version automatically, build and verify away from `dist/`, and replace prior project
+artifacts only after the new wheel passes verification. Preserve an explicit-version
+override and a no-bump mode for CI. Do not add package-index publication, GitHub Releases,
+CI artifacts, or office-network synchronization.
+
+Acceptance criteria:
+
+- same-day builds increment `vv`, while a new local date resets it to `1`;
+- invalid or non-increasing explicit versions fail before changing files;
+- build or verification failure restores `pyproject.toml` and retains the prior wheel;
+- successful promotion leaves exactly one current `ryan_culverts-*.whl` in `dist/`;
+- CI builds the declared version without modifying it; and
+- focused packaging tests and all repository/package checks pass.
+
+Handoff (2026-09-09): complete. The default `package.bat` path advanced `26.9.9.1` to
+`26.9.9.2`, staged and verified the wheel before promotion, and left exactly one current
+project wheel. The CI `--no-bump` path rebuilt `26.9.9.2` without changing metadata.
+Thirteen focused packaging tests cover increments, rollover, validation, rollback, and
+promotion. The full 287-test suite, Ruff, strict Pyright, Markdown, whitespace, wheel, and
+isolated zip-import checks passed. The final wheel is 77,413 bytes with SHA-256
+`974df027cea6c74d4e2f2083261fed4e4e528c10da56797c6c41eba813e7cb82`.
+
+The build uses the packaging machine's local date and deliberately performs no network
+copy, commit, push, tag, or publication. Pull the repository and verify the system date
+before packaging from another location.
+
 ## Deferred and future scope
 
 ### CS-009 - Versioned JSON/configuration boundary
@@ -729,6 +761,69 @@ Acceptance criteria:
 - `mkdocs.yml` links every intended maintained page without broken or orphaned navigation;
 - `mkdocs build --strict` passes locally and in CI; and
 - Pages deployment uses least-privilege permissions and only runs after a successful build.
+
+## CS-018 - Office-share distribution workflow
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: retain the current simple distribution model in which the verified wheel is
+committed with its source and copied unchanged to an office network share. Document one
+configured share layout, installation command, checksum check, and rollback procedure.
+Do not add GitHub Release, CI-artifact, self-hosted-runner, or automatic network-sync
+infrastructure unless the user later requests it.
+
+Acceptance criteria: a clean workstation can install the copied wheel through the existing
+wrapper, the share contains one clearly current wheel, rollback is documented and tested,
+and the copied file hash matches the committed wheel.
+
+## CS-019 - Compatibility metadata and installed-wheel CI
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: reconcile `requires-python` with the versions actually supported, then test the
+pure-Python wheel on intended Windows, Linux, and macOS interpreters. Keep HY-8 comparison
+work Windows-only and separate from portable solver tests. Do not claim support from a
+successful build alone.
+
+Acceptance criteria: metadata names only supported interpreters, each claimed operating
+system installs and imports the wheel outside the source tree, and CI records a public
+smoke calculation on every supported matrix entry.
+
+## CS-020 - Public API and package presentation
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: define stable public imports, package-version discovery, compatibility and
+deprecation policy, a concise changelog, and well-known documentation/release-note project
+URLs. Do not broaden hydraulic support or promote provisional calculations as stable.
+
+Acceptance criteria: supported imports and version discovery have installed-wheel tests,
+the stability boundary is documented, release changes are discoverable, and wheel metadata
+contains the agreed project links.
+
+## CS-021 - Repository maintenance guidance
+
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+
+Boundary: add concise contribution and security-reporting guidance, dependency-update
+configuration, and documented branch-protection expectations appropriate to a small
+maintained repository. Avoid enterprise process that does not reduce an identified risk.
+
+Acceptance criteria: contributors can reproduce checks, hydraulic defects have a private
+reporting path where necessary, automated dependency changes run the normal CI, and the
+documented main-branch rules match GitHub settings.
+
+## CS-022 - Optional GitHub Release distribution
+
+Status: Optional. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-12-01.
+
+Boundary: reconsider tag-driven GitHub Releases only if distributing the committed wheel
+through the office share becomes insufficient for remote users, traceability, or rollback.
+CI artifacts are temporary build evidence, not an office installation channel.
+
+Acceptance criteria if activated: a version tag matches `pyproject.toml`, the already
+verified wheel is attached with a checksum, and the workflow does not create a second
+different build or require office-network credentials.
 
 ## Handoff template
 

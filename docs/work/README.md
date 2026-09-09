@@ -50,7 +50,8 @@ or create a release artifact merely to complete an earlier task.
 | CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression. |
 | CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned external comparison that changes a disposition. |
 | CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation. |
-| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the local 26.9.9.1 wheel for integration tests; increment the final field for another release today. |
+| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the current verified wheel for integration tests; packaging now increments the calendar version. |
+| CS-017 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use `package.bat` to create the next verified wheel; reopen only for a packaging failure or changed version policy. |
 
 ## Deferred work
 
@@ -62,6 +63,11 @@ or create a release artifact merely to complete an earlier task.
 | CS-014 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Design context-rich NCHRP slipline, exit-loss, and composite-roughness support. |
 | CS-015 | Pending source clarification | Unassigned | 2026-09-09 | 2026-09-20 | Resolve the AGRD05B-23 Section 3.15.1 velocity inconsistency before numerical use. |
 | CS-016 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Design and strictly validate an MkDocs site before enabling GitHub Pages deployment. |
+| CS-018 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Document and test the simple office-share publication, installation, and rollback workflow. |
+| CS-019 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Align Python support metadata and add cross-platform installed-wheel CI without changing distribution channels. |
+| CS-020 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Define public API stability, version discovery, changelog, and package project URLs. |
+| CS-021 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add concise contribution, security-reporting, dependency-maintenance, and branch-protection guidance. |
+| CS-022 | Optional | Unassigned | 2026-09-09 | 2026-12-01 | Reconsider GitHub Releases only if office-share distribution no longer meets user needs. |
 
 Agents must update the status, owner, date, next review, and next action when
 taking over or handing off a task. Do not mark a task complete solely because

@@ -13,9 +13,9 @@ configuration or Hatch environment is required.
 | `[tool.hatch.build.targets.wheel]` | Universal-wheel package contents |
 
 The distribution name is `ryan-culverts`; the Python import is `culvert_solver`.
-Version `26.9.9.1` is the first packaged alpha release, recorded once in
-`pyproject.toml`. Releases use the PEP 440-normalized calendar scheme `yy.m.d.vv`, where
-`vv` starts at `1` and increments for each release made on the same date. It is intended
+Version `26.9.9.2` is the current packaged alpha release. `pyproject.toml` is the version
+authority. Releases use the PEP 440-normalized calendar scheme `yy.m.d.vv`, where `vv`
+starts at `1` and increments for each release made on the same local date. It is intended
 for integration and packaging tests, not engineering design acceptance.
 
 ## Python support policy
@@ -69,13 +69,25 @@ The Windows convenience workflow follows the established `ryan-tools` pattern:
 .\package_and_force_install.bat --dry-run
 ```
 
-`package.bat` builds one clean universal wheel after removing only older
-top-level `ryan_culverts-*` artifacts from `dist/`. `install-latest-wheel.bat` selects the
-newest matching wheel and installs it into the user site-packages. The combined script
-stops if the build fails and otherwise performs both operations. All three preserve the
-underlying Python or pip exit status. The package step also verifies version and licence
-metadata, exact packaged licence text, `py.typed`, and exclusion of development/reference
-inputs. Run `.\verify-package.bat` to repeat those wheel checks without rebuilding.
+`package.bat` advances `yy.m.d.vv`, updates `pyproject.toml`, and builds into temporary
+storage. It verifies version and licence metadata, exact packaged licence text, `py.typed`,
+and exclusion of development/reference inputs before promoting the new wheel. Only after
+successful verification does it remove older top-level `ryan_culverts-*` distributions
+from `dist/`. A failed build or verification restores `pyproject.toml` and retains the
+previous wheel.
+
+Use an explicit newer version when required:
+
+```powershell
+.\package.bat --version 26.9.9.5
+```
+
+CI uses `python scripts/build_package.py --no-bump` to build the version already declared
+in `pyproject.toml` without editing it. `install-latest-wheel.bat` selects the newest
+matching wheel and installs it into the user site-packages. The combined script stops if
+the build fails and otherwise performs both operations. All wrappers preserve the
+underlying Python or pip exit status. Run `.\verify-package.bat` to repeat wheel checks
+without rebuilding.
 
 `force-reinstall.bat` passes `--force-reinstall --no-deps` to pip for the newest existing
 wheel. `package_and_force_install.bat` rebuilds and verifies first. These are recovery and
@@ -105,11 +117,12 @@ on Windows, Linux, and macOS. Only Python 3.14 is presently tested.
 Install a built wheel directly by passing its actual path to pip. For the current version:
 
 ```powershell
-python -m pip install --user dist/ryan_culverts-26.9.9.1-py3-none-any.whl
+.\install-latest-wheel.bat
 ```
 
-No publication or release automation is configured. Building does not upload anything.
-Future release artifacts require another deliberate version update.
+No package-index or GitHub Release publication is configured. Building does not upload or
+copy anything. The verified wheel is committed with its source changes and may then be
+copied unchanged to the office network distribution folder.
 
 ## Windows and concurrent work
 
