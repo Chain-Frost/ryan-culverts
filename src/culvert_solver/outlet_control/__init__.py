@@ -25,11 +25,14 @@ from .losses import (
     PIPE_CONCRETE_SOCKET_END,
     PIPE_CONCRETE_SQUARE_EDGE,
     STANDARD_EXIT_LOSS_COEFFICIENT,
+    STANDARD_EXIT_LOSS_SELECTION,
     EntranceLossCoefficient,
+    ExitLossSelection,
     calculate_entrance_loss,
     calculate_exit_loss,
     calculate_friction_loss,
     calculate_total_head_loss,
+    resolve_exit_loss_coefficient,
 )
 from .partial_flow import (
     PartialFlowOutletResult,
@@ -44,6 +47,7 @@ __all__ = [
     "BOX_CONCRETE_PARALLEL_WINGWALLS_0",
     "BOX_CONCRETE_WINGWALLS_10_25",
     "EntranceLossCoefficient",
+    "ExitLossSelection",
     "FullFlowOutletResult",
     "PartialFlowOutletResult",
     "PIPE_CMP_BEVELED",
@@ -59,6 +63,7 @@ __all__ = [
     "PIPE_CONCRETE_SOCKET_END",
     "PIPE_CONCRETE_SQUARE_EDGE",
     "STANDARD_EXIT_LOSS_COEFFICIENT",
+    "STANDARD_EXIT_LOSS_SELECTION",
     "calculate_entrance_loss",
     "calculate_exit_loss",
     "calculate_friction_loss",
@@ -66,4 +71,5 @@ __all__ = [
     "calculate_downstream_full_flow_length",
     "calculate_partial_flow_outlet_headwater",
     "calculate_total_head_loss",
+    "resolve_exit_loss_coefficient",
 ]

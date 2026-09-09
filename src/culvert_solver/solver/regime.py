@@ -402,6 +402,7 @@ def determine_governing_regime(
         warnings=tuple(warnings),
         inlet_coefficient_selection=inlet_selection,
         entrance_loss_selection=entrance_selection,
+        exit_loss_selection=full_res.exit_loss_selection,
         adopted_roughness=barrel.roughness,
         roughness_selection_basis=barrel.roughness_selection_basis,
         roughness_source=barrel.roughness_source,

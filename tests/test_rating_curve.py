@@ -81,17 +81,23 @@ def test_barrel_rating_curve_regime_progression() -> None:
         material=CONCRETE,
     )
     tw = TailwaterCondition(elevation=49.5)
-    discharges = (0.3, 1.0, 2.5, 4.5)
+    discharges = (0.3, 1.0, 1.626, 2.5)
 
     rc = generate_barrel_rating_curve(barrel=barrel, discharges=discharges, tailwater=tw)
 
-    # Low flow should be unsubmerged inlet control
-    assert rc.points[0].regime == FlowRegime.INLET_CONTROL_UNSUBMERGED
-    assert rc.points[0].control_type == "inlet_control"
-
-    # High flow should be submerged inlet control
-    assert rc.points[-1].regime == FlowRegime.INLET_CONTROL_SUBMERGED
-    assert rc.points[-1].control_type == "inlet_control"
+    # Fixed values independently evaluated from HDS-5 A.1/A.3 and the documented
+    # cubic-Hermite transition, using separate circular-section bisection at critical flow.
+    assert [point.headwater_elevation for point in rc.points] == pytest.approx(
+        [50.41129639578769, 50.85046073327805, 51.21952069304025, 51.98257475067179],
+        abs=1e-9,
+    )
+    assert [point.regime for point in rc.points] == [
+        FlowRegime.INLET_CONTROL_UNSUBMERGED,
+        FlowRegime.INLET_CONTROL_UNSUBMERGED,
+        FlowRegime.INLET_CONTROL_TRANSITION,
+        FlowRegime.INLET_CONTROL_SUBMERGED,
+    ]
+    assert all(point.control_type == "inlet_control" for point in rc.points)
 
 
 def test_crossing_rating_curve_single_group() -> None:

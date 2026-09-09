@@ -11,7 +11,7 @@ import argparse
 import csv
 import math
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 from pathlib import Path
 from typing import TextIO
@@ -341,6 +341,30 @@ CASES: tuple[ComparisonCase, ...] = (
     ),
 )
 
+DISCREPANCY_SWEEP_DISCHARGES: dict[str, tuple[float, ...]] = {
+    "cc-long-high-q-low-tw": (
+        2.6,
+        2.7,
+        2.8,
+        2.9,
+        3.0,
+        3.1,
+        3.2,
+        3.21,
+        3.22,
+        3.23,
+        3.24,
+        3.25,
+        3.26,
+        3.27,
+        3.28,
+        3.29,
+        3.3,
+        3.4,
+    ),
+    "csp-type6-free-outfall": (3.8, 4.0, 4.2, 4.4, 4.6, 4.63, 4.8, 5.0, 5.2),
+}
+
 
 def _hy8_crossing(case: ComparisonCase) -> Hy8Crossing:
     """Translate a comparison case to a matched run-hy8 crossing."""
@@ -493,7 +517,28 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--hy8", type=Path, help="Explicit HY864.exe path")
     parser.add_argument("--workspace", type=Path, help="Keep HY-8 projects and reports here")
     parser.add_argument("--output", type=Path, help="Write UTF-8 CSV here instead of stdout")
+    parser.add_argument(
+        "--discrepancy-sweep",
+        action="store_true",
+        help="Run nearby discharges for the retained Type 6 and crown-transition cases",
+    )
     return parser.parse_args()
+
+
+def _selected_cases(args: argparse.Namespace) -> tuple[ComparisonCase, ...]:
+    """Return the standard matrix or the two focused discrepancy sweeps."""
+    if not args.discrepancy_sweep:
+        return CASES
+    cases_by_id = {case.case_id: case for case in CASES}
+    return tuple(
+        replace(
+            cases_by_id[case_id],
+            case_id=f"{case_id}-q{discharge:.2f}",
+            discharge=discharge,
+        )
+        for case_id, discharges in DISCREPANCY_SWEEP_DISCHARGES.items()
+        for discharge in discharges
+    )
 
 
 def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
@@ -532,7 +577,7 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
             "full_flow_length_difference_m",
         )
     )
-    for case in CASES:
+    for case in _selected_cases(args):
         local = _local_result(case)
         case_workspace = args.workspace / case.case_id if args.workspace is not None else None
         hy8_result = _hy8_crossing(case).hw_from_q(

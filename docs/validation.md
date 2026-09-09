@@ -70,6 +70,53 @@ These fixtures separate geometry, critical flow, uniform flow, and loss transcri
 the numerical solvers that consume them. They do not validate profile selection, mixed
 free-surface/pressurised transitions, groups, crossings, or rating curves.
 
+## Independent prismatic profile fixtures
+
+CS-004 profile references were calculated outside the package entry points using the
+continuous gradually varied-flow relation `dx/dy = (1 - Fr²) / (S0 - Sf)`, independent
+circular/rectangular section formulae, fixed-panel numerical quadrature, and bisection in
+depth. The JS1 reference additionally solves equality of the independently evaluated
+circular hydrostatic momentum functions. Production calculations use direct depth steps;
+the reference calculation therefore exercises a separate integration implementation.
+
+| Profile | Inputs and boundary | Independent expected result | Refined solver difference | Acceptance tolerance |
+| --- | --- | --- | ---: | --- |
+| S2 | Circular `D=1.2 m`, `L=30 m`, `S0=0.01`, `n=0.012`, `Q=1 m³/s`, critical inlet | outlet depth `0.4136573803 m` | less than `1e-8 m` | absolute `1e-6 m` |
+| S1 | Same barrel and flow, outlet depth `1.0 m` | inlet depth `0.6439884203 m` | less than `3e-7 m` | absolute `1e-6 m` |
+| JS1 | Same barrel and flow, outlet depth `0.75 m` | jump station `25.60633937 m` | less than `6e-5 m` | absolute `0.005 m` |
+| M2 | Rectangular `2.0 m x 1.5 m`, `L=50 m`, `S0=0.002`, `n=0.013`, `Q=3 m³/s`, critical outlet | inlet depth `0.7301922412 m` | less than `3e-7 m` | absolute `1e-6 m` |
+| M1 | Rectangular `2.0 m x 1.5 m`, `L=60 m`, same slope/roughness/flow, outlet depth `yn+0.3 m` | inlet depth `0.9790035248 m` | less than `5e-8 m` | absolute `1e-6 m` |
+| H2 | Circular `D=1.2 m`, `L=40 m`, `S0=0`, `n=0.012`, `Q=1.5 m³/s`, critical outlet | inlet depth `0.8774316585 m` | less than `4e-7 m` | absolute `1e-6 m` |
+| Mixed M2/full | Circular `D=1.2 m`, `L=100 m`, `S0=0.001`, `n=0.012`, `Q=3 m³/s`, critical outlet | crown station `68.4449163 m` | `0.000275 m` at 800 steps | absolute `0.0005 m` |
+
+These are numerical method-validation tolerances, not field or design-acceptance
+tolerances. They do not make HY-8 the oracle and do not address non-prismatic barrels.
+
+## Independent aggregation and rating fixtures
+
+CS-006 system fixtures were calculated outside package entry points. HDS-5 Section 3.3,
+printed page 3.26 (local PDF page 108), states that a manual multiple-barrel calculation
+typically divides discharge evenly between identical barrels and requires a software
+solution when barrel properties or elevations differ. The fixed full-flow headwater below
+uses HDS-5 Equations 3.1–3.5, printed pages 3.9–3.10 (local PDF pages 91–92).
+
+HDS-5 Sections 3.2.1–3.2.2, printed page 3.20 (local PDF page 102), require performance
+curves to evaluate inlet and outlet control over a series of flows. The rating fixture uses
+independent circular-section formulae and bisection for critical depth, Appendix A
+Equations A.1/A.3, and a separate implementation of the documented project cubic-Hermite
+transition. It spans all three accepted inlet-control branches without using another public
+package API as its oracle.
+
+| Fixture | Inputs | Independent expected result | Observed difference | Acceptance tolerance | Regime agreement |
+| --- | --- | --- | --- | --- | --- |
+| Three-barrel group | Circular `D=1 m`, `L=50 m`, `S0=0.01`, `n=0.013`, `Qtotal=6 m³/s`, `TW=11 m` | `Qbarrel=2 m³/s`, `HW=11.843853860747691 m` | `0 m³/s`, less than `1e-14 m` | exact flow split; HW absolute `1e-9 m` | full outlet control |
+| Unequal-size groups of identical barrels | One-barrel plus three-barrel groups, same barrel, `Qtotal=8 m³/s`, `TW=11 m` | group flows `2` and `6 m³/s`, common `HW=11.843853860747691 m` | less than `2e-15 m³/s`; less than `2e-15 m` | flow absolute `1e-5 m³/s`; HW absolute `1e-6 m` | both groups full outlet control |
+| Inlet-control rating curve | Circular `D=1 m`, `L=25 m`, `S0=0.02`, `n=0.012`, `TW=49.5 m`; `Q=(0.3, 1.0, 1.626, 2.5) m³/s` | `HW=(50.41129639578769, 50.85046073327805, 51.21952069304025, 51.98257475067179) m` | less than `1e-14 m` | HW absolute `1e-9 m` | unsubmerged, unsubmerged, transition, submerged |
+
+These fixtures validate identical-barrel conservation and fixed-boundary rating assembly.
+They do not validate unequal barrel flow division against an external worked example,
+tailwater rating relationships, storage routing, or roadway overtopping.
+
 ## Later hydraulic and external gates
 
 Validate primitives before inlet/outlet control. Cover each regime and reject
@@ -87,7 +134,10 @@ It used:
 - installed `run-hy8` distribution `2026.9.8.1`, source commit
   `d3f0dbd4f85fb4aa195ade478c9a407a0bb3c0c5`; the validation wheel SHA-256 is
   `efacb82b13f0fc07fa239a9db91a3e329e87f6622e53e3c5d92525848ca70a1e`;
-- `ryan-culverts` commit `1f78b3280f82169b19d059ff6509636091d87d83`;
+- initial `ryan-culverts` commit `1f78b3280f82169b19d059ff6509636091d87d83`;
+  the CSV was regenerated during CS-008 from commit
+  `647ff6c06d97b65f901529b53074a76115027e4d` after the documented CS-003/004
+  diagnostic corrections;
 - SI units, one barrel, no roadway overtopping, HY-8's default profile option, and
 matched shape, material, entrance, dimensions, invert levels, Manning roughness,
 discharge, and constant tailwater.
@@ -185,16 +235,20 @@ candidate, agreeing with HY-8 `1-S1t` within `0.005 m` and `0.003 m/s`. Removing
 full-flow-candidate shortcut also exposes the valid Type `7-M2c` profile: its headwater
 difference fell from `0.089 m` to `0.004 m`.
 
-For the long circular barrel, the M2 profile reaches the crown at station `68.483 m`
+For the long circular barrel, the default M2 profile reaches the crown at station `68.463 m`
 from the inlet. Treating the upstream reach as full and continuing with full-section friction gives
 `12.015 m` headwater versus HY-8's `12.02 m`, while outlet velocity differs by
 `0.003 m/s`. The result is explicitly classified `outlet_control_mixed` and retains
 the full-flow length rather than presenting the entire barrel as free-surface flow.
 HY-8's new diagnostic reports `69.48 m` full and `30.52 m` free, revealing a
-`0.997 m` transition-location difference despite its outlet-control depth agreeing
+`1.017 m` transition-location difference at the default discretisation despite its outlet-control depth agreeing
 within `0.005 m`. The HY-8 plot places the crown transition at station `69.4755 m`.
-This is retained as a profile-detail discrepancy for independent validation, not used
-to tune the local direct-step integration.
+An 800-step calculation gives `68.44519 m`; an independent composite-Simpson evaluation
+of the continuous gradually varied-flow integral gives `68.4449163 m`. Refinement therefore
+converges to the independent energy-balance result rather than HY-8. The previous local
+endpoint stopped at `D - 0.0001 m`; it now lands deterministically on the exact crown. The
+remaining approximately `1.031 m` HY-8 difference is retained as a profile-method detail,
+not used to tune the local integration.
 
 The shallow submerged-outlet path now routes the upstream free-surface reach to the
 HGL-crown transition instead of stopping after reporting the downstream full segment.
@@ -220,6 +274,48 @@ precise closed-executable behavior has not been independently reconstructed, so 
 `0.414 m` difference is an explained method difference rather than a calibration target.
 It remains inappropriate to tune the published HDS-5 coefficients to this one HY-8 result.
 
+### CS-008 discrepancy sweeps (2026-09-09)
+
+The focused nearby-discharge evidence is retained in
+[`validation_data/hy8_8_0_1_2_discrepancy_sweep.csv`](validation_data/hy8_8_0_1_2_discrepancy_sweep.csv).
+It used the same executable, `run-hy8` source commit, geometry, coefficient mappings,
+tailwaters, profile option, and report-field checks as the 20-case matrix. Python 3.14.6
+ran with bytecode generation disabled. Raw `.hy8`, `.rst`, `.rsql`, and `.plt` files were
+retained during the audit in the ignored per-case workspace; the repository CSV preserves
+the inputs and parsed diagnostics without machine-specific project data.
+
+After the pinned wheel was installed in the Python 3.14 user environment, both artifacts
+were executed again with `PYTHONPATH` cleared. Installation metadata identifies
+`run-hy8 2026.9.8.1` and wheel SHA-256
+`efacb82b13f0fc07fa239a9db91a3e329e87f6622e53e3c5d92525848ca70a1e`.
+The installed-package outputs matched the retained files byte-for-byte: the 20-row matrix
+has SHA-256 `dab7c2ef33ce551ae66fa4b74c879e11404dfcc45c78577910452e005abdc590`,
+and the 27-row sweep has SHA-256
+`1d93678c0acac656a1bc4a37d0b740d9ed7bf752897fb38aa847e6c4a8c6b7be`.
+
+The circular-CSP Type 6 sweep covers nine discharges from `3.80` to `5.20 m³/s`, including
+the original `4.63 m³/s` case. HY-8 remains `6-FFc`, the local result remains submerged
+inlet control with its high-head-extension warning, and no HY-8 qualifier appears at any
+point. The local-minus-HY-8 inlet-depth difference changes monotonically from `-0.223 m`
+to `-0.563 m`; local outlet-control depth remains within `0.012 m`, and local full length
+remains within `0.036 m` of HY-8's reported `10.00 m`. This is a smooth, discharge-dependent
+high-head inlet-method difference, not a flow-type transition, outlet-control defect, or
+report-parser defect. Its disposition is **explained method difference**: direct HDS-5
+Equation A.3 versus HY-8's closed polynomial/general-orifice extension, with the latter
+still not adopted as a calibration target.
+
+The long circular M2/full sweep covers 18 discharges from `2.60` to `3.40 m³/s`, including
+`0.01 m³/s` spacing from `3.20` through `3.30 m³/s`. Every HY-8 result remains `7-M2c` and
+every local result remains an outlet-control mixed M2/full profile. Both reported full
+lengths increase continuously with discharge. The local-minus-HY-8 full-length difference
+ranges from `-2.318 m` at `2.60 m³/s` to `-0.027 m` at `3.30 m³/s`; its nonlinear narrowing
+near `3.20` to `3.25 m³/s` does not coincide with a flow-type branch change. Outlet-control
+headwater stays within `0.008 m` throughout. Raw `.plt` crown points agree with the parsed
+full lengths, ruling out a parser defect. Together with the CS-004 continuous-energy
+integration, this is disposed as an **explained profile-method detail** rather than a local
+defect: HY-8 and the direct-step method place the crown intersection differently while
+closely agreeing on the governing headwater.
+
 HY-8 uses a fitted fifth-degree inlet curve for the compared shapes (User Manual
 sections 5.2.1.1-5.2.1.2 and Appendix 11.3), whereas this project currently evaluates
 the HDS-5/NBS equations directly. Their differences are recorded as method differences,
@@ -232,13 +328,20 @@ concrete case and `0.057 m` for the concrete box. This supports the expected dis
 between the HDS-5 branch/tangent implementation and HY-8's fitted shape-specific curves;
 it is not evidence that one universal correction should be applied.
 
-Run the comparison from the repository root with `run-hy8 2026.9.8.1` installed:
+Run the comparison from the repository root with `run-hy8 2026.9.8.1` installed. The
+editable local package or an explicit `src` path must resolve `culvert_solver`; no
+`run-hy8` source-path override is required:
 
 ```powershell
-$env:PYTHONPATH = 'E:\Github\ryan-culverts\src'
-python scripts/compare_hy8.py `
+$env:PYTHONDONTWRITEBYTECODE = '1'
+python -B scripts/compare_hy8.py `
   --workspace validation_artifacts/hy8-matrix `
   --output docs/validation_data/hy8_8_0_1_2_matrix.csv
+
+python -B scripts/compare_hy8.py `
+  --workspace validation_artifacts/hy8-discrepancy-sweep `
+  --discrepancy-sweep `
+  --output docs/validation_data/hy8_8_0_1_2_discrepancy_sweep.csv
 ```
 
 HY-8 project/report artifacts are intentionally ignored because they are regenerable
@@ -248,8 +351,10 @@ evidence, not an acceptance tolerance or engineering
 validation. The retained CSV includes profile codes, jump stations, stable local warning
 codes, HY-8 inlet/outlet candidate depths and qualifiers, and HY-8 full/free barrel
 lengths. CS-003 has classified the Type 6 headwater discrepancy as a warned high-head
-method difference. CS-004 must still add independent primary-source fixtures and settle
-the remaining mixed-profile details.
+method difference. CS-004 independently validated the supported prismatic profile families
+and mixed crown transition. CS-008 reproduced both differences, established their
+nearby-discharge behavior, and disposed them as explained method differences without
+tuning the local equations.
 
 Further HEC-RAS, SWMM and STREAM-1D comparisons remain deferred. Pin versions, inputs,
 units, coefficient mappings, method options and output precision. Agreement does not

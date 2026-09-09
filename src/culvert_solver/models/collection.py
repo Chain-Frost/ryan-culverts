@@ -9,15 +9,21 @@ from typing import TYPE_CHECKING, cast
 
 from ..exceptions import InvalidInputError
 from ..inlet_control.coefficients import InletCoefficients
-from ..outlet_control.losses import EntranceLossCoefficient
+from ..outlet_control.losses import EntranceLossCoefficient, ExitLossSelection
 from ..references.models import SourceReference
 from .crossing import CulvertCrossing
-from .enums import ControlType, HydraulicWarningCode, RoughnessSelectionBasis
+from .enums import (
+    ApplicabilityNoticeCode,
+    ControlType,
+    HydraulicWarningCode,
+    RoughnessSelectionBasis,
+)
 from .materials import CulvertMaterial
 from .results import BarrelHydraulicResult, CrossingHydraulicResult, FlowRegime
 
 if TYPE_CHECKING:
     from ..solver.resolvers import EntranceLossSelection, InletCoefficientSelection
+    from .materials import RoughnessApplicabilityNotice
 
 
 @dataclass(frozen=True, slots=True)
@@ -105,6 +111,7 @@ class CrossingSummary:
     tailwater_elevation: float | None
     parameter_set_ids: tuple[str, ...] = ()
     warning_codes: tuple[HydraulicWarningCode, ...] = ()
+    applicability_notice_codes: tuple[ApplicabilityNoticeCode, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -118,6 +125,8 @@ class AdoptedParameterSet:
     roughness_source: SourceReference | None
     inlet: InletCoefficientSelection
     entrance_loss: EntranceLossSelection
+    exit_loss: ExitLossSelection
+    roughness_notices: tuple[RoughnessApplicabilityNotice, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -136,6 +145,7 @@ class GroupSummary:
     control_type: ControlType
     regime: FlowRegime
     warning_codes: tuple[HydraulicWarningCode, ...] = ()
+    applicability_notice_codes: tuple[ApplicabilityNoticeCode, ...] = ()
     hydraulic_jump_station: float | None = None
     full_flow_length: float = 0.0
 
@@ -147,6 +157,7 @@ def _adopted_parameter_key(result: BarrelHydraulicResult) -> tuple[object, ...] 
         or result.roughness_selection_basis is None
         or result.inlet_coefficient_selection is None
         or result.entrance_loss_selection is None
+        or result.exit_loss_selection is None
     ):
         return None
     return (
@@ -157,6 +168,8 @@ def _adopted_parameter_key(result: BarrelHydraulicResult) -> tuple[object, ...] 
         result.roughness_source,
         result.inlet_coefficient_selection,
         result.entrance_loss_selection,
+        result.exit_loss_selection,
+        result.roughness_notices,
     )
 
 
@@ -207,6 +220,7 @@ class InventorySummary:
             result = item.result
             crossing_parameter_ids: list[str] = []
             crossing_warning_codes: list[HydraulicWarningCode] = []
+            crossing_applicability_notice_codes: list[ApplicabilityNoticeCode] = []
             if result is not None:
                 for group_index, group_result in enumerate(result.group_results):
                     barrel_result = group_result.barrel_result
@@ -219,10 +233,12 @@ class InventorySummary:
                         if parameter_set is None:
                             inlet = barrel_result.inlet_coefficient_selection
                             entrance_loss = barrel_result.entrance_loss_selection
+                            exit_loss = barrel_result.exit_loss_selection
                             roughness = barrel_result.adopted_roughness
                             roughness_basis = barrel_result.roughness_selection_basis
                             assert inlet is not None
                             assert entrance_loss is not None
+                            assert exit_loss is not None
                             assert roughness is not None
                             assert roughness_basis is not None
                             generated_id = (
@@ -241,6 +257,8 @@ class InventorySummary:
                                 roughness_source=barrel_result.roughness_source,
                                 inlet=inlet,
                                 entrance_loss=entrance_loss,
+                                exit_loss=exit_loss,
+                                roughness_notices=barrel_result.roughness_notices,
                             )
                             parameter_sets_by_key[key] = parameter_set
                             parameter_keys_by_id[generated_id] = key
@@ -251,8 +269,17 @@ class InventorySummary:
                         register_source(parameter_set.inlet.source)
                         if parameter_set.entrance_loss.source is not None:
                             register_source(parameter_set.entrance_loss.source)
+                        if parameter_set.exit_loss.source is not None:
+                            register_source(parameter_set.exit_loss.source)
                         if parameter_set.roughness_source is not None:
                             register_source(parameter_set.roughness_source)
+                    group_notice_codes = tuple(
+                        dict.fromkeys(notice.code for notice in barrel_result.roughness_notices)
+                    )
+                    for notice in barrel_result.roughness_notices:
+                        register_source(notice.source)
+                        if notice.code not in crossing_applicability_notice_codes:
+                            crossing_applicability_notice_codes.append(notice.code)
                     group_rows.append(
                         GroupSummary(
                             crossing_id=item.crossing_id,
@@ -269,6 +296,7 @@ class InventorySummary:
                             warning_codes=tuple(
                                 dict.fromkeys(warning.code for warning in barrel_result.warnings)
                             ),
+                            applicability_notice_codes=group_notice_codes,
                             hydraulic_jump_station=barrel_result.hydraulic_jump_station,
                             full_flow_length=barrel_result.full_flow_length,
                         )
@@ -288,6 +316,7 @@ class InventorySummary:
                     tailwater_elevation=(None if result is None else result.tailwater_elevation),
                     parameter_set_ids=tuple(crossing_parameter_ids),
                     warning_codes=tuple(crossing_warning_codes),
+                    applicability_notice_codes=tuple(crossing_applicability_notice_codes),
                 )
             )
             for group in item.configuration.groups:

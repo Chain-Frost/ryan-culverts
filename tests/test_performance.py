@@ -10,7 +10,7 @@ work plan:
 - Performance benchmarks without weakening numerical correctness.
 """
 
-import time
+from unittest.mock import patch
 
 import pytest
 
@@ -22,6 +22,7 @@ from culvert_solver.models.group import CulvertGroup
 from culvert_solver.models.materials import CONCRETE
 from culvert_solver.models.results import FlowRegime
 from culvert_solver.models.tailwater import TailwaterCondition
+from culvert_solver.solver import rating_curve as rating_curve_module
 from culvert_solver.solver.barrel import solve_barrel_hydraulics
 from culvert_solver.solver.crossing import solve_crossing_hydraulics
 from culvert_solver.solver.rating_curve import (
@@ -97,6 +98,14 @@ def test_crossing_scalar_equivalence() -> None:
         assert pt.headwater_depth == pytest.approx(
             scalar.headwater_elevation - crossing.min_inlet_invert, rel=1e-9
         )
+
+    budget_result = solve_crossing_hydraulics(crossing=crossing, total_discharge=4.5, tailwater=tw)
+    assert budget_result.headwater_convergence is not None
+    assert budget_result.headwater_convergence.result.iterations <= 10
+    assert all(
+        group.discharge_convergence is None or group.discharge_convergence.result.iterations <= 10
+        for group in budget_result.group_results
+    )
 
 
 def test_deterministic_repeated_runs() -> None:
@@ -187,32 +196,32 @@ def test_rating_curve_regime_changes_continuity() -> None:
         assert rc.points[i].headwater_elevation < rc.points[i + 1].headwater_elevation
 
 
-def test_single_barrel_performance_benchmark() -> None:
-    """Benchmark single barrel evaluation throughput (< 0.6 ms per evaluation)."""
-    geom = CircularGeometry.from_mm(diameter_mm=1000.0)
+def test_removed_short_circuit_and_single_barrel_algorithmic_budget() -> None:
+    """A valid M2 result survives the removed shortcut within a root-work budget."""
+    geom = CircularGeometry(diameter=1.2)
     barrel = CulvertBarrel(
         geometry=geom,
         length=30.0,
         inlet_invert=10.0,
         outlet_invert=9.7,
-        roughness=0.013,
+        roughness=0.020,
         material=CONCRETE,
     )
     tw = 9.7
 
-    n_evals = 200
-    t0 = time.perf_counter()
-    for _ in range(n_evals):
-        solve_barrel_hydraulics(barrel, 2.0, tw)
-    elapsed = time.perf_counter() - t0
-    ms_per_eval = (elapsed / n_evals) * 1000.0
+    result = solve_barrel_hydraulics(barrel, 2.0, tw)
+    assert sum(record.result.iterations for record in result.convergence) <= 20
+    assert result.inlet_control_headwater_elevation is not None
+    assert result.full_flow_headwater_elevation is not None
+    assert result.outlet_control_headwater_elevation is not None
+    assert result.inlet_control_headwater_elevation >= result.full_flow_headwater_elevation
+    assert result.outlet_control_headwater_elevation > result.inlet_control_headwater_elevation
+    assert result.headwater_elevation == pytest.approx(11.2755621109687)
+    assert result.regime is FlowRegime.OUTLET_CONTROL_FREE_SURFACE
 
-    # Temporary environment-sensitive ceiling pending the reproducible CS-007 benchmark.
-    assert ms_per_eval < 0.6, f"Single barrel evaluation too slow: {ms_per_eval:.3f} ms/eval"
 
-
-def test_rating_curve_performance_benchmark() -> None:
-    """Benchmark rating curve generation (< 15 ms for 30 points)."""
+def test_rating_curve_uses_one_scalar_evaluation_per_point() -> None:
+    """Bound rating work structurally instead of asserting elapsed wall time."""
     geom = RectangularGeometry.from_mm(span_mm=2000.0, rise_mm=1200.0)
     barrel = CulvertBarrel(
         geometry=geom,
@@ -225,9 +234,12 @@ def test_rating_curve_performance_benchmark() -> None:
     discharges = generate_discharge_range(0.5, 6.0, num_points=30)
     tw = 49.75
 
-    t0 = time.perf_counter()
-    rc = generate_barrel_rating_curve(barrel, discharges, tw)
-    elapsed_ms = (time.perf_counter() - t0) * 1000.0
+    with patch.object(
+        rating_curve_module,
+        "solve_barrel_hydraulics",
+        wraps=rating_curve_module.solve_barrel_hydraulics,
+    ) as scalar_solver:
+        rc = generate_barrel_rating_curve(barrel, discharges, tw)
 
     assert len(rc.points) == 30
-    assert elapsed_ms < 15.0, f"Rating curve generation too slow: {elapsed_ms:.2f} ms"
+    assert scalar_solver.call_count == len(discharges)

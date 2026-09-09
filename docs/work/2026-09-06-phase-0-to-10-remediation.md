@@ -88,15 +88,15 @@ parallel. Finish CS-011 after CS-005, CS-007 after CS-004/006, and CS-012 last.
 
 | ID | Status | Owner | Updated | Next review | Next action |
 | --- | --- | --- | --- | --- | --- |
-| CS-001 | Ready, in progress | Unassigned | 2026-09-08 | 2026-09-14 | Finish source reviews and publish explicit method decisions and fixture inputs |
+| CS-001 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for a corrected source edition or evidence that changes a recorded decision |
 | CS-002 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Monitor source revisions; reopen only for a supported new material or fallback |
 | CS-003 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen only for primary evidence supporting a different transition or high-head extension |
-| CS-004 | Ready, high risk | Unassigned | 2026-09-08 | 2026-09-14 | Validate mixed profiles and resolve the long-case crown-transition method |
-| CS-005 | Ready, diagnostics implemented | Unassigned | 2026-09-08 | 2026-09-14 | Recheck result fields after CS-004, then unblock CS-011 |
-| CS-006 | Ready in part, primitives added | Unassigned | 2026-09-08 | 2026-09-14 | Add profile, group/crossing, and rating fixtures after CS-004 settles |
-| CS-007 | Blocked by CS-004/006 | Unassigned | 2026-09-08 | 2026-09-14 | Replace the temporary 0.6 ms wall-clock ceiling and rebenchmark after validation |
-| CS-008 | Ready, in progress | Unassigned | 2026-09-08 | 2026-09-14 | Reproduce and explain Type 6 and crown-transition differences without tuning to HY-8 |
-| CS-011 | Waiting for CS-005 | Unassigned | 2026-09-08 | 2026-09-14 | Add mixed-regime and unsupported-result inventory tests after result fields settle |
+| CS-004 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen only for a new supported profile family, geometry, or contrary primary evidence |
+| CS-005 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen when a supported method calculates an additional diagnostic or adopted value |
+| CS-006 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen for a new method or stronger independent combined-system evidence |
+| CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression |
+| CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned comparison that changes a disposition |
+| CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation |
 | CS-012 | Gated release task | Unassigned | 2026-09-08 | 2026-09-20 | Run the release gate and bump the version only for a deliberate wheel handoff |
 
 ### CS-001 - Close the Phase 0 research gate
@@ -121,6 +121,30 @@ Acceptance:
 Deliverable boundary: record a fixture-ready source locator, inputs, expected quantity,
 published precision, and applicability for each selected case. CS-003/004 own method
 implementation and focused tests; CS-006 owns the accepted cross-phase fixture suite.
+
+Handoff (2026-09-09): the local primary PDFs under `reference_docs/` and duplicated HY-8
+evidence under `hy8/` were inventoried and hash-pinned. All ten Bodhaine examples were
+reviewed; four representative input/output records, the corrected FHWA Appendix D
+FC-D-30 cases, and the Austroads design-workflow case are recorded in
+`docs/research/fixture_candidates.md` with source precision and applicability.
+
+The method decisions in `docs/computational_basis.md` retain HDS-5 as the hydraulic
+baseline, use Bodhaine for physical classification, keep HY-8 as a pinned comparison,
+and use Austroads for Australian application context. Corrected box coefficients require
+typed fillet/bevel/skew/barrel-count context (CS-013). NCHRP 734 Borda-Carnot outlet loss,
+slipline, buried-invert, and composite-roughness work require richer boundary/material
+models (CS-014); the original embedded coefficients are rejected because the bundled HY-8
+correction documents flawed dimensionless flow and false beveled-case data. The Austroads
+Section 3.15.1 full-flow velocity inconsistency is isolated as CS-015 rather than embedded
+in a fixture.
+
+Verification and remaining limitations: `python -m pymarkdown -d MD013 scan` passed for
+the edited Markdown files, all 16 recorded PDF path/hash records matched the local files,
+and `git diff --check` passed. No tests were run because this documentation-only task changed
+no solver code, fixture code, or tests. The corrected FHWA box fixtures are not executable
+with the current sharp-corner rectangular geometry; Bodhaine values remain historical-
+method comparisons; and no unresolved coefficient was added to the library. Nothing was
+committed, built, versioned, or published.
 
 ### CS-002 - Complete the defaults and configuration policy
 
@@ -268,13 +292,47 @@ Type 6 is considered supported.
 Immediate deliverables:
 
 1. independently reproduce at least one S2, S1/JS1, and mixed M2/full profile;
-2. explain or correct the long-case crown station (`68.483 m` local versus `69.4755 m`
+2. explain or correct the long-case crown station (`68.463 m` local versus `69.4755 m`
    in the HY-8 plot), including a documented step-refinement check;
 3. convert remaining physically unsupported profile combinations into explicit errors or
    structured limitation warnings;
 4. leave the high-head inlet equation itself to CS-003.
 
 Depends on: CS-001 and CS-003 where transition behaviour affects selection.
+
+Handoff (2026-09-08): CS-004 is complete within its stated prismatic circular/rectangular
+boundary. The old integration stopped at `D - 0.0001 m`; it now targets the exact crown and
+forces the final depth increment to land on its target instead of occasionally skipping it
+through floating-point accumulation. The default 50-step crown station is `68.463 m`, the
+800-step result is `68.44519 m`, and an independent composite-Simpson evaluation of
+`dx/dy = (1 - Fr²) / (S0 - Sf)` gives `68.4449163 m`. The remaining approximately
+`1.031 m` difference from HY-8's `69.4755 m` plot value is therefore not a step-resolution
+error and was not used for tuning.
+
+Direct step is adopted for monotonic profiles in the supported prismatic built-in geometries;
+standard/continuous energy integration is the independent validation method, and momentum
+matching handles hydraulic jumps. `compute_backwater_profile` now rejects a submerged
+outlet rather than inferring whole-barrel full flow from that condition alone; the regime
+solver owns pressurised and mixed classification.
+
+Fixed independent continuous-energy references now cover S2, S1, M2, M1, and H2 profiles;
+an independent momentum-function calculation covers JS1; and the refined mixed M2/full
+case covers the crown transition. Each supported family has a forcing test. The unsupported
+audit confirms that adverse slopes fail at `CulvertBarrel` construction, direct S2 routing
+rejects non-steep slopes, invalid numerical inputs fail explicitly, and the direct backwater
+API rejects submerged-outlet inference. Governing selection compares only the routed inlet
+candidate with a physically classified outlet candidate; inadmissible steep S2/JS1 outlet
+candidates are excluded rather than selected by magnitude.
+
+Remaining limitations are outside CS-004 acceptance: non-prismatic barrels have no claimed
+profile validation, adverse slopes remain unsupported, and the approximately `1.031 m`
+HY-8 crown-location difference remains external-method evidence under CS-008. Nothing was
+committed, built, versioned, or published.
+
+Verification: 38 focused profile/regime/outlet tests and all 268 repository tests passed.
+Repository-wide Ruff check and format, strict Pyright, Markdown lint with MD013 excluded,
+and `git diff --check` passed. Ruff mechanically reformatted four overlength lines in the
+already-modified inlet solver without changing its logic.
 
 ### CS-005 - Complete public results and diagnostics
 
@@ -284,10 +342,11 @@ candidate headwaters, depths, velocities, losses, convergence data, profile stat
 structured warnings needed for engineering review. Preserve zero-flow and inactive-group
 exactness. Do not discard provenance by copying only `selection.value` into a result.
 
-Implemented so far: barrel results retain adopted values and provenance, all available
+Implemented: barrel results retain adopted values and provenance, all available
 headwater candidates, profile classification, and typed limitation warnings. Rating-curve
 points retain the full structured warnings, while inventory group and crossing rows expose
-deduplicated warning codes. Loss components and convergence records remain outstanding.
+deduplicated warning codes. Loss components, convergence records, and selected profile
+objects are exposed through typed public results.
 
 Boundary: expose computations already performed by the selected hydraulic methods. Do
 not change equations, profile selection, or acceptance thresholds under CS-005.
@@ -314,6 +373,27 @@ friction, exit, or total loss; interpolation fallbacks have no root result; and 
 longitudinal points are not calculated. CS-002 is now settled; recheck the public fields
 after CS-004 settles before marking CS-005 complete or starting CS-011. Nothing was
 committed, built, or published.
+
+Completion handoff (2026-09-08): the post-CS-004 audit found and closed one remaining
+provenance gap. `ExitLossSelection` now preserves the adopted `Ko`, selection basis, and
+HDS-5 Equation 3.4c source for the standard reservoir/pool assumption; numeric overrides
+are explicitly labelled as user supplied. Both `FullFlowOutletResult` and
+`BarrelHydraulicResult` expose the selection, and inventory `AdoptedParameterSet` records
+retain it and register its source. End-to-end tests also confirm that accepted M2/full,
+S1/full, and JS1/full results retain their selected profile objects and transition details
+for plotting without rerunning private solver code.
+
+CS-005 acceptance is complete without changing equations, profile selection, or numerical
+tolerances. Remaining limitations are method-shaped rather than missing diagnostics:
+free-surface paths do not calculate separate scalar friction, exit, or total losses;
+interpolation fallbacks have no fabricated root record; and the full-flow method does not
+calculate longitudinal profile points. Nothing was committed, built, versioned, or
+published.
+
+Verification: `python -m pytest -q tests/test_outlet_control.py tests/test_regime.py
+tests/test_models.py tests/test_collection.py tests/test_crossing.py tests/test_rating_curve.py`
+passed 87 tests; `python -m pytest -q` passed all 270 tests. Repository-wide Ruff check and
+format, strict Pyright, Markdown lint with MD013 excluded, and `git diff --check` passed.
 
 ### CS-006 - Independent validation for Phases 1-10
 
@@ -352,6 +432,25 @@ fixtures do not claim that internal equation agreement proves combined-method va
 The recurring environment-sensitive timing failure remains assigned to CS-007. Nothing
 was committed, built, versioned, or published.
 
+Completion handoff (2026-09-08): CS-006 is complete for the currently supported methods.
+Fixed independent references now cover the hydraulic primitives and every accepted
+prismatic profile family. New system fixtures verify a three-barrel group and a two-group
+crossing against an independently evaluated HDS-5 full-flow headwater and the exact
+equal-barrel conservation split. A fixed four-point performance curve independently
+reproduces unsubmerged, transition, and submerged inlet-control headwaters.
+
+The source and method locators, inputs, expected results, observed differences, regime
+agreement, and quantity-specific tolerances are recorded in `docs/validation.md`. The
+fixtures do not call one public package entry point to generate expectations for another.
+Remaining limitations are stronger evidence for unequal barrels, tailwater rating
+relationships, storage routing, and roadway overtopping; these are future validation or
+deferred-feature work rather than failures of the accepted scope. Nothing was committed,
+built, versioned, or published.
+
+Verification: `python -m pytest -q tests/test_crossing.py tests/test_rating_curve.py`
+passed 15 tests; `python -m pytest -q` passed all 272 tests. Repository-wide Ruff check and
+format, strict Pyright, Markdown lint with MD013 excluded, and `git diff --check` passed.
+
 ### CS-007 - Validate Phase 10 performance behaviour
 
 Scope: benchmark repeated scalar and crossing evaluations on fixed cases. Prove the
@@ -362,6 +461,35 @@ Acceptance: correctness comparison with optimisation enabled/removed, reproducib
 benchmark method, recorded environment, and non-flaky performance thresholds.
 
 Depends on: CS-004 and CS-006.
+
+Handoff (2026-09-08): CS-007 is complete. The fixed `< 0.6 ms/evaluation` assertion was
+removed because wall time depends on processor, interpreter, power state, and concurrent
+load. Ordinary tests now enforce non-flaky algorithmic budgets: no more than 20 recorded
+root iterations for a fixed M2 barrel, no more than 10 for each exposed root in the fixed
+two-group crossing, and exactly one scalar hydraulic solve per rating-curve point.
+
+The former full-flow-candidate shortcut remains removed. Its fixed regression case has
+`HW_inlet=11.211267 m` and approximate `HW_full=11.115085 m`, satisfying the old shortcut
+premise, but the validated M2 outlet candidate is higher at `11.275562 m`. Re-enabling the
+shortcut would therefore change both the adopted headwater and control classification.
+
+`benchmarks/benchmark_solver.py` provides the separate reproducible timing method with
+warm-up batches, repeated samples, garbage collection disabled during measurement,
+nanosecond monotonic timing, robust summary statistics, deterministic-result checks, and
+JSON environment metadata. On CPython 3.14.6, Windows 10 build 19045, AMD64 Family 25
+Model 97 Stepping 2 with 16 logical CPUs, seven samples measured medians of
+`0.8851 ms` per fixed single-barrel evaluation and `94.2260 ms` per fixed two-group
+crossing evaluation. These values are observations, not portable thresholds.
+
+Remaining limitations: the benchmark does not pin CPU affinity or power state, does not
+cover a multi-machine CI matrix, and algorithmic iteration budgets cannot detect a slower
+implementation with unchanged iteration counts. Compare wall times only on equivalently
+configured target hardware. Nothing was committed, built, versioned, or published.
+
+Verification: `python -m pytest -q tests/test_performance.py` passed 7 tests and
+`python -m pytest -q` passed all 272 tests. Repository-wide Ruff check and format, strict
+Pyright for `src`, `tests`, and the benchmark script, Markdown lint with MD013 excluded,
+and `git diff --check` passed.
 
 ### CS-008 - External verification and discrepancy evidence
 
@@ -391,6 +519,32 @@ Acceptance: the two discrepancies have reproducible evidence and an explicit dis
 of explained method difference, confirmed local defect, confirmed external-tool defect,
 or unresolved limitation. Later HEC-RAS, SWMM, and STREAM-1D cases remain optional until
 the internal methods stabilize.
+
+Handoff (2026-09-09): the 20-case matrix was reproduced from the current solver and HY-8
+8.0.1.2, then refreshed to include the settled CS-003/004 diagnostics. A new reproducible
+comparison mode and 27-row CSV retain nearby-discharge evidence for both discrepancies.
+Across nine Type 6 flows, the inlet-depth gap changes smoothly while all HY-8 results
+remain `6-FFc`; this confirms the already warned high-head inlet-method difference. Across
+18 long-barrel flows, both crown locations change continuously, all HY-8 results remain
+`7-M2c`, and governing headwaters remain close; this confirms a profile-method detail
+rather than a classification or parser defect. No solver equation, coefficient, selection
+rule, or numerical tolerance changed.
+
+Verification and remaining limitations: Python 3.14.6 executed the installed, hash-pinned
+`run-hy8 2026.9.8.1` wheel with `PYTHONPATH` cleared and bytecode generation disabled.
+Its 20-row matrix and 27-row sweep matched the retained CSVs byte-for-byte. The harness
+retained and cross-checked HY-8 flow, velocity, type, inlet/outlet candidates, qualifiers,
+and full/free length balance; raw ignored workspaces contain the generated project, result,
+query, and plot reports. `docs/validation.md` records the fixed inputs, executable/report
+precision, numeric ranges, and explicit dispositions. The 20-row and 27-row artifact assertions,
+all 274 tests, strict Pyright, Markdown lint with MD013 excluded, and `git diff --check`
+passed. Ruff check and format could not execute because Windows denied access to the
+user-site `ruff.exe`; the edited Python was reviewed directly, and this environment issue
+is recorded rather than reported as a pass. HY-8's closed high-head and profile algorithms
+remain unavailable for independent reconstruction, and optional HEC-RAS, SWMM, and
+STREAM-1D comparisons remain future work. Pip built only a transient editable wheel while
+installing the documented user-level development tools; no release distribution was
+retained. Nothing was committed, versioned, or published.
 
 Depends on: no task for evidence collection; interpretation feeds CS-003/004 and final
 acceptance feeds CS-006.
@@ -430,6 +584,23 @@ Acceptance:
 
 Depends on: CS-005. File/JSON/spreadsheet renderers remain deferred under CS-009.
 
+Handoff (2026-09-09): the road-level inventory now preserves compact crossing and group
+rows for mixed regimes and unresolved calculated results. Hydraulic warning codes and
+roughness applicability-notice codes are deduplicated in encounter order at both levels;
+the full typed roughness notices and their sources remain attached to adopted parameter
+sets. Notice content is part of the canonical parameter-set identity, so different
+assumptions cannot collapse into the same generated identifier. No calculation equation,
+selection rule, or numerical tolerance changed.
+
+Verification and remaining limitations: `python -m pytest -q tests/test_collection.py`
+passed 12 tests and `python -m pytest -q` passed all 274 tests. Repository-wide Ruff check
+and format, strict Pyright, Markdown lint with MD013 excluded, and `git diff --check`
+passed. The model remains an ordered collection of hydraulically independent crossings,
+not a connected network. Persistence, JSON/spreadsheet/GIS renderers, road chainage and
+other caller metadata remain CS-009 or future consumer work. Group rows describe the
+identical-barrel calculation unit and do not expand into repeated per-barrel presentation
+rows. Nothing was committed, built, versioned, or published.
+
 ### CS-012 - Release readiness and wheel handoff
 
 Scope: perform release work only after the requested calculation milestone has satisfied
@@ -463,6 +634,31 @@ Future work includes design-option enumeration, minimum-size search, plotting/HG
 views, additional shapes and materials, roadway overtopping, debris/blockage scenarios,
 and uncertainty/sensitivity analysis. Begin only after their prerequisite result fields
 and hydraulic validation are complete; create separate dated work records when activated.
+
+### CS-013 - Modern box inlet configurations
+
+Before adopting corrected FHWA-HRT-06-138 Table 11 or 12 data, model the physical inlet
+identity: wingwall flare, crown treatment, corner-fillet size, skew, barrel count,
+span-to-rise applicability, and net area. Reproduce a selected Appendix D case without
+substituting sharp-corner geometry. Keep the report's approximately `0.4 < HW/D < 2.3`
+polynomial separate from HY-8's recomputed South Dakota-box polynomial.
+
+### CS-014 - Context-rich NCHRP 734 refinements
+
+Add no NCHRP coefficient until the model represents the context it requires. Candidate
+work includes slipline/host geometry, buried invert and composite roughness, variable
+roughness applicability, and Borda-Carnot outlet loss with downstream channel area. Keep
+the current reservoir/pool `Ko = 1.0` selection available and explicit. Do not implement
+NCHRP's original embedded coefficients: the HY-8 developer correction identifies erroneous
+dimensionless flow and false 50% embedded beveled data, while its replacement polynomial
+includes a synthetic high-flow extension based on an HY-8 trend.
+
+### CS-015 - Austroads worked-example clarification
+
+Resolve AGRD05B-23 edition 1.2 Section 3.15.1's full-flow velocity inconsistency before
+using it as a numerical fixture: printed page 105 states `2.5 m/s`, then tabulates `2.75
+m/s` and uses the latter to obtain `3.08 m/s`. Seek an erratum or corrected edition; until
+then use the case only as a workflow and reporting checklist.
 
 ## Handoff template
 

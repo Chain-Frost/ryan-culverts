@@ -102,7 +102,9 @@ def _default_coefficients_for_barrel(barrel: CulvertBarrel) -> InletCoefficients
             "No default inlet coefficients exist for this rectangular barrel material; "
             "provide inlet_coefficients explicitly."
         )
-    raise InvalidInputError("No default inlet coefficients exist for this geometry; provide them explicitly.")
+    raise InvalidInputError(
+        "No default inlet coefficients exist for this geometry; provide them explicitly."
+    )
 
 
 def _validate_coefficient_shape(barrel: CulvertBarrel, coefficients: InletCoefficients) -> None:
@@ -141,7 +143,9 @@ def calculate_inlet_control_headwater(
     if accel <= 0:
         raise InvalidInputError("g must be strictly positive.")
 
-    coeffs: InletCoefficients = coefficients or barrel.inlet_coefficients or _default_coefficients_for_barrel(barrel)
+    coeffs: InletCoefficients = (
+        coefficients or barrel.inlet_coefficients or _default_coefficients_for_barrel(barrel)
+    )
     _validate_coefficient_shape(barrel, coeffs)
 
     rise: float = barrel.geometry.rise
@@ -190,7 +194,9 @@ def calculate_inlet_control_headwater(
             # Flow at q* = 3.5 in SI units
             q1: float = (3.5 * area * (rise**0.5)) / 1.811
             crit_res1: CriticalDepthResult = calculate_critical_depth(barrel.geometry, q1, g=accel)
-            hwi_d1: float = unsubmerged_headwater_form_1(3.5, crit_res1.specific_energy / rise, slope, coeffs)
+            hwi_d1: float = unsubmerged_headwater_form_1(
+                3.5, crit_res1.specific_energy / rise, slope, coeffs
+            )
             critical_area = barrel.geometry.area(crit_res1.depth)
             discharge_per_q_star = area * (rise**0.5) / KU_SI
             critical_head_tangent = q1 * discharge_per_q_star / (accel * critical_area**2 * rise)
@@ -199,7 +205,9 @@ def calculate_inlet_control_headwater(
             )
         else:
             hwi_d1 = unsubmerged_headwater_form_2(3.5, coeffs)
-            unsubmerged_tangent = coeffs.k * coeffs.m * (Q_STAR_UNSUBMERGED_LIMIT ** (coeffs.m - 1.0))
+            unsubmerged_tangent = (
+                coeffs.k * coeffs.m * (Q_STAR_UNSUBMERGED_LIMIT ** (coeffs.m - 1.0))
+            )
 
         # Evaluate submerged headwater at q* = 4.0
         hwi_d2: float = submerged_headwater(4.0, slope, coeffs)

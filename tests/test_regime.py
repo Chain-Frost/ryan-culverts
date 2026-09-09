@@ -16,6 +16,7 @@ from culvert_solver.models.barrel import CulvertBarrel
 from culvert_solver.models.enums import (
     ControlType,
     ConvergenceCalculation,
+    ExitLossSelectionBasis,
     HydraulicWarningCode,
     ProfileCurve,
 )
@@ -28,6 +29,7 @@ from culvert_solver.models.materials import (
 from culvert_solver.models.results import BarrelHydraulicResult, FlowRegime
 from culvert_solver.models.tailwater import TailwaterCondition
 from culvert_solver.outlet_control.losses import PIPE_CMP_HEADWALL, PIPE_CONCRETE_SOCKET_END
+from culvert_solver.profiles.direct_step import InletControlProfile, WaterSurfaceProfile
 from culvert_solver.references.models import SourceReference
 from culvert_solver.solver.barrel import solve_barrel_hydraulics
 from culvert_solver.solver.config import DEFAULT_SOLVER_CONFIGURATION
@@ -157,7 +159,7 @@ def test_m2_candidate_is_not_suppressed_by_full_flow_shortcut() -> None:
     assert result.profile_curve is ProfileCurve.M2
     assert result.headwater_elevation == pytest.approx(11.2755621109687)
     assert result.outlet_depth == pytest.approx(result.critical_depth)
-    assert result.profile is not None
+    assert isinstance(result.profile, WaterSurfaceProfile)
     assert result.profile.curve_type is ProfileCurve.M2
     assert result.profile.points[0].station == 0.0
     assert result.profile.points[-1].station == barrel.length
@@ -193,8 +195,12 @@ def test_mixed_m2_full_flow_reach_is_reported() -> None:
     assert result.control_type is ControlType.OUTLET
     assert result.regime is FlowRegime.OUTLET_CONTROL_MIXED
     assert result.profile_curve is ProfileCurve.M2
-    assert result.full_flow_length == pytest.approx(68.48, abs=0.02)
+    assert result.full_flow_length == pytest.approx(68.46, abs=0.02)
     assert result.headwater_elevation == pytest.approx(12.015, abs=0.001)
+    assert isinstance(result.profile, WaterSurfaceProfile)
+    assert result.profile.curve_type is ProfileCurve.M2
+    assert result.profile.full_flow_length == result.full_flow_length
+    assert result.profile.profile_limit_station == result.full_flow_length
     assert not result.warnings
 
 
@@ -254,6 +260,10 @@ def test_high_tailwater_forces_outlet_control_full() -> None:
     assert result.full_flow_length == barrel.length
     assert result.outlet_control_losses is not None
     assert result.full_flow_losses is not None
+    assert result.exit_loss_selection is not None
+    assert result.exit_loss_selection.ko == 1.0
+    assert result.exit_loss_selection.basis is ExitLossSelectionBasis.HDS5_STANDARD
+    assert result.exit_loss_selection.source is not None
     assert result.outlet_control_losses is result.full_flow_losses
     losses = result.outlet_control_losses
     assert losses.entrance is not None
@@ -281,6 +291,9 @@ def test_shallow_submerged_outlet_routes_upstream_s1_profile() -> None:
     assert result.profile_curve is ProfileCurve.S1
     assert result.headwater_elevation == pytest.approx(10.9882, abs=0.0001)
     assert result.outlet_depth == barrel.geometry.rise
+    assert isinstance(result.profile, WaterSurfaceProfile)
+    assert result.profile.curve_type is ProfileCurve.S1
+    assert result.profile.points[0].station == 0.0
     assert not result.warnings
 
 
@@ -303,6 +316,9 @@ def test_shallow_submerged_outlet_locates_upstream_js1_profile() -> None:
     assert result.hydraulic_jump_station == pytest.approx(17.53, abs=0.02)
     assert result.hydraulic_jump_swept_out is False
     assert result.outlet_depth == barrel.geometry.rise
+    assert isinstance(result.profile, InletControlProfile)
+    assert result.profile.curve_type is ProfileCurve.JS1
+    assert result.profile.hydraulic_jump_station == result.hydraulic_jump_station
     assert not result.warnings
 
 

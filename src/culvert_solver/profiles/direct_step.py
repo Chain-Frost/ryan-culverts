@@ -502,9 +502,9 @@ def compute_backwater_profile(
 
     Notes
     -----
-    Hydraulic jumps and mixed free-surface/pressurised transitions are not yet solved.
-    Callers must not treat this provisional profile routine as complete HDS-5 flow-type
-    coverage.
+    This routine supports free-surface backwater curves and an upstream full-flow
+    continuation when an M2 profile reaches the crown. A submerged outlet alone does
+    not prove that the whole barrel is full; use the regime solver for that state.
     """
     q: float = finite(discharge, "discharge")
     if q <= 0:
@@ -542,25 +542,12 @@ def compute_backwater_profile(
     # Downstream boundary depth at outlet invert
     tw_depth: float = max(0.0, tw_elev - barrel.outlet_invert)
 
-    # Submerged outlet triggers full flow
+    # A submerged outlet does not by itself establish full flow along the barrel.
     if tw_depth >= rise:
-        # Uniform full flow profile
-        p_in: ProfilePoint = _make_point(0.0, tw_depth, barrel, q, g)
-        p_out: ProfilePoint = _make_point(length, tw_depth, barrel, q, g)
-        v_full: float = cross_section_velocity(q, geom.area_full)
-        hv_full: float = velocity_head(v_full, g=g)
-        he: float = minor_head_loss(loss_coefficient=ke, velocity_head=hv_full)
-        hw_elev: float = p_in.energy_grade_elevation + he
-        return WaterSurfaceProfile(
-            curve_type=ProfileCurve.FULL,
-            points=(p_in, p_out),
-            inlet_depth=tw_depth,
-            inlet_velocity=v_full,
-            inlet_headwater_depth=hw_elev - barrel.inlet_invert,
-            inlet_headwater_elevation=hw_elev,
-            outlet_depth=tw_depth,
-            reaches_normal_depth=False,
-            is_full_flow=True,
+        raise InvalidInputError(
+            "compute_backwater_profile does not infer full-barrel flow from a "
+            "submerged outlet; use determine_governing_regime for pressurised or "
+            "mixed-flow classification."
         )
 
     # Free surface starting depth at outlet
@@ -594,8 +581,8 @@ def compute_backwater_profile(
                 y_target = yn + 1e-4
             else:
                 curve_type = ProfileCurve.M2
-                # Target depth increases towards normal depth
-                y_target = yn - 1e-4
+                # A capacity-exceeded M2 curve reaches the crown at a finite station.
+                y_target = rise if normal_capacity_exceeded else yn - 1e-4
         else:
             # Steep slope
             if y_start > yc:
@@ -622,9 +609,10 @@ def compute_backwater_profile(
         p_inlet: ProfilePoint = _make_point(0.0, curr_y, barrel, q, g)
         raw_points.append(p_inlet)
     else:
-        for _ in range(steps):
-            next_y: float = curr_y + dy
-            if next_y <= 0 or next_y >= rise:
+        for step_index in range(steps):
+            # Avoid accumulated floating-point error skipping an exact crown target.
+            next_y: float = y_target if step_index == steps - 1 else curr_y + dy
+            if next_y <= 0 or next_y > rise:
                 break
 
             e_curr, sf_curr = _energy_and_friction_slope(geom, q, barrel.roughness, curr_y, g)
@@ -690,8 +678,13 @@ def compute_backwater_profile(
             raw_points.append(_make_point(curr_x, curr_y, barrel, q, g))
 
         if curr_x > 0.0:
-            # Reached normal depth asymptotic reach before the inlet
-            reaches_normal = True
+            reached_crown = (
+                curve_type is ProfileCurve.M2
+                and normal_capacity_exceeded
+                and curr_y >= rise - 1e-12
+            )
+            # Otherwise, the profile reached its normal-depth asymptote before the inlet.
+            reaches_normal = not reached_crown
             profile_limit_station = curr_x
             raw_points.append(_make_point(0.0, curr_y, barrel, q, g))
 

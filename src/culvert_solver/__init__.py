@@ -72,6 +72,7 @@ from .models.enums import (
     ConvergenceCalculation,
     CspCorrugation,
     EntranceLossSelectionBasis,
+    ExitLossSelectionBasis,
     GeometryShape,
     HydraulicWarningCode,
     InletEquationForm,
@@ -135,11 +136,14 @@ from .outlet_control.losses import (
 )
 from .outlet_control.losses import (
     STANDARD_EXIT_LOSS_COEFFICIENT,
+    STANDARD_EXIT_LOSS_SELECTION,
     EntranceLossCoefficient,
+    ExitLossSelection,
     calculate_entrance_loss,
     calculate_exit_loss,
     calculate_friction_loss,
     calculate_total_head_loss,
+    resolve_exit_loss_coefficient,
 )
 from .outlet_control.partial_flow import (
     PartialFlowOutletResult,
@@ -216,6 +220,8 @@ __all__: list[str] = [
     "ConvergenceRecord",
     "DEFAULT_SOLVER_CONFIGURATION",
     "EntranceLossCoefficient",
+    "ExitLossSelection",
+    "ExitLossSelectionBasis",
     "EntranceLossSelection",
     "EntranceLossSelectionBasis",
     "EXTREME_HEADWATER_RATIO",
@@ -250,6 +256,7 @@ __all__: list[str] = [
     "RoughnessSelectionBasis",
     "RoughnessApplicabilityNotice",
     "STANDARD_EXIT_LOSS_COEFFICIENT",
+    "STANDARD_EXIT_LOSS_SELECTION",
     "STANDARD_INLET_COEFFICIENTS",
     "STANDARD_WATER_DENSITY",
     "STANDARD_WATER_KINEMATIC_VISCOSITY",
@@ -274,6 +281,7 @@ __all__: list[str] = [
     "calculate_sequent_depth",
     "calculate_partial_flow_outlet_headwater",
     "calculate_total_head_loss",
+    "resolve_exit_loss_coefficient",
     "compute_backwater_profile",
     "compute_inlet_control_s2_profile",
     "compute_steep_inlet_control_profile",

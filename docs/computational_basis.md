@@ -1,14 +1,41 @@
 # Computational basis
 
-Status: implementation basis under review, 2026-09-06. HDS-5 equation and table
-transcriptions used by the current code have been checked. Phase 0 research and
-combined-solver engineering validation are not complete.
+Status: Phase 0 research basis closed 2026-09-09. HDS-5 equation and table
+transcriptions used by the current code have been checked. Research completion does not
+make the combined solver engineering-validated; the remaining validation and external
+comparison tasks are tracked separately.
 
 ## Source hierarchy and scope
 
 Use FHWA HDS-5 (third edition, April 2012) as the starting culvert reference.
 Evaluate refinements against the publications in [references](references.md).
 External software is an implementation comparison, not the definition of truth.
+
+The completed source review adopts the following method dispositions:
+
+- Bodhaine's six types define physical classification evidence, not production equations
+  or a one-to-one mapping to every extended HY-8 profile label.
+- Corrected FHWA-HRT-06-138 coefficients apply only to their recorded box inlet geometry,
+  barrel count, span-to-rise range, fillets, bevels, and skew. They remain unimplemented
+  until CS-013 adds that context. Its Table 12 polynomial is limited to approximately
+  `0.4 < HW/D < 2.3`; it is not HY-8's recomputed South Dakota-box curve.
+- NCHRP 734 supports the current representative-barrel total-flow architecture within its
+  tested limitations. Its Borda-Carnot outlet refinement is deferred because the initial
+  reservoir/pool boundary has no downstream channel area. Slipline, buried-invert,
+  depth-varying, and composite roughness are deferred to CS-014. Original NCHRP embedded-
+  culvert coefficients are rejected for implementation because the HY-8-bundled correction
+  documents a dimensionless-discharge error and false 50% embedded beveled data. The
+  correction's synthetic high-flow extension is also not adopted as primary evidence.
+- Austroads AGRD05B-23 supplies Australian design context, including allowable
+  headwater, blockage, outlet velocity, scour, multiple-event checking, and reporting.
+  It does not displace the HDS-5 computational baseline. Its convention of assigning a
+  near-crown Froude number to full flow is rejected for the computational core: Froude
+  number remains undefined for a pressurised closed section.
+- HY-8 v8.0 method documentation and executable 8.0.1.2 results are pinned comparison
+  evidence. They do not define a local coefficient, transition, or acceptance tolerance.
+
+Fixture-ready source records and the limits of their use are in
+[`research/fixture_candidates.md`](research/fixture_candidates.md).
 
 The first hydraulic scope is steady, forward flow through straight, prismatic
 circular and rectangular barrels. Initial crossing boundaries will be specified
@@ -23,8 +50,9 @@ These are project decisions, not claims that the excluded cases lack solutions.
 An unsupported case must raise a structured error rather than silently selecting
 a different hydraulic model. NCHRP 734 supports representative-barrel
 superposition for most total-flow calculations, but reports nonuniform-approach
-and individual-barrel differences that matter where local barrel performance is
-the design criterion.
+differences up to 10%, depressed-barrel average-flow differences up to about 4%,
+and individual-barrel differences up to about 7%. These limitations matter where
+local barrel performance is the design criterion.
 
 ## SI hydraulic primitives to implement after geometry
 
@@ -74,9 +102,15 @@ outlet velocity merely by dividing flow by the tailwater-wetted barrel area.
 
 HDS-5 describes the effective outlet depth `(dc + D)/2` as an approximation;
 section 3.1.4 states that backwater calculations are required for low headwater.
-Therefore it will not replace a free-surface profile in the production solver.
-The standard-step versus direct-step decision remains open until profile
-equations, critical-point treatment and mixed-flow transitions are reviewed.
+Therefore it does not replace a free-surface profile in the production solver.
+
+Direct step is the adopted production method for monotonic S1, S2, M1, M2, and H2
+profiles in the currently supported prismatic circular and rectangular barrels. Depth is a
+stable integration coordinate for those branches and directly locates normal-depth and
+crown limits. Standard step is reserved as an independent spatial-coordinate validation
+method and for future non-prismatic geometry; it is not currently a second production
+solver. Hydraulic jumps use momentum matching between independently routed S1 and S2
+branches rather than attempting to integrate through the discontinuity.
 
 HEC-RAS's [outlet-control energy formulation][hec-outlet] is an independent
 methodology reference for boundary energy accounting and candidate conditions.

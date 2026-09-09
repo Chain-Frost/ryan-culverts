@@ -14,13 +14,19 @@ Two root-level agent reports were supplied as research intake:
 
 Current reviewed extracts:
 
+- [`local_evidence_inventory.md`](local_evidence_inventory.md): SHA-256 and review/
+  rejection/pending status for every PDF under `reference_docs/` and `hy8/`.
 - [`fhwa_box_inlets.md`](fhwa_box_inlets.md): corrected FHWA-HRT-06-138 Tables
-  11 and 12, including exact local PDF locators. Implementation still requires
-  typed configuration/applicability rules.
+  11 and 12, exact local PDF locators, applicability limits, and the Appendix D
+  configuration boundary. Implementation still requires typed geometry and inlet rules.
 - [`nchrp734_coefficients.md`](nchrp734_coefficients.md): initial slipline and
-  multi-barrel findings from NCHRP 734. The ambiguous final Table 3-2 row label
-  requires a rendered-page check before coefficients are implemented.
+  multi-barrel findings from NCHRP 734. The report's duplicated final Table 3-2 row
+  label is resolved by the immediately preceding narrative but retained as a source typo;
+  the separate HY-8 developer correction blocks use of the original embedded coefficients.
+- [`fixture_candidates.md`](fixture_candidates.md): the complete Bodhaine example audit,
+  selected corrected-box fixtures, and the Austroads worked-example limitation.
 
 The authoritative task status is in
 [`docs/work/2026-09-06-phase-0-to-10-remediation.md`](../work/2026-09-06-phase-0-to-10-remediation.md).
-Phase 0 remains in progress until CS-001 acceptance is met.
+CS-001 closed the research gate on 2026-09-09. The resulting deferred implementation
+work is tracked separately; research completion is not combined-solver validation.

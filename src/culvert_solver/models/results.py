@@ -18,6 +18,7 @@ from .group import CulvertGroup
 
 if TYPE_CHECKING:
     from ..numerical.roots import RootResult
+    from ..outlet_control.losses import ExitLossSelection
     from ..profiles.direct_step import InletControlProfile, WaterSurfaceProfile
     from ..references.models import SourceReference
     from ..solver.resolvers import EntranceLossSelection, InletCoefficientSelection
@@ -94,6 +95,7 @@ class BarrelHydraulicResult:
     warnings: tuple[HydraulicWarning, ...] = ()
     inlet_coefficient_selection: InletCoefficientSelection | None = None
     entrance_loss_selection: EntranceLossSelection | None = None
+    exit_loss_selection: ExitLossSelection | None = None
     adopted_roughness: float | None = None
     roughness_selection_basis: RoughnessSelectionBasis | None = None
     roughness_source: SourceReference | None = None

@@ -9,7 +9,7 @@ from culvert_solver.geometry.circular import CircularGeometry
 from culvert_solver.geometry.rectangular import RectangularGeometry
 from culvert_solver.hydraulics.critical import calculate_critical_depth
 from culvert_solver.models.barrel import CulvertBarrel
-from culvert_solver.models.enums import GeometryShape
+from culvert_solver.models.enums import ExitLossSelectionBasis, GeometryShape
 from culvert_solver.models.tailwater import TailwaterCondition
 from culvert_solver.outlet_control.full_flow import (
     FullFlowOutletResult,
@@ -24,11 +24,14 @@ from culvert_solver.outlet_control.losses import (
     PIPE_CONCRETE_SOCKET_END,
     PIPE_CONCRETE_SQUARE_EDGE,
     STANDARD_EXIT_LOSS_COEFFICIENT,
+    STANDARD_EXIT_LOSS_SELECTION,
     EntranceLossCoefficient,
+    ExitLossSelection,
     calculate_entrance_loss,
     calculate_exit_loss,
     calculate_friction_loss,
     calculate_total_head_loss,
+    resolve_exit_loss_coefficient,
 )
 
 
@@ -47,6 +50,10 @@ def test_entrance_loss_coefficients_standards() -> None:
     assert BOX_CONCRETE_PARALLEL_WINGWALLS_0.ke == 0.7
 
     assert STANDARD_EXIT_LOSS_COEFFICIENT == 1.0
+    assert STANDARD_EXIT_LOSS_SELECTION.ko == STANDARD_EXIT_LOSS_COEFFICIENT
+    assert STANDARD_EXIT_LOSS_SELECTION.used_default
+    assert STANDARD_EXIT_LOSS_SELECTION.source is not None
+    assert STANDARD_EXIT_LOSS_SELECTION.source.source_id == "FHWA-HDS5-2012-EQ-3.4C"
 
 
 def test_entrance_loss_coefficient_validation() -> None:
@@ -60,6 +67,23 @@ def test_entrance_loss_coefficient_validation() -> None:
     with pytest.raises(InvalidInputError, match="shape must be"):
         EntranceLossCoefficient(
             name="Invalid Shape", ke=0.5, shape=cast(GeometryShape, "trapezoidal")
+        )
+
+
+def test_exit_loss_selection_validation_and_override() -> None:
+    """Exit-loss choices retain their default or override basis."""
+    override = resolve_exit_loss_coefficient(0.75)
+    assert override.ko == pytest.approx(0.75)
+    assert override.basis is ExitLossSelectionBasis.USER_OVERRIDE
+    assert override.source is None
+    assert not override.used_default
+
+    with pytest.raises(InvalidInputError, match="name must be nonempty"):
+        ExitLossSelection(
+            ko=1.0,
+            name=" ",
+            basis=ExitLossSelectionBasis.USER_OVERRIDE,
+            source=None,
         )
 
 
@@ -153,6 +177,7 @@ def test_full_flow_circular_submerged_outlet() -> None:
     assert result.friction_loss == pytest.approx(hf_expected, rel=1e-12)
     assert result.entrance_loss == pytest.approx(he_expected, rel=1e-12)
     assert result.exit_loss == pytest.approx(ho_expected, rel=1e-12)
+    assert result.exit_loss_selection is STANDARD_EXIT_LOSS_SELECTION
     assert result.total_head_loss == pytest.approx(h_total_expected, rel=1e-12)
 
     # Submerged tailwater depth = 11.0 - 9.5 = 1.5 m > D (1.0 m)
@@ -264,6 +289,30 @@ def test_full_flow_horizontal_barrel() -> None:
     # HW = HW_elev - 20.0 = (21.5 + H) - 20.0 = 1.5 + H
     assert result.headwater_depth == pytest.approx(1.5 + result.total_head_loss, rel=1e-6)
     assert result.headwater_elevation == pytest.approx(21.5 + result.total_head_loss, rel=1e-6)
+
+
+def test_full_flow_exit_loss_override_is_auditable() -> None:
+    """A numeric Ko override is retained with its explicit selection basis."""
+    barrel = CulvertBarrel(
+        geometry=CircularGeometry(diameter=1.0),
+        length=20.0,
+        inlet_invert=10.0,
+        outlet_invert=9.8,
+        roughness=0.013,
+    )
+
+    result = calculate_full_flow_outlet_headwater(
+        barrel,
+        discharge=1.0,
+        tailwater=10.8,
+        entrance_loss_coefficient=0.5,
+        exit_loss_coefficient=0.75,
+    )
+
+    assert result.exit_loss_selection.ko == pytest.approx(0.75)
+    assert result.exit_loss_selection.basis is ExitLossSelectionBasis.USER_OVERRIDE
+    assert result.exit_loss_selection.source is None
+    assert result.exit_loss == pytest.approx(0.75 * result.velocity_head)
 
 
 def test_full_flow_input_validation() -> None:

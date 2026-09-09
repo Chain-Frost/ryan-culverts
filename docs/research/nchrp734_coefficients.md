@@ -42,9 +42,10 @@ Derived from Table 3-2 for Form 1 and Form 2 HDS-5 unsubmerged/submerged equatio
 | **Slip-lined, tapered 4-in. projection** | c = 0.0841, Y = 0.52 | K = 0.5697, M = 0.56 | c = 0.0473, Y = 0.65 |
 
 Source locator: Table 3-2, printed page 23 (local PDF page 31). The final row
-label is interpreted from the test sequence and surrounding discussion because
-the extracted table text repeats the 2-in. label; verify against the rendered
-page before implementation.
+label is printed as a duplicate of the tapered 2-in. row. The narrative on printed
+page 22 (local PDF page 30) identifies `Ke = 0.70` as the tapered 4-in. projection,
+and the four-end-treatment sequence confirms that interpretation. Preserve the source
+typo in review notes; use an explicitly named 4-in record if implemented.
 
 Observation: Under inlet control, there is no appreciable difference between the
 head-discharge relationships for the traditional thin-wall projecting inlet and the
@@ -63,7 +64,32 @@ passage. Source: Chapter 5 conclusions, printed page 49 (local PDF page 57).
 ## 4. Applicability to the Repository
 
 - **Slip-lined configurations** should be added to the inlet configuration catalogue with their associated $K_e$ and inlet control regression constants.
-- **Embedded culverts (composite roughness)** will be required if the domain model is expanded to natural-bottom or partially buried culverts.
+- **Embedded culverts (composite roughness)** will require a new primary or formally
+  corrected basis if the domain model expands to natural-bottom or partially buried
+  culverts. Do not implement original NCHRP Table 2-5 coefficients.
 - Multi-barrel superposition remains a reasonable total-flow architecture for
   `CulvertCrossing`; document the approach-flow and per-barrel limitations rather
   than applying an unsupported blanket efficiency reduction.
+- Chapter 4's Borda-Carnot exit-loss refinement requires downstream channel area and a
+  sudden-expansion context. It is not a drop-in replacement for the current reservoir/
+  pool `Ko = 1.0` assumption.
+- Chapters 7 and 8 show depth-dependent roughness and substantial uncertainty in
+  composite-roughness methods. No composite value may be inferred from a single material
+  enum; CS-014 owns any future context-rich implementation.
+
+## 5. Embedded-coefficient correction
+
+Eric J. Jones's 2019 HY-8 developer note *Reviewing Coefficients in Embedded Circular
+Culverts from NCHRP Report 734* is available locally (PDF pages 1–14 for the method and
+conclusions). It reports two defects in the Chapter 2 research data:
+
+- `A D^0.5` was computed incorrectly, corrupting the dimensionless discharge; and
+- the 50% embedded, beveled-inlet series contained false and insufficient data.
+
+The note recovers a replacement 50% beveled dataset and recalculates dimensionless flow.
+It then adds synthetic high-flow points based on the ratio to HY-8's unembedded curve so a
+fifth-order polynomial remains stable beyond the experiment. That extension is a documented
+HY-8 implementation choice, not primary experimental evidence. Consequently, original
+NCHRP embedded coefficients are rejected for executable use, while the note's adjusted
+polynomials are retained only as version-history/comparison evidence. CS-014 requires a
+formally supportable method decision before adding embedded culverts.

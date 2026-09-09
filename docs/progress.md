@@ -1,5 +1,180 @@
 # Development progress
 
+## 2026-09-09 - CS-008 external discrepancy completion
+
+Completed the version-pinned HY-8 discrepancy audit without changing solver equations.
+The current 20-case matrix was reproduced against HY-8 8.0.1.2 and refreshed for the
+settled CS-003/004 local diagnostics. The comparison script now has a focused sweep mode,
+and its retained 27-row artifact preserves nearby discharges, control candidates,
+qualifiers, profile codes, warnings, and full/free barrel lengths.
+
+Nine Type 6 points from `3.80` to `5.20 m³/s` remain HY-8 `6-FFc`; the inlet-depth gap
+changes smoothly from `0.223` to `0.563 m`, while outlet depth and full length remain close.
+This confirms an explained high-head inlet-method difference rather than a branch, loss,
+or parser defect. Eighteen long-barrel points from `2.60` to `3.40 m³/s` remain `7-M2c`;
+both crown locations vary continuously, and outlet-control headwater remains within
+`0.008 m`. Together with the independent CS-004 integration, the crown-location gap is
+disposed as an explained profile-method detail. Neither discrepancy is a calibration
+target.
+
+Python 3.14.6 ran the installed, hash-pinned `run-hy8 2026.9.8.1` wheel with `PYTHONPATH`
+cleared and bytecode generation disabled. Raw HY-8 project, result, query, and plot files
+were retained in ignored per-case workspaces for the audit. Installed-package reruns of
+both the 20-row matrix and 27-row sweep matched the retained CSVs byte-for-byte. Artifact
+assertions passed for every row, and all 274 tests passed. Strict Pyright,
+Markdown lint with MD013 excluded, and `git diff --check` passed. Windows denied execution
+of the user-site `ruff.exe`, so Ruff check and format are not claimed as passing. Commands
+used `-B`/`PYTHONDONTWRITEBYTECODE`, and no `.pyc` exists in the project source, tests,
+scripts, benchmarks, or docs. Pip built only a transient editable wheel while installing
+the documented user-level development tools; no release distribution was retained.
+Nothing was committed, versioned, or published.
+
+## 2026-09-09 — CS-011 road-level inventory completion
+
+Completed the deterministic road-level inventory and compact summary contract. Mixed
+inlet/outlet-control groups retain their input order and regimes, while unresolved
+calculated regimes remain visible with deduplicated hydraulic warning codes. Crossing and
+group rows now also expose ordered roughness applicability-notice codes. The adopted
+parameter catalogue retains each full typed notice and its source, and includes notices in
+the canonical identity so differing assumptions do not collapse into one entry.
+
+Focused inventory verification passed 12 tests, including 50-crossing determinism,
+deduplication, provenance separation, stable ordering and identifiers, mixed regimes,
+warnings, applicability notices, and repeated execution. The full suite passed all 274
+tests. Repository-wide Ruff check and format, strict Pyright, Markdown lint with MD013
+excluded, and `git diff --check` passed.
+
+The inventory remains a collection of hydraulically independent crossings rather than a
+connected network. Persistence and JSON/spreadsheet/GIS presentation remain CS-009;
+road chainage and other caller metadata require a concrete consumer. Summary rows remain
+group-level and do not duplicate identical results once per physical barrel. No hydraulic
+equation, selection rule, or tolerance changed, and nothing was committed, built,
+versioned, or published.
+
+## 2026-09-09 — CS-001 research gate completion
+
+Completed the applicable primary-source review using the local PDFs under
+`reference_docs/` and HY-8 evidence under `hy8/`. The source register now records review
+status, while the local evidence inventory classifies and SHA-256-pins every PDF in both
+directories. The installed HY-8 executable is separately pinned to file/product version
+8.0.1.2 and its binary hash. The mutable `alejandroechev/culvertflow` comparison source
+is pinned to commit `5a5ac50c`.
+
+All ten Bodhaine worked examples were reviewed. Four detailed historical-method records,
+two corrected FHWA Appendix D box cases, and the Austroads Section 3.15.1 workflow case
+now preserve inputs, expected quantities, published precision, locators, and applicability
+in `docs/research/fixture_candidates.md`. Method decisions retain HDS-5 as the production
+baseline, Bodhaine as physical-classification evidence, HY-8 as comparison evidence, and
+Austroads as Australian application guidance.
+
+Remaining limitations are explicit future work. CS-013 owns typed modern-box inlet
+geometry before corrected FHWA coefficients can be executable. CS-014 owns any NCHRP
+slipline, buried-invert, Borda-Carnot outlet, variable-roughness, or composite-roughness
+support. The original NCHRP embedded coefficients are explicitly rejected because the
+HY-8 developer correction identifies a dimensionless-flow error and false beveled-case
+data; that note's synthetic extension is comparison evidence only. CS-015 records the
+Austroads worked example's inconsistent `2.5`/`2.75 m/s` full-flow velocity. Markdown
+lint passed for the edited documentation, every recorded PDF hash matched, and `git diff
+--check` passed. No tests were run because no solver code, fixture code, test, coefficient,
+or tolerance changed. Nothing was committed, built, versioned, or published.
+
+## 2026-09-08 — CS-007 reproducible performance contract
+
+Replaced the temporary `< 0.6 ms/evaluation` test with processor-independent algorithmic
+budgets. The performance suite now caps recorded root iterations for fixed scalar and
+crossing cases and verifies that rating generation performs exactly one scalar solve per
+point. It also retains the counterexample proving that the removed full-flow-candidate
+shortcut would suppress a higher valid M2 outlet-control result and change classification.
+
+Added `benchmarks/benchmark_solver.py` for explicit wall-clock observations. It warms the
+cases, measures repeated batches with `perf_counter_ns`, disables garbage collection during
+samples, checks deterministic results, and emits JSON containing min/median/p95 timings and
+the complete runtime environment. The recorded CPython 3.14.6 / Windows 10 / AMD Family 25
+Model 97 run measured `0.8851 ms` median for the fixed scalar case and `94.2260 ms` for the
+fixed two-group crossing. These figures are hardware-specific observations, not test gates.
+
+Focused performance verification passed 7 tests and the full suite passed all 272 tests.
+Repository-wide Ruff check and format, strict Pyright for both configured source/tests and
+the benchmark script, Markdown lint with MD013 excluded, and `git diff --check` passed.
+
+Remaining limitations: CPU affinity and power state are not pinned, no cross-machine CI
+baseline exists, and iteration budgets do not detect slower code when iteration counts are
+unchanged. CS-007 is complete. Nothing was committed, built, versioned, or published.
+
+## 2026-09-08 — CS-006 independent system fixtures
+
+Completed the remaining CS-006 aggregation and rating validation. A three-barrel group and
+an unequal-quantity two-group crossing now compare with a fixed HDS-5 full-flow headwater
+calculated outside package entry points. The fixtures verify exact equal-barrel flow division,
+group/crossing conservation, common headwater, and full outlet-control classification. A
+four-point rating curve independently checks fixed headwaters across unsubmerged,
+transition, and submerged inlet-control branches.
+
+HDS-5 printed pages 3.9–3.10, 3.20, and 3.26 provide the loss, performance-curve, and
+identical-barrel distribution source locators. `docs/validation.md` records every input,
+expected result, observed difference, regime classification, and quantity-specific
+tolerance. Focused crossing and rating verification passed 15 tests.
+
+The full suite passed 272 tests. Repository-wide Ruff check and format, strict Pyright,
+Markdown lint with MD013 excluded, and `git diff --check` passed.
+
+Remaining limitations: the suite has no independent unequal-barrel worked example,
+tailwater rating relationship, storage-routing case, or roadway-overtopping case. The last
+two remain deferred product scope. CS-006 is complete and CS-007 is ready. Nothing was
+committed, built, versioned, or published.
+
+## 2026-09-08 — CS-005 result contract completion
+
+Completed the post-CS-004 audit of public hydraulic results. The audit found that calculated
+exit loss was exposed but its adopted coefficient was not. Added typed `ExitLossSelection`
+records carrying `Ko`, default/override basis, and the HDS-5 Equation 3.4c source for the
+standard reservoir/pool assumption. Full-flow and barrel results now expose that record;
+inventory adopted-parameter sets retain it and register its source. Numeric low-level
+overrides remain identifiable as user supplied.
+
+End-to-end tests confirm that accepted M2/full, S1/full, and JS1/full results retain the
+selected profile and transition details required for plotting. No equation, profile choice,
+acceptance threshold, or numerical tolerance changed. Focused outlet, regime, model,
+inventory, crossing, and rating-curve verification passed 87 tests.
+
+The full suite passed 270 tests. Repository-wide Ruff check and format, strict Pyright,
+Markdown lint with MD013 excluded, and `git diff --check` passed.
+
+Remaining limitations are explicit: free-surface methods do not separately calculate
+scalar friction, exit, or total losses; interpolation fallbacks have no numerical root
+record; and full-flow calculations do not produce longitudinal profile points. CS-005 is
+complete and CS-011 is ready. Nothing was committed, built, versioned, or published.
+
+## 2026-09-08 — CS-004 profile and regime completion
+
+Resolved the local long-case endpoint ambiguity without tuning to HY-8. The M2 integration
+now reaches the exact crown and forces its final depth increment to the requested target,
+eliminating step-count-dependent floating-point skips. The default crown station is
+`68.463 m`; 800 steps give `68.44519 m`; an independent composite-Simpson continuous
+energy integration gives `68.4449163 m`. The remaining approximately `1.031 m` difference
+from HY-8's plotted station is a retained method/detail discrepancy, not discretisation error.
+
+Direct step is now documented as the production method for monotonic profiles in supported
+prismatic barrels, with continuous/standard-step energy integration reserved for independent
+validation. The direct backwater API now rejects submerged-outlet input rather than
+inferring full-barrel flow; pressurised and mixed state selection remains in the regime
+solver. Focused profile/regime/outlet tests passed 38 tests and the full suite passed 268.
+Repository-wide Ruff check and format, strict Pyright, Markdown lint with MD013 excluded,
+and `git diff --check` passed. Ruff also mechanically reformatted four overlength lines in
+the already-modified inlet solver; no inlet-control logic changed.
+
+Fixed references calculated outside package entry points now force and verify S2, S1, JS1,
+M2, M1, H2, and mixed M2/full behaviour. The independent implementation uses continuous
+gradually varied-flow integration, separate section formulae and bisection, plus independent
+momentum-function matching for JS1. The unsupported audit confirmed explicit rejection of
+adverse slopes, non-steep S2 requests, submerged-outlet inference through the direct
+backwater API, and invalid numerical inputs. CS-004 is complete within the supported
+prismatic circular/rectangular boundary.
+
+Remaining limitations: non-prismatic profile validation and adverse slopes are outside the
+supported boundary, and HY-8's approximately `1.031 m` crown-location difference remains
+external-method evidence for CS-008. Nothing was committed, built, versioned, or published.
+
 ## 2026-09-08 — CS-006 independent primitive fixtures
 
 Completed the ready primitive portion of CS-006. Critical depth, normal depth, circular
@@ -612,7 +787,7 @@ current acceptance status and takes precedence over those chronological descript
 | 8: culvert groups | Complete | Identical parallel barrels and group hydraulics verified |
 | 9: crossings | Implemented | Expand mixed-control and coefficient-configuration cases |
 | 10: rating/performance | Implemented | Record benchmark environment; depends on Phase 4–7 validation |
-| External verification | In progress | 20-case HY-8 matrix covers S1f/JS1f and retains unresolved Type 6 evidence |
+| External verification | Complete for HY-8 8.0.1.2 scope | Discrepancies dispositioned; other external tools remain optional |
 
 ## Current handoff
 

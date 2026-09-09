@@ -10,6 +10,8 @@ from culvert_solver import (
     CIRCULAR_CONCRETE_SQUARE_EDGE,
     CONCRETE,
     CORRUGATED_STEEL,
+    STANDARD_EXIT_LOSS_SELECTION,
+    ApplicabilityNoticeCode,
     BarrelHydraulicResult,
     CircularGeometry,
     ControlType,
@@ -26,6 +28,7 @@ from culvert_solver import (
     HydraulicWarningCode,
     InvalidInputError,
     InventorySummary,
+    RoughnessApplicabilityNotice,
     SourceReference,
     resolve_entrance_loss_coefficient,
     resolve_inlet_coefficients,
@@ -72,6 +75,7 @@ def _mock_crossing_result(barrel: CulvertBarrel) -> CrossingHydraulicResult:
         normal_depth=0.5,
         inlet_coefficient_selection=resolve_inlet_coefficients(barrel),
         entrance_loss_selection=resolve_entrance_loss_coefficient(barrel),
+        exit_loss_selection=STANDARD_EXIT_LOSS_SELECTION,
         adopted_roughness=barrel.roughness,
         roughness_selection_basis=barrel.roughness_selection_basis,
         roughness_source=barrel.roughness_source,
@@ -184,24 +188,31 @@ def test_inventory_summary_has_rows_and_deduplicated_basis() -> None:
     assert summary.groups[0].warning_codes == (
         HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION,
     )
+    assert summary.groups[0].applicability_notice_codes == ()
     assert summary.groups[0].hydraulic_jump_station is None
     assert summary.groups[0].full_flow_length == 0.0
     assert summary.crossings[0].warning_codes == (
         HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION,
     )
     assert summary.crossings[1].warning_codes == ()
+    assert summary.crossings[0].applicability_notice_codes == ()
     assert set(summary.materials) == {CONCRETE, CORRUGATED_STEEL}
     assert set(summary.inlet_coefficients) == {
         CIRCULAR_CONCRETE_SQUARE_EDGE,
         CIRCULAR_CMP_HEADWALL,
     }
     assert summary.entrance_loss_coefficients == (PIPE_CMP_PROJECTING,)
+    assert all(
+        parameter_set.exit_loss is STANDARD_EXIT_LOSS_SELECTION
+        for parameter_set in summary.parameter_sets
+    )
     assert set(summary.source_references) == {
         CONCRETE.reference,
         CORRUGATED_STEEL.reference,
         CIRCULAR_CONCRETE_SQUARE_EDGE.reference,
         CIRCULAR_CMP_HEADWALL.reference,
         PIPE_CMP_PROJECTING.reference,
+        STANDARD_EXIT_LOSS_SELECTION.source,
     }
     assert summary.warnings == ("test warning",)
 
@@ -317,3 +328,97 @@ def test_caller_parameter_set_id_is_preserved_and_must_be_unambiguous() -> None:
     )
     with pytest.raises(InvalidInputError, match="Parameter-set ID collision"):
         InventorySummary.from_inventory(conflicting)
+
+
+def test_inventory_summary_preserves_mixed_group_regimes_in_order() -> None:
+    concrete = _test_barrel(CONCRETE, CIRCULAR_CONCRETE_SQUARE_EDGE, 0.5)
+    cmp = _test_barrel(CORRUGATED_STEEL, CIRCULAR_CMP_HEADWALL, PIPE_CMP_PROJECTING)
+    concrete_group = CulvertGroup(concrete)
+    cmp_group = CulvertGroup(cmp, quantity=2)
+    crossing = CulvertCrossing([concrete_group, cmp_group])
+
+    inlet_result = _mock_crossing_result(concrete).group_results[0].barrel_result
+    outlet_result = replace(
+        _mock_crossing_result(cmp).group_results[0].barrel_result,
+        regime=FlowRegime.OUTLET_CONTROL_FULL,
+        control_type=ControlType.OUTLET,
+        warnings=(),
+    )
+    result = CrossingHydraulicResult(
+        headwater_elevation=102.0,
+        total_discharge=3.0,
+        tailwater_elevation=100.0,
+        group_results=(
+            GroupHydraulicResult(concrete_group, 1.0, 1.0, inlet_result),
+            GroupHydraulicResult(cmp_group, 2.0, 1.0, outlet_result),
+        ),
+    )
+
+    summary = InventorySummary.from_inventory(
+        CulvertInventory([CulvertInventoryItem("C-MIXED", crossing, result)])
+    )
+
+    assert [row.group_index for row in summary.groups] == [0, 1]
+    assert [row.control_type for row in summary.groups] == [ControlType.INLET, ControlType.OUTLET]
+    assert [row.regime for row in summary.groups] == [
+        FlowRegime.INLET_CONTROL_UNSUBMERGED,
+        FlowRegime.OUTLET_CONTROL_FULL,
+    ]
+    assert len(summary.crossings[0].parameter_set_ids) == 2
+    assert summary.crossings[0].warning_codes == (
+        HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION,
+    )
+
+
+def test_inventory_summary_retains_unresolved_result_warning_and_provenance() -> None:
+    barrel = _test_barrel(CONCRETE, CIRCULAR_CONCRETE_SQUARE_EDGE, 0.5)
+    group = CulvertGroup(barrel)
+    crossing = CulvertCrossing([group])
+    unresolved_warning = HydraulicWarning(
+        HydraulicWarningCode.MIXED_FLOW_NOT_RESOLVED,
+        "Mixed free-surface/pressurised state requires engineering review.",
+    )
+    roughness_notice = RoughnessApplicabilityNotice(
+        ApplicabilityNoticeCode.MANUFACTURER_DATA_NOT_SUPPLIED,
+        "Test applicability notice.",
+        CONCRETE.reference,
+    )
+    unresolved_barrel = replace(
+        _mock_crossing_result(barrel).group_results[0].barrel_result,
+        regime=FlowRegime.OUTLET_CONTROL_MIXED,
+        control_type=ControlType.OUTLET,
+        warnings=(unresolved_warning, unresolved_warning),
+        roughness_notices=(roughness_notice,),
+        normal_depth=None,
+        profile_curve=None,
+    )
+    result = CrossingHydraulicResult(
+        headwater_elevation=unresolved_barrel.headwater_elevation,
+        total_discharge=unresolved_barrel.discharge,
+        tailwater_elevation=unresolved_barrel.tailwater_elevation,
+        group_results=(GroupHydraulicResult(group, 1.0, 1.0, unresolved_barrel),),
+    )
+
+    summary = InventorySummary.from_inventory(
+        CulvertInventory([CulvertInventoryItem("C-UNRESOLVED", crossing, result)])
+    )
+
+    expected_codes = (HydraulicWarningCode.MIXED_FLOW_NOT_RESOLVED,)
+    assert summary.crossings[0].solved is True
+    assert summary.crossings[0].warning_codes == expected_codes
+    assert summary.groups[0].warning_codes == expected_codes
+    assert summary.crossings[0].applicability_notice_codes == (
+        ApplicabilityNoticeCode.MANUFACTURER_DATA_NOT_SUPPLIED,
+    )
+    assert summary.groups[0].applicability_notice_codes == (
+        ApplicabilityNoticeCode.MANUFACTURER_DATA_NOT_SUPPLIED,
+    )
+    assert summary.groups[0].regime is FlowRegime.OUTLET_CONTROL_MIXED
+    assert summary.groups[0].parameter_set_id == summary.parameter_sets[0].parameter_set_id
+    assert summary.parameter_sets[0].inlet.coefficients is CIRCULAR_CONCRETE_SQUARE_EDGE
+    assert summary.parameter_sets[0].roughness_notices == (roughness_notice,)
+    assert set(summary.source_references) >= {
+        CONCRETE.reference,
+        CIRCULAR_CONCRETE_SQUARE_EDGE.reference,
+        STANDARD_EXIT_LOSS_SELECTION.source,
+    }

@@ -11,7 +11,7 @@ from culvert_solver.models.crossing import CulvertCrossing
 from culvert_solver.models.enums import ConvergenceCalculation
 from culvert_solver.models.group import CulvertGroup
 from culvert_solver.models.materials import CONCRETE
-from culvert_solver.models.results import FlowRegime
+from culvert_solver.models.results import FlowRegime, GroupHydraulicResult
 from culvert_solver.models.tailwater import TailwaterCondition
 from culvert_solver.solver.crossing import (
     solve_barrel_discharge_for_headwater,
@@ -44,6 +44,30 @@ def test_solve_group_hydraulics() -> None:
     assert res.barrel_discharge == pytest.approx(2.0)
     assert res.barrel_result.discharge == pytest.approx(2.0)
     assert res.barrel_result.headwater_elevation > 10.0
+
+
+def test_group_matches_independent_full_flow_conservation_fixture() -> None:
+    """Three identical barrels conserve flow at an independent HDS-5 headwater."""
+    barrel = CulvertBarrel(
+        geometry=CircularGeometry(diameter=1.0),
+        length=50.0,
+        inlet_invert=10.0,
+        outlet_invert=9.5,
+        roughness=0.013,
+        material=CONCRETE,
+    )
+
+    result: GroupHydraulicResult = solve_group_hydraulics(
+        CulvertGroup(barrel, quantity=3), 6.0, 11.0
+    )
+
+    # Independently evaluated from HDS-5 Equations 3.1-3.5 using Q/N=2 m3/s:
+    # He=0.1653101659 m, Hf=0.3479233631 m, Ho=0.3306203318 m.
+    assert result.total_discharge == 6.0
+    assert result.barrel_discharge == 2.0
+    assert result.barrel_result.discharge == 2.0
+    assert result.barrel_result.headwater_elevation == pytest.approx(11.843853860747691, abs=1e-9)
+    assert result.barrel_result.regime is FlowRegime.OUTLET_CONTROL_FULL
 
 
 def test_solve_barrel_discharge_for_headwater() -> None:
@@ -141,6 +165,36 @@ def test_multi_group_crossing_equal_sharing() -> None:
         assert group_result.discharge_convergence.result.root == pytest.approx(
             group_result.barrel_discharge
         )
+
+
+def test_identical_crossing_matches_independent_conservation_fixture() -> None:
+    """Unequal groups of identical barrels share one independently checked headwater."""
+    barrel = CulvertBarrel(
+        geometry=CircularGeometry(diameter=1.0),
+        length=50.0,
+        inlet_invert=10.0,
+        outlet_invert=9.5,
+        roughness=0.013,
+        material=CONCRETE,
+    )
+    crossing = CulvertCrossing([CulvertGroup(barrel, quantity=1), CulvertGroup(barrel, quantity=3)])
+
+    result = solve_crossing_hydraulics(crossing, total_discharge=8.0, tailwater=11.0)
+
+    assert result.headwater_elevation == pytest.approx(11.843853860747691, abs=1e-6)
+    assert [group.total_discharge for group in result.group_results] == pytest.approx(
+        [2.0, 6.0], abs=1e-5
+    )
+    assert [group.barrel_discharge for group in result.group_results] == pytest.approx(
+        [2.0, 2.0], abs=1e-5
+    )
+    assert sum(group.total_discharge for group in result.group_results) == pytest.approx(
+        result.total_discharge, abs=1e-5
+    )
+    assert all(
+        group.barrel_result.regime is FlowRegime.OUTLET_CONTROL_FULL
+        for group in result.group_results
+    )
 
 
 def test_multi_group_crossing_different_inverts() -> None:

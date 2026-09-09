@@ -103,6 +103,12 @@ supplies its separately evaluated entrance loss, while friction is represented t
 the retained profile rather than collapsed into a new scalar. In these records, `None`
 means "not separately calculated by this method" and never means zero.
 
+`exit_loss_selection` records the adopted `Ko`, whether it is the sourced HDS-5
+reservoir/pool standard or a user override, and the source when one applies. The standard
+is `Ko = 1.0` from HDS-5 Equation 3.4c. Inventory `AdoptedParameterSet` records include
+this selection and register its source alongside roughness, inlet-control, and entrance-loss
+provenance; callers therefore do not need to inspect package globals to audit defaults.
+
 Numerically solved critical and normal depths retain their `RootResult`. Barrel results
 also expose labelled `ConvergenceRecord` entries for applicable depth, profile-boundary,
 and hydraulic-jump roots, while multi-group crossing results retain the common-headwater
@@ -184,19 +190,28 @@ Future auditing agents must note the deliberate design rationale for domain cons
 
 ## Performance optimizations (Item 18 / Phase 10)
 
-Rapid design iteration without external software requires sub-millisecond evaluation:
+Brent's method remains the numerical optimisation for nested crossing, critical-depth, and
+normal-depth roots. Performance tests bound deterministic work rather than elapsed time:
+the fixed M2 case permits at most 20 recorded root iterations, the fixed two-group crossing
+permits at most 10 iterations for each exposed root, and rating generation permits exactly
+one scalar hydraulic solve per requested point. These thresholds detect algorithmic
+regressions without depending on processor speed or machine load.
 
-1. **Brent's method root solving**:
-   Nested roots in crossing calculations ($\sum N_i Q_i(HW) = Q_{\text{tot}}$) require
-   evaluating barrel discharge at candidate headwater elevations. Replacing bisection with
-   `solve_brent` reduces iterations per solve from ~25 to ~6, yielding an order-of-magnitude
-   reduction in hydraulic evaluations.
-2. **Candidate short-circuiting**:
-   `determine_governing_regime` currently skips direct-step integration when inlet-control
-   headwater exceeds the approximate full-flow candidate. This is a performance heuristic,
-   not yet a proven universal upper-bound theorem; it remains subject to the Phase 6
-   physical-consistency and external-validation gates.
-3. **Development-machine throughput observations**:
-   - Single barrel: ~0.08 ms / eval (> 12,000 evaluations/sec in pure Python).
-   - Multi-group crossing: ~46 ms / eval.
-   - Rating curve (20 points): ~1.8 ms / curve.
+The former candidate short-circuit has been removed. A fixed counterexample has
+`HW_inlet >= HW_full` while the physically routed M2 outlet-control headwater is higher
+than both. Enabling the old shortcut would therefore change the headwater and classify the
+case as inlet control. The performance suite preserves this comparison explicitly.
+
+Wall-clock results are observational and are collected separately from test gates:
+
+```powershell
+$env:PYTHONPATH = "src"
+python benchmarks/benchmark_solver.py --samples 7 --single-iterations 500 `
+    --crossing-iterations 10 --warmup-batches 2
+```
+
+The benchmark warms both fixed cases, disables garbage collection only during samples,
+uses `time.perf_counter_ns`, reports minimum/median/p95 milliseconds per operation as JSON,
+and records Python, OS, processor, logical CPU count, and clock resolution. Results must be
+compared only between equivalently configured environments; they are not portable pass/fail
+limits.

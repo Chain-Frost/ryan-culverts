@@ -9,7 +9,9 @@
 
 ## 1. Overview
 
-This document extracts the corrected Table 11 and Table 12 coefficients for new inlet geometries introduced in this report. These coefficients are intended to supplement HDS-5 and replace or extend existing box culvert models, primarily resolving inlet control polynomial regressions and HDS-5 Form 1/2 regressions.
+This document extracts the corrected Table 11 and Table 12 coefficients for new inlet
+geometries introduced in this report. They supplement HDS-5 for the listed physical
+configurations; they do not replace generic box coefficients.
 
 ## 2. Table 11 Extracted Coefficients (Form 1 / Form 2)
 
@@ -66,7 +68,19 @@ Table 11 is on printed page 85 (local PDF page 98). Values remain research
 transcriptions until independently checked and represented with executable
 applicability constraints.
 
+The report states on printed pages 72–73 (local PDF pages 85–86) that these
+polynomials cover the measured range and have a useful operating range of approximately
+`0.4 < HW/D < 2.3`. At low head they approach the nonzero intercept and above about
+`HW/D = 2.3` they reach a maximum. HY-8 manual page 45 explicitly says its South
+Dakota-box polynomials were recomputed for `0.5 <= HW/D <= 3.0`; HY-8's values must
+not be attributed to corrected Table 12.
+
 ## 4. Analysis and Impact
 
 - Multi-barrel configurations have a pronounced effect on both the entrance loss coefficient $K_e$ and the polynomial regression fits.
 - The repository's `resolve_inlet_coefficients` will need to be capable of resolving based on span-to-rise ratios and multi-barrel quantities if these box geometries are fully supported.
+- Geometry identity must also include wingwall flare, top-edge treatment, corner-fillet
+  size, skew, and net area. A barrel count alone is insufficient.
+- Appendix D's FC-D-30 `Q25` and `Q100` cases are recorded in
+  [`fixture_candidates.md`](fixture_candidates.md); current sharp-corner rectangular
+  geometry cannot reproduce them without changing the published problem.

@@ -14,12 +14,13 @@ from ..hydraulics.primitives import (
 from ..models.barrel import CulvertBarrel
 from ..models.tailwater import TailwaterCondition
 from .losses import (
-    STANDARD_EXIT_LOSS_COEFFICIENT,
     EntranceLossCoefficient,
+    ExitLossSelection,
     calculate_entrance_loss,
     calculate_exit_loss,
     calculate_friction_loss,
     calculate_total_head_loss,
+    resolve_exit_loss_coefficient,
     validate_entrance_loss_shape,
 )
 
@@ -42,6 +43,7 @@ class FullFlowOutletResult:
     entrance_loss: float
     friction_loss: float
     exit_loss: float
+    exit_loss_selection: ExitLossSelection
     total_head_loss: float
     velocity: float
     velocity_head: float
@@ -90,7 +92,7 @@ def calculate_full_flow_outlet_headwater(
     discharge: float,
     tailwater: TailwaterCondition | float,
     entrance_loss_coefficient: float | EntranceLossCoefficient,
-    exit_loss_coefficient: float = STANDARD_EXIT_LOSS_COEFFICIENT,
+    exit_loss_coefficient: float | None = None,
     g: float = GRAVITATIONAL_ACCELERATION,
 ) -> FullFlowOutletResult:
     """Calculate headwater elevation and losses for a culvert under full-flow outlet control.
@@ -114,8 +116,9 @@ def calculate_full_flow_outlet_headwater(
         Downstream boundary condition as a TailwaterCondition object or absolute elevation (m).
     entrance_loss_coefficient : float | EntranceLossCoefficient
         Entrance loss coefficient Ke.
-    exit_loss_coefficient : float, default=1.0
-        Exit loss coefficient Ko (1.0 for sudden expansion into receiving pool).
+    exit_loss_coefficient : float | None, optional
+        Explicit exit loss coefficient Ko. If omitted, the sourced HDS-5 value of
+        1.0 for discharge into a reservoir or pool is adopted.
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
@@ -144,9 +147,8 @@ def calculate_full_flow_outlet_headwater(
     if ke < 0:
         raise InvalidInputError("entrance_loss_coefficient must be nonnegative.")
 
-    ko: float = finite(exit_loss_coefficient, "exit_loss_coefficient")
-    if ko < 0:
-        raise InvalidInputError("exit_loss_coefficient must be nonnegative.")
+    exit_selection = resolve_exit_loss_coefficient(exit_loss_coefficient)
+    ko = exit_selection.ko
 
     # Tailwater depth relative to outlet invert
     tw_depth: float = max(0.0, tw_elev - barrel.outlet_invert)
@@ -191,6 +193,7 @@ def calculate_full_flow_outlet_headwater(
         entrance_loss=he,
         friction_loss=hf,
         exit_loss=ho,
+        exit_loss_selection=exit_selection,
         total_head_loss=h_total,
         velocity=v,
         velocity_head=hv,

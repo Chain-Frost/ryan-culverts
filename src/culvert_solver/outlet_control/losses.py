@@ -8,7 +8,7 @@ from ..geometry.circular import CircularGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.primitives import friction_head_loss, minor_head_loss
 from ..models.barrel import CulvertBarrel
-from ..models.enums import GeometryShape
+from ..models.enums import ExitLossSelectionBasis, GeometryShape
 from ..references.models import SourceReference
 
 _HDS5_TABLE_C2_REF = SourceReference(
@@ -59,6 +59,54 @@ class EntranceLossCoefficient:
             ) from exc
         object.__setattr__(self, "ke", ke_val)
         object.__setattr__(self, "shape", shape_val)
+
+
+@dataclass(frozen=True, slots=True)
+class ExitLossSelection:
+    """Resolved exit-loss coefficient with selection basis and source provenance."""
+
+    ko: float
+    name: str
+    basis: ExitLossSelectionBasis
+    source: SourceReference | None
+
+    def __post_init__(self) -> None:
+        ko_val = finite(self.ko, "ko")
+        if ko_val < 0:
+            raise InvalidInputError("ko must be nonnegative.")
+        if not self.name.strip():
+            raise InvalidInputError("name must be nonempty text.")
+        if self.basis is ExitLossSelectionBasis.HDS5_STANDARD and self.source is None:
+            raise InvalidInputError("The HDS-5 standard exit loss must identify its source.")
+        object.__setattr__(self, "ko", ko_val)
+
+    @property
+    def used_default(self) -> bool:
+        """Return whether the HDS-5 reservoir/pool assumption supplied the value."""
+        return self.basis is ExitLossSelectionBasis.HDS5_STANDARD
+
+
+STANDARD_EXIT_LOSS_SELECTION = ExitLossSelection(
+    ko=STANDARD_EXIT_LOSS_COEFFICIENT,
+    name="HDS-5 reservoir or pool exit loss",
+    basis=ExitLossSelectionBasis.HDS5_STANDARD,
+    source=_HDS5_SECTION_314_EXIT_REF,
+)
+
+
+def resolve_exit_loss_coefficient(override: float | None = None) -> ExitLossSelection:
+    """Resolve Ko from an optional numeric override or the sourced HDS-5 default."""
+    if override is None:
+        return STANDARD_EXIT_LOSS_SELECTION
+    ko = finite(override, "exit_loss_coefficient")
+    if ko < 0:
+        raise InvalidInputError("exit_loss_coefficient must be nonnegative.")
+    return ExitLossSelection(
+        ko=ko,
+        name="User-specified Ko",
+        basis=ExitLossSelectionBasis.USER_OVERRIDE,
+        source=None,
+    )
 
 
 def validate_entrance_loss_shape(

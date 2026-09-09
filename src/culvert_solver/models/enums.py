@@ -80,6 +80,13 @@ class EntranceLossSelectionBasis(StrEnum):
     GEOMETRY_DEFAULT = "geometry_default"
 
 
+class ExitLossSelectionBasis(StrEnum):
+    """How a resolved exit-loss coefficient was selected."""
+
+    USER_OVERRIDE = "user_override"
+    HDS5_STANDARD = "hds5_standard"
+
+
 class HydraulicWarningCode(StrEnum):
     """Stable codes for supported calculations that retain a documented limitation."""
 

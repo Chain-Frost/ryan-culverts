@@ -50,6 +50,7 @@ def test_inlet_control_s2_profile_routes_downstream() -> None:
     assert profile.inlet_depth == pytest.approx(critical, rel=1e-6)
     assert normal < profile.outlet_depth < critical
     assert profile.outlet_depth == pytest.approx(refined.outlet_depth, abs=1e-3)
+    assert refined.outlet_depth == pytest.approx(0.4136573803, abs=1e-6)
     assert all(
         first.station < second.station
         for first, second in zip(profile.points, profile.points[1:], strict=False)
@@ -95,6 +96,7 @@ def test_steep_profile_locates_in_barrel_hydraulic_jump() -> None:
         refined.hydraulic_jump_station,
         abs=0.1,
     )
+    assert refined.hydraulic_jump_station == pytest.approx(25.60633937, abs=5e-3)
     assert profile.outlet_depth == pytest.approx(0.75)
     jump_points = tuple(
         point
@@ -116,12 +118,14 @@ def test_steep_profile_reports_s1_reaching_inlet() -> None:
     )
 
     profile = compute_steep_inlet_control_profile(barrel, 1.0, 10.7)
+    refined = compute_steep_inlet_control_profile(barrel, 1.0, 10.7, num_steps=800)
 
     assert profile.curve_type is ProfileCurve.S1
     assert profile.hydraulic_jump_station is None
     assert profile.hydraulic_jump_swept_out is False
     assert profile.points[0].station == 0.0
     assert profile.outlet_depth == pytest.approx(1.0)
+    assert refined.inlet_depth == pytest.approx(0.6439884203, abs=1e-6)
 
 
 def test_m2_drawdown_profile_box() -> None:
@@ -149,6 +153,13 @@ def test_m2_drawdown_profile_box() -> None:
         tailwater=tw_elev,
         entrance_loss_coefficient=0.4,
     )
+    refined = compute_backwater_profile(
+        barrel=barrel,
+        discharge=q,
+        tailwater=tw_elev,
+        entrance_loss_coefficient=0.4,
+        num_steps=800,
+    )
 
     assert profile.curve_type == "M2"
     assert not profile.is_full_flow
@@ -162,6 +173,7 @@ def test_m2_drawdown_profile_box() -> None:
     assert profile.outlet_depth == pytest.approx(yc, rel=1e-5)
     assert profile.inlet_depth > profile.outlet_depth
     assert profile.inlet_depth <= yn
+    assert refined.inlet_depth == pytest.approx(0.7301922412, abs=1e-6)
 
     # Headwater depth and elevation accounting
     vin = profile.inlet_velocity
@@ -199,6 +211,13 @@ def test_m1_backwater_profile_box() -> None:
         tailwater=tw_elev,
         entrance_loss_coefficient=BOX_CONCRETE_FLARED_WINGWALLS_30_75,
     )
+    refined = compute_backwater_profile(
+        barrel=barrel,
+        discharge=q,
+        tailwater=tw_elev,
+        entrance_loss_coefficient=BOX_CONCRETE_FLARED_WINGWALLS_30_75,
+        num_steps=800,
+    )
 
     assert profile.curve_type == "M1"
     assert not profile.is_full_flow
@@ -207,6 +226,7 @@ def test_m1_backwater_profile_box() -> None:
     # On M1 curve, depth decreases going upstream towards normal depth (y_inlet < y_outlet)
     assert profile.inlet_depth < profile.outlet_depth
     assert profile.inlet_depth >= yn
+    assert refined.inlet_depth == pytest.approx(0.9790035248, abs=1e-6)
 
 
 def test_h2_profile_horizontal_circular() -> None:
@@ -233,12 +253,20 @@ def test_h2_profile_horizontal_circular() -> None:
         tailwater=TailwaterCondition(elevation=tw_elev),
         entrance_loss_coefficient=PIPE_CONCRETE_SQUARE_EDGE,
     )
+    refined = compute_backwater_profile(
+        barrel=barrel,
+        discharge=q,
+        tailwater=TailwaterCondition(elevation=tw_elev),
+        entrance_loss_coefficient=PIPE_CONCRETE_SQUARE_EDGE,
+        num_steps=800,
+    )
 
     assert profile.curve_type == "H2"
     assert not profile.is_full_flow
     assert profile.outlet_depth == pytest.approx(yc, rel=1e-5)
     # Depth increases going upstream in horizontal barrel
     assert profile.inlet_depth > profile.outlet_depth
+    assert refined.inlet_depth == pytest.approx(0.8774316585, abs=1e-6)
 
 
 def test_long_barrel_reaches_normal_depth() -> None:
@@ -287,14 +315,27 @@ def test_m2_profile_continues_as_full_flow_to_inlet() -> None:
 
     assert profile.curve_type is ProfileCurve.M2
     assert profile.is_full_flow is False
-    assert profile.full_flow_length == pytest.approx(68.48, abs=0.02)
+    refined = compute_backwater_profile(
+        barrel,
+        3.0,
+        9.9,
+        entrance_loss_coefficient=0.5,
+        num_steps=800,
+    )
+
+    # Independent composite-Simpson integration of
+    # dx/dy=(1-Fr²)/(S0-Sf) gives station 68.4449163 m at y=D.
+    assert profile.full_flow_length == pytest.approx(68.46, abs=0.02)
+    assert refined.full_flow_length == pytest.approx(68.4449163, abs=5e-4)
+    assert profile.full_flow_length == pytest.approx(refined.full_flow_length, abs=0.02)
+    assert not profile.reaches_normal_depth
     assert profile.inlet_depth == barrel.geometry.rise
     assert profile.points[0].froude_number is None
     assert profile.inlet_headwater_elevation == pytest.approx(12.015, abs=0.001)
 
 
-def test_submerged_outlet_triggers_full_flow() -> None:
-    """Verify submerged outlet (TW >= D) produces a full flow profile."""
+def test_backwater_profile_rejects_submerged_outlet_inference() -> None:
+    """A submerged outlet alone cannot force a whole-barrel full-flow profile."""
     geom = CircularGeometry.from_mm(diameter_mm=1000.0)
     barrel = CulvertBarrel(
         geometry=geom,
@@ -306,17 +347,13 @@ def test_submerged_outlet_triggers_full_flow() -> None:
     # Outlet crown is at 9.8 + 1.0 = 10.8 m. Tailwater at 11.2 m is fully submerged.
     tw_elev = 11.2
 
-    profile = compute_backwater_profile(
-        barrel=barrel,
-        discharge=1.8,
-        tailwater=tw_elev,
-        entrance_loss_coefficient=0.5,
-    )
-
-    assert profile.is_full_flow
-    assert profile.curve_type == "FULL"
-    assert profile.outlet_depth == pytest.approx(1.4, abs=1e-6)
-    assert profile.inlet_depth == pytest.approx(1.4, abs=1e-6)
+    with pytest.raises(InvalidInputError, match="does not infer full-barrel flow"):
+        compute_backwater_profile(
+            barrel=barrel,
+            discharge=1.8,
+            tailwater=tw_elev,
+            entrance_loss_coefficient=0.5,
+        )
 
 
 def test_calculate_partial_flow_outlet_headwater() -> None:
