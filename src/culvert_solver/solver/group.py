@@ -1,0 +1,81 @@
+"""Culvert group hydraulic solver for parallel identical barrels."""
+
+from .._validation import finite
+from ..constants import GRAVITATIONAL_ACCELERATION
+from ..exceptions import InvalidInputError
+from ..inlet_control.coefficients import InletCoefficients
+from ..models.group import CulvertGroup
+from ..models.results import GroupHydraulicResult
+from ..models.tailwater import TailwaterCondition
+from ..outlet_control.losses import EntranceLossCoefficient
+from ..references.models import SourceReference
+from .barrel import solve_barrel_hydraulics
+from .config import SolverConfiguration
+
+
+def solve_group_hydraulics(
+    group: CulvertGroup,
+    total_discharge: float,
+    tailwater: TailwaterCondition | float,
+    *,
+    inlet_coefficients: InletCoefficients | None = None,
+    entrance_loss_coefficient: float | EntranceLossCoefficient | None = None,
+    entrance_loss_source: SourceReference | None = None,
+    configuration: SolverConfiguration | None = None,
+    g: float = GRAVITATIONAL_ACCELERATION,
+) -> GroupHydraulicResult:
+    """Solve hydraulics for a group of N identical parallel culvert barrels.
+
+    Discharge is equally distributed across all N identical barrels:
+        Q_barrel = Q_total / N
+
+    Parameters
+    ----------
+    group : CulvertGroup
+        Group domain model containing barrel definition and barrel quantity N >= 1.
+    total_discharge : float
+        Total volumetric discharge through the entire culvert group (m³/s), strictly positive.
+    tailwater : TailwaterCondition | float
+        Tailwater boundary condition or absolute elevation (m).
+    inlet_coefficients : InletCoefficients | None, optional
+        Inlet control regression constants.
+    entrance_loss_coefficient : float | EntranceLossCoefficient | None, optional
+        Entrance loss coefficient Ke for outlet control.
+    entrance_loss_source : SourceReference | None, optional
+        Provenance for a numeric entrance-loss override.
+    configuration : SolverConfiguration | None, optional
+        Injectable project defaults used only when explicit and barrel values are absent.
+    g : float, default=GRAVITATIONAL_ACCELERATION
+        Gravitational acceleration (m/s²).
+
+    Returns
+    -------
+    GroupHydraulicResult
+        Hydraulic solution for the group and its representative single barrel.
+    """
+    if not isinstance(group, CulvertGroup):  # pyright: ignore[reportUnnecessaryIsInstance]
+        raise InvalidInputError("group must be an instance of CulvertGroup.")
+
+    q_tot: float = finite(total_discharge, "total_discharge")
+    if q_tot <= 0:
+        raise InvalidInputError("total_discharge must be strictly positive.")
+
+    q_barrel: float = q_tot / float(group.quantity)
+
+    barrel_res = solve_barrel_hydraulics(
+        barrel=group.barrel,
+        discharge=q_barrel,
+        tailwater=tailwater,
+        inlet_coefficients=inlet_coefficients,
+        entrance_loss_coefficient=entrance_loss_coefficient,
+        entrance_loss_source=entrance_loss_source,
+        configuration=configuration,
+        g=g,
+    )
+
+    return GroupHydraulicResult(
+        group=group,
+        total_discharge=q_tot,
+        barrel_discharge=q_barrel,
+        barrel_result=barrel_res,
+    )

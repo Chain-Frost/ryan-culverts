@@ -1,5 +1,8 @@
 # Culvert Solver — Updated Development Work Plan
 
+> This file defines intended scope and gates; it is not evidence that a phase is complete.
+> Current implementation and review status is maintained in [docs/progress.md](docs/progress.md).
+
 ## 1. Project Objective
 
 Develop a new, standalone Python library for engineering-grade culvert hydraulic analysis and rapid design iteration.
@@ -23,9 +26,9 @@ External packages such as HY-8, HEC-RAS, SWMM and STREAM-1D are primarily for la
 
 ---
 
-# 2. Core Development Principles
+## 2. Core Development Principles
 
-## 2.1 Independent computational core
+### 2.1 Independent computational core
 
 The production library must not depend on:
 
@@ -41,7 +44,7 @@ These may be used later as external reference implementations or verification to
 
 ---
 
-## 2.2 Develop and test together
+### 2.2 Develop and test together
 
 Testing is not a final-stage activity.
 
@@ -61,7 +64,7 @@ Additional tests may and should be added later as integration behaviour and edge
 
 ---
 
-## 2.3 External verification comes later
+### 2.3 External verification comes later
 
 Comparison against external hydraulic packages should occur only after the internal computational system is substantially complete and internally tested.
 
@@ -105,25 +108,25 @@ Do not design the solver around reproducing the output of any one external packa
 
 ---
 
-# 3. Technical Reference Hierarchy
+## 3. Technical Reference Hierarchy
 
 The solver should be based primarily on authoritative literature.
 
 At minimum review:
 
-## FHWA
+### FHWA
 
 - Hydraulic Design of Highway Culverts, HDS-5, Third Edition;
 - current HY-8 technical documentation;
 - applicable FHWA culvert research;
 - FHWA-HRT-06-138 for box culvert inlet performance and transition relationships.
 
-## USGS
+### USGS
 
 - Bodhaine, *Measurement of Peak Discharge at Culverts by Indirect Methods*;
 - six classical culvert flow types and their physical interpretation.
 
-## USACE / HEC-RAS
+### USACE / HEC-RAS
 
 Review current documentation for:
 
@@ -138,13 +141,13 @@ Review current documentation for:
 
 HEC-RAS should be treated as a valuable implementation and methodology reference, not automatically as the governing authority over FHWA.
 
-## NCHRP
+### NCHRP
 
 - NCHRP Report 734 — *Hydraulic Loss Coefficients for Culverts*.
 
 Assess whether later loss relationships improve or refine traditional assumptions.
 
-## Australian guidance
+### Australian guidance
 
 Review current:
 
@@ -153,7 +156,7 @@ Review current:
 
 These are important for Australian design application, terminology, reporting and jurisdictional requirements.
 
-## Reference implementations
+### Reference implementations
 
 Review, where useful:
 
@@ -168,7 +171,7 @@ They are not substitutes for the primary literature.
 
 ---
 
-# 4. Geometry Strategy
+## 4. Geometry Strategy
 
 Implement standard culvert geometry internally.
 
@@ -206,9 +209,9 @@ Standard shapes should use analytical relationships wherever practical.
 
 ---
 
-# 5. Units Strategy
+## 5. Units Strategy
 
-## 5.1 Internal computational units
+### 5.1 Internal computational units
 
 Use SI units internally:
 
@@ -227,7 +230,7 @@ All numerical solvers should operate on plain canonical SI values.
 
 ---
 
-## 5.2 User-facing culvert dimensions
+### 5.2 User-facing culvert dimensions
 
 Use millimetres by default for culvert dimensions.
 
@@ -256,7 +259,7 @@ Avoid ambiguous API fields where the unit cannot be determined from the name or 
 
 ---
 
-## 5.3 Units library
+### 5.3 Units library
 
 A units library such as Pint may be supported as an optional API convenience.
 
@@ -269,7 +272,7 @@ However:
 
 ---
 
-# 6. Initial Domain Model
+## 6. Initial Domain Model
 
 The crossing model must support combinations of different culvert groups.
 
@@ -310,12 +313,12 @@ The crossing solver should solve a common upstream headwater for all groups at t
 
 Conceptually:
 
-\[
+```math
 Q_{crossing}(HW,TW)
 =
 
 \sum_i N_i Q_i(HW,TW)
-\]
+```
 
 where:
 
@@ -324,7 +327,7 @@ where:
 
 ---
 
-# 7. Initial Scope Exclusions
+## 7. Initial Scope Exclusions
 
 The following should **not** be implemented during the initial hydraulic build unless required for the architecture:
 
@@ -343,7 +346,7 @@ The architecture should not prevent future implementation of these items.
 
 ---
 
-# 8. Plotting Architecture
+## 8. Plotting Architecture
 
 Plotting is a later feature.
 
@@ -390,7 +393,7 @@ without changing the hydraulic solver.
 
 ---
 
-# 9. Proposed Package Architecture
+## 9. Proposed Package Architecture
 
 A starting structure may be:
 
@@ -481,9 +484,9 @@ The important separation is between:
 
 ---
 
-# 10. Development Phases
+## 10. Development Phases
 
-## Phase 0 — Research and computational basis
+### Phase 0 — Research and computational basis
 
 Before substantial coding:
 
@@ -511,7 +514,7 @@ No attempt should be made at this stage to force agreement with HY-8.
 
 ---
 
-## Phase 1 — Core models, constants and numerical infrastructure
+### Phase 1 — Core models, constants and numerical infrastructure
 
 Implement:
 
@@ -525,7 +528,7 @@ Implement:
 - reference/source metadata model;
 - SI conversion boundaries.
 
-### Tests added during this phase
+#### Phase 1 — Core models, constants and numerical infrastructure tests
 
 Test immediately:
 
@@ -540,7 +543,7 @@ Do not defer these tests.
 
 ---
 
-## Phase 2 — Hydraulic geometry
+### Phase 2 — Hydraulic geometry
 
 Implement:
 
@@ -550,7 +553,7 @@ Implement:
 
 Add other standard geometries later once the first two are proven.
 
-### Tests added during this phase
+#### Phase 2 — Hydraulic geometry tests
 
 For each geometry, test:
 
@@ -578,7 +581,7 @@ Geometry should be highly trusted before hydraulic solvers depend on it.
 
 ---
 
-## Phase 3 — Fundamental hydraulics
+### Phase 3 — Fundamental hydraulics
 
 Implement reusable functions for:
 
@@ -592,7 +595,7 @@ Implement reusable functions for:
 - critical depth;
 - normal depth.
 
-### Tests added during this phase
+#### Phase 3 — Fundamental hydraulics tests
 
 Add tests immediately for:
 
@@ -608,7 +611,7 @@ Do not proceed to inlet/outlet control until these functions are reliable.
 
 ---
 
-## Phase 4 — Inlet-control hydraulics
+### Phase 4 — Inlet-control hydraulics
 
 Implement FHWA inlet-control calculations.
 
@@ -624,7 +627,7 @@ Support, as appropriate:
 
 All empirical coefficients must contain source metadata and applicability information.
 
-### Tests added during this phase
+#### Phase 4 — Inlet-control hydraulics tests
 
 Add:
 
@@ -640,7 +643,7 @@ At this stage, tests should primarily verify the implementation against the equa
 
 ---
 
-## Phase 5 — Outlet-control hydraulics
+### Phase 5 — Outlet-control hydraulics
 
 Implement:
 
@@ -655,7 +658,7 @@ Implement:
 
 Determine from the literature whether direct-step, standard-step or another accepted approach is most appropriate for each case.
 
-### Tests added during this phase
+#### Phase 5 — Outlet-control hydraulics tests
 
 Add tests for:
 
@@ -671,7 +674,7 @@ Add tests for:
 
 ---
 
-## Phase 6 — Flow regime and governing solution
+### Phase 6 — Flow regime and governing solution
 
 Implement explicit regime-selection logic.
 
@@ -690,7 +693,7 @@ The solver should reason about:
 
 Do not simply choose the larger of two independently calculated headwater values without checking physical consistency.
 
-### Tests added during this phase
+#### Phase 6 — Flow regime and governing solution tests
 
 Create targeted tests that force each supported regime.
 
@@ -705,7 +708,7 @@ Verify:
 
 ---
 
-## Phase 7 — Single-barrel solver
+### Phase 7 — Single-barrel solver
 
 Combine the lower-level components into a complete single-barrel hydraulic solution.
 
@@ -723,7 +726,7 @@ Inputs should include:
 
 Results should include sufficient intermediate quantities for engineering checking.
 
-### Tests added during this phase
+#### Phase 7 — Single-barrel solver tests
 
 Add end-to-end single-barrel tests covering:
 
@@ -742,7 +745,7 @@ These are internal integration tests, still not primarily external-package compa
 
 ---
 
-## Phase 8 — Culvert groups
+### Phase 8 — Culvert groups
 
 Implement `CulvertGroup` for multiple identical barrels.
 
@@ -750,13 +753,13 @@ A group should avoid unnecessary duplication of identical geometry and coefficie
 
 Conceptually:
 
-\[
+```math
 Q_{group} = N Q_{barrel}
-\]
+```
 
 where hydraulic conditions are shared.
 
-### Tests added during this phase
+#### Phase 8 — Culvert groups tests
 
 Test:
 
@@ -768,7 +771,7 @@ Test:
 
 ---
 
-## Phase 9 — Multi-group culvert crossings
+### Phase 9 — Multi-group culvert crossings
 
 Implement crossings comprising multiple culvert groups with different hydraulic properties.
 
@@ -776,12 +779,12 @@ The solver should determine the common upstream headwater required to convey the
 
 For a prescribed crossing flow:
 
-\[
+```math
 Q_{target}
 =
 
 \sum_i N_i Q_i(HW,TW)
-\]
+```
 
 Solve for \(HW\).
 
@@ -797,7 +800,7 @@ Groups may differ in:
 - slope;
 - quantity.
 
-### Tests added during this phase
+#### Phase 9 — Multi-group culvert crossings tests
 
 Create crossing tests for:
 
@@ -812,7 +815,7 @@ Create crossing tests for:
 
 ---
 
-## Phase 10 — Rating curves and rapid design evaluation
+### Phase 10 — Rating curves and rapid design evaluation
 
 Implement efficient repeated evaluation.
 
@@ -831,7 +834,7 @@ find_minimum_culvert_size(...)
 
 Correctness should be established before optimisation or vectorisation.
 
-### Tests added during this phase
+#### Phase 10 — Rating curves and rapid design evaluation tests
 
 Test:
 
@@ -844,13 +847,13 @@ Test:
 
 ---
 
-# 11. External Verification Phase
+## 11. External Verification Phase
 
 Only after the internal solver and internal tests are substantially mature should systematic external verification begin.
 
 This phase is distinct from the development tests above.
 
-## 11.1 HY-8
+### 11.1 HY-8
 
 Use `run-hy8` externally to automate a broad HY-8 comparison suite.
 
@@ -885,7 +888,7 @@ Any meaningful difference should be investigated against the primary methodology
 
 ---
 
-## 11.2 HEC-RAS
+### 11.2 HEC-RAS
 
 Use selected HEC-RAS cases to independently compare:
 
@@ -899,7 +902,7 @@ Focus on cases where HEC-RAS provides useful independent confirmation of the phy
 
 ---
 
-## 11.3 SWMM
+### 11.3 SWMM
 
 Use SWMM primarily as:
 
@@ -911,7 +914,7 @@ Do not depend on the fact that SWMM is written in C; language is irrelevant to i
 
 ---
 
-## 11.4 STREAM-1D
+### 11.4 STREAM-1D
 
 Where appropriate, compare selected cases with STREAM-1D.
 
@@ -926,7 +929,7 @@ Do not treat agreement with STREAM-1D as authoritative if its result conflicts w
 
 ---
 
-# 12. Verification Acceptance
+## 12. Verification Acceptance
 
 Do not use one global tolerance such as "within 1%".
 
@@ -958,7 +961,7 @@ Separate:
 
 ---
 
-# 13. Engineering Traceability
+## 13. Engineering Traceability
 
 Every empirical relationship should be traceable.
 
@@ -980,7 +983,7 @@ Use structured warnings or errors where a calculation extends beyond validated m
 
 ---
 
-# 14. Results and Future Plotting Support
+## 14. Results and Future Plotting Support
 
 A complete barrel solution should eventually expose, where applicable:
 
@@ -1022,7 +1025,7 @@ This will allow plotting to be added later without changing the solver architect
 
 ---
 
-# 15. Documentation Requirements
+## 15. Documentation Requirements
 
 Maintain these documents throughout development:
 
@@ -1037,7 +1040,7 @@ docs/
 
 Update them as implementation decisions are made.
 
-## `architecture.md`
+### `architecture.md`
 
 Document:
 
@@ -1047,7 +1050,7 @@ Document:
 - units boundaries;
 - solver sequence.
 
-## `computational_basis.md`
+### `computational_basis.md`
 
 Document:
 
@@ -1057,11 +1060,11 @@ Document:
 - methodology selection;
 - assumptions and limitations.
 
-## `references.md`
+### `references.md`
 
 Maintain exact publication details and source hierarchy.
 
-## `validation.md`
+### `validation.md`
 
 Maintain:
 
@@ -1070,7 +1073,7 @@ Maintain:
 - later external-package verification approach;
 - acceptance criteria.
 
-## `hy8_feature_parity.md`
+### `hy8_feature_parity.md`
 
 Maintain a live feature matrix:
 
@@ -1079,7 +1082,7 @@ Maintain a live feature matrix:
 
 ---
 
-# 16. Initial Definition of Done
+## 16. Initial Definition of Done
 
 The initial culvert solver should not be described as construction-grade until:
 
@@ -1103,7 +1106,7 @@ Agreement with HY-8 alone is not sufficient.
 
 ---
 
-# 17. Recommended Implementation Order
+## 17. Recommended Implementation Order
 
 The preferred order is:
 

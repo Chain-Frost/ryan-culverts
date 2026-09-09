@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ryan-culverts"
+version = "0.2.0.dev1"
+description = "Independent SI culvert hydraulics: numerical foundations and traceable methods."
+readme = "README.md"
+# Declare the Python 3 family without restricting minor versions to our test baseline.
+requires-python = ">=3"
+license = "SUL-1.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Ryan Brook" }]
+keywords = ["culvert", "hydraulics", "hydrology", "civil-engineering"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+    "Typing :: Typed",
+]
+# Runtime dependencies only; the current foundation uses the standard library.
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/Chain-Frost/ryan-culverts"
+Issues = "https://github.com/Chain-Frost/ryan-culverts/issues"
+
+[project.optional-dependencies]
+dev = [
+    "build>=1.2",
+    "pymarkdownlnt>=0.9.39",
+    "pyright>=1.1.410",
+    "pytest>=9",
+    "ruff>=0.15",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/culvert_solver"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/docs",
+    "/README.md",
+    "/LICENSE",
+    "/pyproject.toml",
+    "/culvert_solver_updated_work_plan.md",
+]
+exclude = ["/docs/legacy/*.csv", "/docs/legacy/*.hy8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+
+[tool.pyright]
+# Current tested baseline, not an installation restriction.
+include = ["src", "tests"]
+extraPaths = ["src"]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

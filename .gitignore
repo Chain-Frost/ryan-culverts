@@ -10,7 +10,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-# dist/
+/dist/
 downloads/
 eggs/
 .eggs/
@@ -212,3 +212,5 @@ __marimo__/
 hif12026.pdf
 
 
+hy8/
+validation_artifacts/

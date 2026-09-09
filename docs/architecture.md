@@ -1,0 +1,202 @@
+# Architecture and decisions
+
+Status: implementation snapshot under review, 2026-09-06.
+
+## Implemented package boundary
+
+The distribution remains `ryan-culverts`; the new import is `culvert_solver`.
+Use the `src/` layout and Python 3.14. The runtime has no third-party dependencies.
+There is no compatibility layer for the retired `culvertflow` package.
+
+| Module | Responsibility |
+| --- | --- |
+| `constants` | Standard gravitational acceleration and water properties with source records |
+| `geometry.base` | Cross-section geometry interface and crown/closed-conduit contract |
+| `geometry.circular` | Analytical circular segment geometry |
+| `geometry.rectangular` | Analytical rectangular box culvert geometry |
+| `hydraulics.primitives` | Velocity, velocity head, specific energy, Froude and Manning formulas |
+| `hydraulics.critical` | Critical depth analytical and bracketed root solvers |
+| `hydraulics.normal` | Uniform flow normal depth with circular conveyance branch selection |
+| `hydraulics.momentum` | Hydrostatic momentum function and free-surface sequent-depth solver |
+| `models.materials` | Material records and source-traceable Manning roughness data/lookups |
+| `models.enums` | Closed control, geometry, equation, profile, and CSP-corrugation categories |
+| `models.barrel` | Physical culvert barrel with authoritative inverts and derived slope |
+| `models.group` | Parallel identical culvert barrels with quantity scaling |
+| `models.tailwater` | Downstream tailwater elevation boundary condition |
+| `models.crossing` | Multi-group culvert crossing aggregation |
+| `models.results` | Results, adopted parameter selections, and flow classifications |
+| `models.collection` | Road inventory, normalized summaries, and parameter catalogues |
+| `inlet_control.coefficients` | Empirical regression constants and source records from HDS-5 Table A.1 |
+| `inlet_control.fhwa` | Pure SI equations for Form 1/2 unsubmerged, submerged, and transition |
+| `inlet_control.solver` | Inlet headwater, regime, headwater ratio, and high-head applicability warnings |
+| `outlet_control.losses` | Entrance (HDS-5 Table C.2), friction, and exit head loss formulations |
+| `outlet_control.full_flow` | Full-flow energy balance, effective tailwater depth, and headwater solver |
+| `outlet_control.partial_flow` | Partially full outlet-control headwater solver using backwater profiles |
+| `profiles.direct_step` | Direct-step free-surface water profile solver for prismatic culverts |
+| `solver.regime` | Hydraulic regime selection comparing inlet and outlet control headwaters |
+| `solver.barrel` | Single-barrel culvert hydraulic solver generating BarrelHydraulicResult |
+| `solver.group` | Culvert group hydraulic solver scaling identical parallel barrels |
+| `solver.crossing` | Multi-group crossing solver finding common upstream headwater elevation |
+| `solver.rating_curve` | Monotonic rating curve generator for barrels and crossings |
+| `numerical.roots` | Bounded scalar bisection (`solve_bracketed`) and Brent's method (`solve_brent`) |
+| `numerical.tolerances` | Independent-variable and residual tolerances |
+| `units.conversion` | Positive dimension conversion from mm to m |
+| `references.models` | Immutable source/locator/applicability records |
+| `exceptions` | Input and convergence failure types |
+
+Public names are exported once from `culvert_solver`. No environment flags or
+mutable global runner registration affect calculations. Immutable default
+tolerances may safely be shared across concurrent calls.
+
+## Defaults and applicability boundary
+
+Defaults require enough typed context to remain inspectable. Inlet and entrance-loss
+resolvers no longer treat a missing material as concrete; callers must identify the
+material or supply the relevant coefficients explicitly. Explicit overrides and
+barrel-attached values retain precedence over `SolverConfiguration` defaults.
+
+Concrete roughness records are separated into `CONCRETE_PIPE` and `CONCRETE_BOX`, with
+the current MRWA Table 2.1 ranges and source metadata. The compatibility-level
+`CONCRETE` category remains usable for geometry-specific inlet and entrance-loss
+resolution, but its combined roughness range is intentionally rejected as ambiguous by
+`resolve_manning_roughness`.
+
+Plastic-pipe roughness is manufacturer-led. `SMOOTH_HDPE` therefore fails closed without
+an explicit override. A caller may deliberately request the HDS-5 laboratory fallback
+with `allow_documented_fallback=True`; the returned selection then carries stable,
+source-bearing notices that manufacturer data was absent and that hydraulic roughness
+does not prove MRWA product or construction compliance. The same compliance distinction
+is attached to MRWA CSP table selections. Passing a `ManningRoughnessSelection` through
+a barrel's `roughness_selection` field preserves its basis, source, and notices in the
+solved result. No HY-8 roughness fallback is currently defined.
+
+## Inventory and reporting boundary
+
+`CulvertInventory` collects independent crossings along a road without implying
+hydraulic connectivity. `InventorySummary` emits crossing and group rows that
+reference deduplicated `AdoptedParameterSet` records. IDs are either caller
+supplied or deterministic content fingerprints; source metadata is part of the
+identity, and conflicting caller IDs or source IDs fail explicitly.
+
+Solved barrel results retain the selected inlet coefficients, entrance-loss
+coefficient, Manning roughness, selection bases, and optional sources. A caller
+can therefore cite a manufacturer or project specification without losing that
+reference during calculation. `SourceReference.url` may be `None` for a controlled
+or non-public specification, while publication, edition, locator, and applicability
+remain mandatory. File, JSON, spreadsheet, GIS, and presentation
+adapters remain outside the core until a downstream interface is chosen. See
+CS-005 and CS-011 in the work plan.
+
+Barrel results also retain the evaluated inlet-, outlet-, and full-flow headwater
+candidates where physically applicable, the selected profile curve, hydraulic-jump
+station, pressurised-reach length, and typed hydraulic warnings. The length is upstream
+of an M2-to-full transition or downstream of an S1f/JS1f transition. Rating-curve points
+preserve the warnings. Inventory summaries expose
+deduplicated warning codes at group and crossing level so a compact road inventory does
+not hide provisional hydraulic states.
+
+`HeadLossComponents` preserves the scalar losses that a calculation actually evaluates.
+`full_flow_losses` describes the always-evaluated full-flow candidate;
+`outlet_control_losses` describes the physically selected outlet-control candidate. Full
+flow supplies entrance, friction, exit, and total loss. A free-surface direct-step result
+supplies its separately evaluated entrance loss, while friction is represented throughout
+the retained profile rather than collapsed into a new scalar. In these records, `None`
+means "not separately calculated by this method" and never means zero.
+
+Numerically solved critical and normal depths retain their `RootResult`. Barrel results
+also expose labelled `ConvergenceRecord` entries for applicable depth, profile-boundary,
+and hydraulic-jump roots, while multi-group crossing results retain the common-headwater
+root and each active group's discharge root. Analytical, capacity-boundary, fast-path,
+inactive, and documented interpolation-fallback outcomes have no fabricated root record.
+The actual free-surface or inlet-control profile used by regime selection is retained on
+the barrel result, including its ordered points and its own convergence evidence. A
+full-flow candidate has no profile object because the current method does not calculate
+longitudinal profile points.
+
+## Numerical root solving architecture
+
+The library provides two complementary root solvers in `culvert_solver.numerical.roots`:
+
+1. **Certified Bisection (`solve_bracketed`)**:
+   Guaranteed linear bisection halving bracket intervals. Used for baseline validation,
+   precision benchmarks, and analytical contract tests where step-by-step interval
+   diagnostics are required.
+2. **Superlinear Brent's Method (`solve_brent`)**:
+   Combines bisection, secant, and inverse quadratic interpolation. Concurrently maintains
+   a strict bracket while achieving superlinear convergence (typically 4 to 7 iterations
+   instead of 25 to 35). Used throughout the high-level engineering core (crossing headwater
+   solver, rating curves, critical depth, and normal depth) to achieve rapid design iteration.
+
+Both solvers enforce strict contracts: finite ordered bounds, opposite endpoint signs
+(or exact endpoint root), and nonfinite evaluation traps raising `InvalidInputError`.
+
+## Design decision: Enums vs. dataclasses vs. JSON for bulk domain constants
+
+Future auditing agents must note the deliberate design rationale for domain constants:
+
+### 1. Enums for closed vocabularies
+
+- `FlowRegime`, `ControlType`, `GeometryShape`, and `ProfileCurve` inherit from
+  `StrEnum`; `InletEquationForm` inherits from `IntEnum`.
+- **Rationale**: Culvert flow regimes (`INLET_CONTROL_UNSUBMERGED`, `INLET_CONTROL_TRANSITION`,
+  `INLET_CONTROL_SUBMERGED`, `OUTLET_CONTROL_FULL`, and `OUTLET_CONTROL_FREE_SURFACE`)
+  form a closed, immutable, universally recognized discrete state category in hydraulic theory.
+- An Enum provides compile-time verification under Pyright strict mode, supports exhaustive
+  pattern matching (`match ... case`), prevents string typos, and serializes transparently to
+  plain strings for JSON or tabular export.
+
+### 2. Frozen dataclasses for materials (`CulvertMaterial`)
+
+- `CulvertMaterial` is a frozen dataclass with standard singletons (`CONCRETE`, `SMOOTH_HDPE`,
+  `CORRUGATED_STEEL`).
+- Diameter-dependent CSP values are records in `MRWA_CSP_MANNING_TABLE`, selected with a
+  `CspCorrugation` enum. This retains the closed vocabulary without pretending the engineering
+  values themselves form an enum.
+- `resolve_manning_roughness` supports quick calculation defaults and explicit overrides. It
+  returns `ManningRoughnessSelection`, including the source and a typed selection basis; it does
+  not introduce wrapper, JSON, or mutable global configuration concerns into the calculation core.
+- **Why not an Enum?**
+  An Enum would prohibit users from defining custom materials (e.g. aged brick, vitrified clay,
+  weathered iron, timber) without modifying package source code. A frozen dataclass allows
+  the library to provide standard verified materials as typed singletons while treating
+  user-defined materials as first-class citizens.
+
+### 3. Frozen dataclasses with metadata for empirical coefficients
+
+- `InletCoefficients` and `EntranceLossCoefficient` are frozen dataclasses with `slots=True`.
+- Predefined constants (e.g. `CIRCULAR_CONCRETE_SQUARE_EDGE`, `BOX_LOSS_FLARED_30_75`) are
+  defined in Python modules rather than loose external JSON files.
+- **Why not JSON files?**
+  1. **Static typing and compile-time linting**: Pyright strict mode validates numeric types,
+     formula form selectors (`form=1` vs `form=2`), and field existence at lint time without
+     runtime schema deserialization overhead.
+  2. **Zero runtime I/O overhead**: Eliminates filesystem reads, `importlib.resources` path
+     resolution quirks, and missing-asset packaging errors when built into wheels or frozen
+     executables.
+  3. **Engineering traceability (Work Plan Section 13)**: Every coefficient set contains an
+     explicit, immutable `SourceReference` instance with exact publication, table, equation,
+     and page citation directly attached.
+  4. **Extensibility**: Engineers requiring custom or non-standard inlet configurations
+     (e.g. bespoke Australian headwalls, custom wingwall tapers) can instantiate
+     `InletCoefficients(...)` directly in code.
+  5. JSON serialization can be added at an explicit input/output boundary if external data
+     persistence is needed. The computational core does not currently require JSON I/O.
+
+## Performance optimizations (Item 18 / Phase 10)
+
+Rapid design iteration without external software requires sub-millisecond evaluation:
+
+1. **Brent's method root solving**:
+   Nested roots in crossing calculations ($\sum N_i Q_i(HW) = Q_{\text{tot}}$) require
+   evaluating barrel discharge at candidate headwater elevations. Replacing bisection with
+   `solve_brent` reduces iterations per solve from ~25 to ~6, yielding an order-of-magnitude
+   reduction in hydraulic evaluations.
+2. **Candidate short-circuiting**:
+   `determine_governing_regime` currently skips direct-step integration when inlet-control
+   headwater exceeds the approximate full-flow candidate. This is a performance heuristic,
+   not yet a proven universal upper-bound theorem; it remains subject to the Phase 6
+   physical-consistency and external-validation gates.
+3. **Development-machine throughput observations**:
+   - Single barrel: ~0.08 ms / eval (> 12,000 evaluations/sec in pure Python).
+   - Multi-group crossing: ~46 ms / eval.
+   - Rating curve (20 points): ~1.8 ms / curve.
