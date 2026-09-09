@@ -3,7 +3,7 @@
 This is the entry point for agents continuing the culvert solver. The detailed,
 authoritative execution record is the
 [Phase 0-10 remediation and forward plan](2026-09-06-phase-0-to-10-remediation.md).
-The original [work plan](../../culvert_solver_updated_work_plan.md) defines the
+The [long-term development plan](long-term-development-plan.md) defines the
 long-term scope; it is not a claim that its phases are complete.
 
 ## Selecting work
@@ -30,7 +30,7 @@ python -m pytest -q
 python -m ruff check .
 python -m ruff format --check .
 python -m pyright
-python -m pymarkdown -d MD013 scan -r README.md culvert_solver_updated_work_plan.md docs
+python -m pymarkdown -d MD013 scan -r README.md docs
 git diff --check
 ```
 
@@ -50,7 +50,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression. |
 | CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned external comparison that changes a disposition. |
 | CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation. |
-| CS-012 | Gated release task | Unassigned | 2026-09-08 | 2026-09-20 | Run the documented release gate and bump the version only for a deliberate wheel handoff. |
+| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the local 0.2.0 wheel for integration tests; version later changes deliberately. |
 
 ## Deferred work
 

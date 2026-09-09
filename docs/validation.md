@@ -175,8 +175,8 @@ CS-008 owns preservation of the external qualifier in comparison evidence.
 
 The large Type 6 inlet-headwater difference triggered a direct audit rather than an
 assumption that HY-8 or `run-hy8` was authoritative. The installed executable reports
-file and product version `8.0.1.2`. The repository's `hy8/ShapeDB.dat` and HY-8 User
-Manual are byte-for-byte identical to the installed files under
+file and product version `8.0.1.2`. The repository's `reference_docs/ShapeDB.dat` and
+HY-8 User Manual are byte-for-byte identical to the installed files under
 `C:\Program Files\HY-8 8.00`, with SHA-256 values
 `2479e9444feaff529313e18a1b26fc2de4f6b6c541db58477da6bebc602164a7` and
 `267fef1f838945dcf7c0524ddd30c0b972e24abd3ace0eaec39d9aad8402a4f5`.

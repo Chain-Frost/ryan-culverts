@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ryan-culverts"
-version = "0.2.0.dev1"
+version = "0.2.0"
 description = "Independent SI culvert hydraulics: numerical foundations and traceable methods."
 readme = "README.md"
 # Declare the Python 3 family without restricting minor versions to our test baseline.
@@ -14,7 +14,7 @@ license-files = ["LICENSE"]
 authors = [{ name = "Ryan Brook" }]
 keywords = ["culvert", "hydraulics", "hydrology", "civil-engineering"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.14",
@@ -40,18 +40,6 @@ dev = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/culvert_solver"]
 
-[tool.hatch.build.targets.sdist]
-include = [
-    "/src",
-    "/tests",
-    "/docs",
-    "/README.md",
-    "/LICENSE",
-    "/pyproject.toml",
-    "/culvert_solver_updated_work_plan.md",
-]
-exclude = ["/docs/legacy/*.csv", "/docs/legacy/*.hy8"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
@@ -59,7 +47,7 @@ addopts = "-ra"
 
 [tool.pyright]
 # Current tested baseline, not an installation restriction.
-include = ["src", "tests"]
+include = ["src", "tests", "scripts"]
 extraPaths = ["src"]
 pythonVersion = "3.14"
 typeCheckingMode = "strict"

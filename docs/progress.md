@@ -1,5 +1,46 @@
 # Development progress
 
+## 2026-09-09 - CS-012 initial 0.2.0 package handoff
+
+Created the first packaged alpha milestone at version `0.2.0` for local integration tests.
+The release metadata, README, packaging guide, and dedicated release notes state the
+supported calculations, evidence boundary, and known limitations without presenting the
+provisional combined solver as engineering design software.
+
+Added a fail-fast Windows workflow modelled on the established `ryan-tools` scripts:
+`package.bat` builds and verifies one universal wheel,
+`install-latest-wheel.bat` supports user or isolated-target installation, and
+`package_and_install.bat` chains them. The Python helpers retain subprocess exit codes and
+verify artifact names, version and licence metadata, exact packaged licence text,
+`py.typed`, package content, and deliberate evidence exclusions. Separate force-reinstall
+wrappers support intentional recovery or replacement without changing the normal path.
+
+Removed three superseded root research-intake files: the original prompt, an incomplete
+raw report, and an older report containing non-durable tool citations. Their reviewed,
+source-pinned conclusions remain under `docs/research/`, and Git history retains the raw
+files. The long-term work plan, legacy scenario inputs, primary PDFs, and HY-8 comparison
+evidence remain because they still support current decisions and validation records.
+
+The final layout audit moved the long-term plan into `docs/work/`, retained the HY-8
+comparison program under `scripts/`, and confirmed that all 17 test modules exercise the
+current project. Five redundant or rejected PDFs were removed; unique HY-8 release-note,
+HEC-14, HEC-26, and `ShapeDB.dat` evidence moved into `reference_docs/`. The empty `hy8/`
+directory and obsolete ignore rule were removed. The release workflow is wheel-only and
+includes normal and force-reinstall wrappers.
+
+All 274 tests passed. Repository-wide Ruff check and format, strict Pyright including the
+packaging helpers, Markdown lint with MD013 excluded, and `git diff --check` passed. The
+combined dry-run wrapper built and verified the `0.2.0` universal wheel. It installed into
+an isolated temporary target and passed public import, metadata-version, and critical-depth
+calculation checks. No user installation was changed,
+and nothing was committed, tagged, uploaded, or published.
+
+Final wheel-only gates passed after the layout changes: 274 tests, Ruff check and format,
+strict Pyright, Markdown lint, `git diff --check`, package verification, and an isolated
+installed-wheel calculation. The retained `0.2.0` wheel SHA-256 is
+`50728cf4efd013c034de87b914d5ef6a556f3c961f8d93605eacd67b325b50d5`; no source archive
+is produced or retained.
+
 ## 2026-09-09 - CS-008 external discrepancy completion
 
 Completed the version-pinned HY-8 discrepancy audit without changing solver equations.
@@ -53,8 +94,8 @@ versioned, or published.
 
 ## 2026-09-09 — CS-001 research gate completion
 
-Completed the applicable primary-source review using the local PDFs under
-`reference_docs/` and HY-8 evidence under `hy8/`. The source register now records review
+Completed the applicable primary-source review using local primary and HY-8 evidence now
+consolidated under `reference_docs/`. The source register records review
 status, while the local evidence inventory classifies and SHA-256-pins every PDF in both
 directories. The installed HY-8 executable is separately pinned to file/product version
 8.0.1.2 and its binary hash. The mutable `alejandroechev/culvertflow` comparison source

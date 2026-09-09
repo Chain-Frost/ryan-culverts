@@ -4,18 +4,15 @@ This directory contains reviewed extracts derived from the primary publications
 under `reference_docs/`. The PDFs are evidence inputs; the Markdown extracts are
 not executable defaults until their transcription and applicability are tested.
 
-Two root-level agent reports were supplied as research intake:
-
-- [`phase-0-research-pack.md`](../../phase-0-research-pack.md) explicitly concludes
-  that Phase 0 could not be closed at its research baseline. Its embedded tool
-  citation markers are not durable repository references.
-- [`more_research.MD`](../../more_research.MD) is an incomplete raw report that
-  ends mid-table. Treat it as leads and notes, not a completed source review.
+The superseded root-level research prompt and two raw agent reports were removed during
+the `0.2.0` release cleanup. One report was incomplete and the other contained non-durable
+tool citations from an older baseline. Their reviewed findings are represented by the
+source-pinned records below; the original intake remains available in Git history.
 
 Current reviewed extracts:
 
 - [`local_evidence_inventory.md`](local_evidence_inventory.md): SHA-256 and review/
-  rejection/pending status for every PDF under `reference_docs/` and `hy8/`.
+  rejection/pending status for evidence consolidated under `reference_docs/`.
 - [`fhwa_box_inlets.md`](fhwa_box_inlets.md): corrected FHWA-HRT-06-138 Tables
   11 and 12, exact local PDF locators, applicability limits, and the Appendix D
   configuration boundary. Implementation still requires typed geometry and inlet rules.

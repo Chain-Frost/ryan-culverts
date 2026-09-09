@@ -1,7 +1,7 @@
 # Legacy cleanup and work-plan review
 
-Reviewed 2026-09-06 against `culvert_solver_updated_work_plan.md` at the repo root.
-The nested path supplied in the request did not exist. The plan is unchanged.
+Reviewed 2026-09-06 against the long-term development plan, now stored at
+`docs/work/long-term-development-plan.md`. The plan content is unchanged by its move.
 
 ## Plan assessment
 

@@ -10,11 +10,11 @@ configuration or Hatch environment is required.
 | `[project].dependencies` | Runtime dependencies; currently empty |
 | `[project.optional-dependencies].dev` | Tests, linting, typing and build frontend |
 | `[build-system]` | Hatchling build backend |
-| `[tool.hatch.build.targets]` | Wheel and source-archive contents |
+| `[tool.hatch.build.targets.wheel]` | Universal-wheel package contents |
 
 The distribution name is `ryan-culverts`; the Python import is `culvert_solver`.
-Version `0.2.0.dev1` is a development version recorded once in `pyproject.toml`,
-not an engineering-ready release.
+Version `0.2.0` is the first packaged alpha release, recorded once in `pyproject.toml`.
+It is intended for integration and packaging tests, not engineering design acceptance.
 
 ## Python support policy
 
@@ -57,29 +57,57 @@ The README lists the active verification commands.
 
 ## Build and share
 
-After installing the development extra:
+The Windows convenience workflow follows the established `ryan-tools` pattern:
 
 ```powershell
-python -m build
+.\package.bat
+.\install-latest-wheel.bat --dry-run
+.\package_and_install.bat
+.\force-reinstall.bat --dry-run
+.\package_and_force_install.bat --dry-run
 ```
 
-The `build` frontend invokes Hatchling, building an sdist and then a wheel from
-that sdist. Its temporary isolated build environment installs `[build-system]`
-requirements automatically; this is separate from your user Python setup.
+`package.bat` builds one clean universal wheel after removing only older
+top-level `ryan_culverts-*` artifacts from `dist/`. `install-latest-wheel.bat` selects the
+newest matching wheel and installs it into the user site-packages. The combined script
+stops if the build fails and otherwise performs both operations. All three preserve the
+underlying Python or pip exit status. The package step also verifies version and licence
+metadata, exact packaged licence text, `py.typed`, and exclusion of development/reference
+inputs. Run `.\verify-package.bat` to repeat those wheel checks without rebuilding.
 
-Outputs go into Git-ignored `dist/`. The wheel contains the import package,
-typed marker and package metadata/licence. The sdist also contains tests,
-development documentation and the work plan. Historical CSV/HY-8 fixtures,
-the local reference PDF, caches and generated reports are excluded.
+`force-reinstall.bat` passes `--force-reinstall --no-deps` to pip for the newest existing
+wheel. `package_and_force_install.bat` rebuilds and verifies first. These are recovery and
+testing operations; prefer the normal installer unless replacement is intentional.
 
-Install a built wheel by passing its actual path to pip. For the current version:
+For release verification, install without disturbing an editable or user installation:
 
 ```powershell
-python -m pip install --user dist/ryan_culverts-0.2.0.dev1-py3-none-any.whl
+.\install-latest-wheel.bat --target C:\path\to\temporary-target
 ```
 
-No publication or release automation is configured. Building does not upload
-anything. Update the version deliberately before producing a distinct release.
+After installing the development extra, the direct build command remains:
+
+```powershell
+python -m build --wheel
+```
+
+The `build` frontend invokes Hatchling in an isolated build environment and installs
+`[build-system]` requirements automatically. This is separate from your user Python setup.
+
+Outputs go into `dist/`. The wheel contains the import package,
+typed marker and package metadata/licence. Tests, development documentation, research PDFs,
+historical fixtures, caches, and generated reports are excluded. The `py3-none-any` tag
+identifies pure Python 3 code with no platform-specific ABI, so the same wheel can be used
+on Windows, Linux, and macOS. Only Python 3.14 is presently tested.
+
+Install a built wheel directly by passing its actual path to pip. For the current version:
+
+```powershell
+python -m pip install --user dist/ryan_culverts-0.2.0-py3-none-any.whl
+```
+
+No publication or release automation is configured. Building does not upload anything.
+Future release artifacts require another deliberate version update.
 
 ## Windows and concurrent work
 

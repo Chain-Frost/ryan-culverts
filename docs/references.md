@@ -39,8 +39,8 @@ same as adoption: unsupported geometry and context remain explicit future tasks.
 | `alejandroechev/culvertflow` at `5a5ac50c` | Reviewed | Secondary implementation only; no code imported |
 | Supplied agent research reports | Reviewed; rejected as authority | Discovery leads only; embedded tool citations are not durable evidence |
 
-Every PDF found under `reference_docs/` and `hy8/`, including duplicates and adjacent
-future-scope material, is classified and hash-pinned in the
+Every retained PDF under `reference_docs/`, including adjacent future-scope material, is
+classified and hash-pinned in the
 [`local evidence inventory`](research/local_evidence_inventory.md). Later phases must
 not be labelled engineering-verified merely because the research gate is complete.
 

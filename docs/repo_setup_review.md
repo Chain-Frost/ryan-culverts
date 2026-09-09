@@ -69,7 +69,8 @@ a separately tested migration.
    satisfy declared dependencies; same-version development should use editable
    installs, or a deliberate targeted reinstall with dependencies already checked.
 7. Correct the README terminology: `build` is the frontend; setuptools is the
-   backend. Consider validating the wheel built from the sdist, as this repo does.
+   backend. This repository now intentionally builds and validates a universal wheel only;
+   a source archive is unnecessary for its local cross-platform test workflow.
 
 ## Improvements worth considering in ryan-tools
 

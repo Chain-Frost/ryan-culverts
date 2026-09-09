@@ -1,4 +1,4 @@
-"""Independent, pre-alpha culvert hydraulics library.
+"""Independent, early-stage culvert hydraulics library.
 
 The package exposes internally tested geometry and hydraulic components through
 provisional combined solvers. External engineering validation is not yet complete.

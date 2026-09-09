@@ -1,7 +1,7 @@
-# Culvert Solver — Updated Development Work Plan
+# Culvert Solver — Long-Term Development Plan
 
 > This file defines intended scope and gates; it is not evidence that a phase is complete.
-> Current implementation and review status is maintained in [docs/progress.md](docs/progress.md).
+> Current implementation and review status is maintained in [progress.md](../progress.md).
 
 ## 1. Project Objective
 

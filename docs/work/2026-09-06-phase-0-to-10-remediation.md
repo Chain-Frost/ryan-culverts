@@ -11,7 +11,7 @@ provisional. Passing tests must not be described as engineering validation.
 
 Read these files before changing hydraulics:
 
-1. `culvert_solver_updated_work_plan.md` for intended scope and order;
+1. `docs/work/long-term-development-plan.md` for intended scope and order;
 2. `docs/progress.md` for what was implemented and reviewed;
 3. `docs/references.md` for source-review status;
 4. `docs/computational_basis.md` and `docs/architecture.md` for current methods;
@@ -97,7 +97,7 @@ parallel. Finish CS-011 after CS-005, CS-007 after CS-004/006, and CS-012 last.
 | CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression |
 | CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned comparison that changes a disposition |
 | CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation |
-| CS-012 | Gated release task | Unassigned | 2026-09-08 | 2026-09-20 | Run the release gate and bump the version only for a deliberate wheel handoff |
+| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the local 0.2.0 wheel for integration tests; version later changes deliberately |
 
 ### CS-001 - Close the Phase 0 research gate
 
@@ -122,8 +122,9 @@ Deliverable boundary: record a fixture-ready source locator, inputs, expected qu
 published precision, and applicability for each selected case. CS-003/004 own method
 implementation and focused tests; CS-006 owns the accepted cross-phase fixture suite.
 
-Handoff (2026-09-09): the local primary PDFs under `reference_docs/` and duplicated HY-8
-evidence under `hy8/` were inventoried and hash-pinned. All ten Bodhaine examples were
+Handoff (2026-09-09): local primary and HY-8 evidence originally found across
+`reference_docs/` and `hy8/` was inventoried and hash-pinned, then consolidated under
+`reference_docs/` during release cleanup. All ten Bodhaine examples were
 reviewed; four representative input/output records, the corrected FHWA Appendix D
 FC-D-30 cases, and the Austroads design-workflow case are recorded in
 `docs/research/fixture_candidates.md` with source precision and applicability.
@@ -611,13 +612,61 @@ Acceptance:
 - task/status documents agree and no provisional method is described as validated;
 - focused and full tests, Ruff, strict Pyright, Markdown lint, package build, and
   `git diff --check` pass;
-- the sdist and wheel install into an isolated target and pass a public-API smoke test;
+- the universal wheel installs into an isolated target and passes a public-API smoke test;
 - the package version is deliberately bumped from `0.2.0.dev1` for the handoff artifact;
 - release notes identify supported calculations, evidence boundaries, and known limits;
 - no commit, tag, publication, or upload occurs without explicit user instruction.
 
 Depends on: CS-003, CS-004, CS-005, CS-006, CS-007, CS-011, and whichever portion of
 CS-002 is claimed as supported by the release.
+
+Handoff (2026-09-09): version `0.2.0` is the first packaged alpha milestone for local
+integration testing. The metadata, README, packaging guide, and release notes consistently
+retain the provisional engineering boundary. Thin Windows wrappers based on the proven
+`ryan-tools` workflow now build, verify, select, and optionally install the latest local
+wheel while preserving failure exit codes. Wheel verification checks the version, SPDX
+licence expression, declared and byte-equivalent packaged licence, typed marker, required
+package content, and excluded development/reference inputs.
+
+The repository cleanup removed the superseded root research prompt, an incomplete raw
+report, and an older report with non-durable tool citations. Their reviewed findings remain
+in the source-pinned `docs/research/` records and the original files remain recoverable from
+Git history. The current work plan, legacy scenario evidence, primary PDFs, and HY-8
+comparison evidence were retained because current documentation still relies on them.
+
+Follow-up layout cleanup moved the long-term plan from the repository root to `docs/work/`,
+where its planning role is distinct from the active register. `scripts/compare_hy8.py`
+remains correctly isolated as optional external-validation tooling. All 17 test modules
+exercise current numerical, hydraulic, model, solver, inventory, or performance contracts;
+none depends on the retired implementation or HY-8. Unique release-note, HEC-14, HEC-26,
+and `ShapeDB.dat` evidence was moved into `reference_docs/`; three duplicate PDFs, the
+superseded January 2012 HDS-5 copy, and the rejected v7.6 tutorial were removed with the
+now-empty `hy8/` directory.
+
+Verification and limitations: `python -m pytest -q` passed 274 tests. Repository-wide Ruff
+check and format, strict Pyright including `scripts/`, Markdown lint with MD013 excluded,
+and `git diff --check` passed. `package_and_install.bat --dry-run` built and verified the
+`0.2.0` universal wheel without altering the user installation. The wheel installed into
+an isolated temporary target; its import was proven to originate there, package metadata
+reported `0.2.0`, and a public circular critical-depth calculation succeeded. This handoff
+creates a local artifact only: nothing was committed, tagged, uploaded, or published.
+Hydraulic and product limitations are listed in
+`docs/releases/0.2.0.md`; this packaging milestone does not expand engineering acceptance.
+
+Final wheel-only verification: `package_and_force_install.bat --dry-run` exercised the
+build, archive checks, latest-wheel selection, and `--force-reinstall --no-deps` command
+without changing the user installation. The wheel installed into a fresh isolated target
+and passed the public smoke calculation. Its SHA-256 is
+`50728cf4efd013c034de87b914d5ef6a556f3c961f8d93605eacd67b325b50d5`; no `.tar.gz`
+artifact remains. The final 274-test suite, Ruff check/format without cache, strict Pyright,
+Markdown lint, wheel verification, and `git diff --check` all passed.
+
+Evidence-directory follow-up: `hec14.pdf`, `hec26.pdf`, `HY-8 7.6 Release Notes.pdf`,
+and `ShapeDB.dat` moved into `reference_docs/`; the empty `hy8/` directory and its ignore
+rule were removed. SHA-256 checks confirmed every retained reference file against
+`docs/research/local_evidence_inventory.md`, and Git attributes confirmed LFS handling for
+the three PDFs and binary data file. The full 274-test suite and every repository/package
+gate remained green after the move.
 
 ## Deferred and future scope
 

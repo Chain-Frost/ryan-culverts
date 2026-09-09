@@ -1,13 +1,15 @@
 # ryan-culverts
 
-A pre-alpha culvert hydraulics library being redesigned around primary hydraulic
-references, analytical validation, and mixed-group crossings.
+An early-stage culvert hydraulics library built around primary hydraulic references,
+analytical validation, and mixed-group crossings. Version `0.2.0` is the first packaged
+alpha release for integration testing; it is not engineering design software.
 
-The [updated work plan](culvert_solver_updated_work_plan.md) defines the scope and
-development sequence. The `culvert_solver` package now contains provisional circular
-and box hydraulics through rating-curve generation. Geometry, numerical foundations,
-and several equation-level calculations have internal tests; the combined hydraulic
-solver is not yet engineering-validated and must not be treated as design software.
+The [long-term development plan](docs/work/long-term-development-plan.md) defines the scope and
+development sequence. The `culvert_solver` package contains provisional circular and box
+hydraulics through rating-curve generation, including mixed groups and road-level
+inventories. Geometry, numerical foundations, and several equation-level calculations
+have analytical or published-example tests; combined-system validation remains bounded.
+See the [0.2.0 release notes](docs/releases/0.2.0.md) before using the package.
 
 Agents should start with the [work register](docs/work/README.md), which separates
 active remediation from deferred scope and links the current acceptance criteria.
@@ -31,9 +33,9 @@ other versions are not blocked but are unsupported. See the
 ```powershell
 python -m pip install --user -e ".[dev]"
 python -m pytest -q
-python -m ruff check src tests
+python -m ruff check .
 python -m pyright
-python -m pymarkdown -d MD013 scan -r README.md culvert_solver_updated_work_plan.md docs
+python -m pymarkdown -d MD013 scan -r README.md docs
 ```
 
 The Markdown check allows long lines for tables and source URLs. Heading rules,
@@ -41,8 +43,14 @@ including MD025, remain enabled.
 
 Dependencies and build metadata live in `pyproject.toml`; there is no separate
 `requirements.txt`. Pip installs the package and its `dev` extra, while Hatchling
-builds distributions through `python -m build`. See the
+builds the universal wheel through `python -m build --wheel`. See the
 [packaging workflow](docs/packaging.md) for install and build commands.
+
+On Windows, `.\package.bat` builds and verifies the universal wheel,
+`.\install-latest-wheel.bat` installs the newest local wheel, and
+`.\package_and_install.bat` performs both steps with fail-fast exit handling. Use
+`.\force-reinstall.bat` for the existing wheel or `.\package_and_force_install.bat` to
+rebuild before forcing replacement of the installed package.
 
 ## License
 
