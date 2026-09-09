@@ -1,0 +1,3 @@
+name,shape,diameter,width,height,n_manning,length,slope,entrance_coef,exit_coef,upstream_hw,downstream_tw,engine
+circular_case,circular,1.2,,,0.013,30,0.012,0.5,1.0,3.1,0.8,hds5
+box_case,box,,2.4,1.2,0.015,22,0.008,0.4,1.0,2.8,1.3,hds5

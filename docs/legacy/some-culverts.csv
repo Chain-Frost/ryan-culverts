@@ -1,0 +1,23 @@
+﻿ID                                    , US_IL              , DS_IL                       , Length, Number, Diameter, Type, Tailwater, Width, Height, N_Manning, EntranceCoef, ExitCoef, DesignFlows, HeadwaterDepths
+Culvert-01                            , 546.1              , 546.0                       ,     25,     10,      900, CSP , 546.5    ,      ,       ,          ,             ,         ,           5
+Culvert-02                            , 548.0              , 547.4                       ,     25,      8,     1200, CSP , 547.9    ,      ,       ,          ,             ,         ,           5
+Culvert-03                            , 10.0               , 9.1                         ,     25,      1,     3000, CSP , 9.6      ,      ,       ,          ,             ,         ,           5
+Culvert-04                            , -1.0               , -1.3                        ,     25,      4,     1500, CSP , -0.8     ,      ,       ,          ,             ,         ,           5
+# Short                               , free outfall       , single barrel RCP
+Culvert-05                            , 100.2              , 100.0                       ,     10,      1,      900, RCP , 100.1    ,      ,       ,          ,             ,         ,           2
+# High tailwater                      , partial submergence, HDPE
+Culvert-06                            , 101.0              , 100.0                       ,     25,      1,     1200, HDPE, 100.8    ,      ,       ,          ,             ,         ,           5
+# Long barrel                         , two barrels        , concrete-like friction
+Culvert-07                            , 200.0              , 199.0                       ,     80,      2,     1500, RCP , 199.2    ,      ,       ,          ,             ,         ,          15,               5
+# Box culvert (RCB) 2.0 x 1.0 m       , moderate tailwater
+Culvert-08                            , 5.0                , 4.5                         ,     25,      1,         , RCB , 4.8      , 2000 , 1000 ,          ,             ,         ,           8,               3
+# Box culvert twin barrels 3.0 x 2.0 m, deeper tailwater
+Culvert-09                            , 8.0                , 7.0                         ,     40,      2,         , RCB , 7.2      , 3000 , 2000 ,          ,             ,         ,          15,               5
+# Small pipe                          , long length        , more friction dominated
+Culvert-10                            , 50.0               , 49.5                        ,     60,      1,      600, RCP , 49.6     ,      ,       ,          ,             ,         ,           5
+# Steeper slope case
+Culvert-11                            , 12.0               , 11.0                        ,     25,      1,     1200, CSP , 11.1     ,      ,       ,          ,             ,         ,           5
+# Zero slope (US=DS)                  , check behavior
+Culvert-12                            , 10.0               , 10.0                        ,     20,      1,      900, RCP , 10.1     ,      ,       ,          ,             ,         ,           5
+# Multi-barrel                        , high roughness CSP , low tailwater (free outfall)
+Culvert-13                            , 300.0              , 299.0                       ,     45,      6,     1200, CSP , 299.2    ,      ,       ,          ,             ,         ,          25,               5
