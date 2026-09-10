@@ -2,7 +2,7 @@
 
 ## Supported import boundary
 
-Names listed in `culvert_solver.__all__` and documented on the [API reference](api.md) are
+Names listed in `culvert_solver.__all__` and documented across the [API reference](api.md) are
 the package's public Python surface. Import those names from `culvert_solver`; direct
 imports from package submodules are not a compatibility promise.
 

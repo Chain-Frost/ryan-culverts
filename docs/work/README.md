@@ -57,7 +57,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation. |
 | CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the current verified wheel for integration tests; packaging now increments the calendar version. |
 | CS-013 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Use only the typed Figure 93 configurations and keep corrected Table 12 within its documented range. |
-| CS-016 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Keep navigation intentional and require strict local and CI builds before Pages deployment. |
+| CS-016 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Keep the focused API sections aligned with `culvert_solver.__all__` and retain strict local and CI builds. |
 | CS-017 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use `package.bat` to create the next verified wheel; reopen only for a packaging failure or changed version policy. |
 | CS-019 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Python 3.14 is the supported baseline; keep the installed-wheel OS matrix green. |
 | CS-020 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Maintain top-level exports, version discovery, changelog entries, and project links together. |

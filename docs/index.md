@@ -11,11 +11,13 @@ review.
 
 ## Start here
 
-- Read [packaging and installation](packaging.md) to install a verified wheel.
-- Use the [API reference](api.md) for the supported top-level import surface.
-- Check the [public API policy](public_api.md) before depending on compatibility.
-- Review the [validation boundary](validation.md) before using hydraulic results.
-- Consult the [changelog](changelog.md) for user-visible changes.
+| Install | Build |
+| --- | --- |
+| Install a verified wheel and confirm the supported Python version. [Packaging and installation](packaging.md) | Find inputs, solver entry points, result types, and lower-level methods. [API reference](api.md) |
+
+| Validate | Track changes |
+| --- | --- |
+| Understand the evidence, limitations, and provisional engineering status. [Validation boundary](validation.md) | Review compatibility policy and user-visible changes. [Public API policy](public_api.md) · [Changelog](changelog.md) |
 
 ## Engineering status
 

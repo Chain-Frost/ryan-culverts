@@ -8,9 +8,25 @@ edit_uri: edit/main/docs/
 theme:
   name: material
   features:
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
+    - navigation.indexes
     - navigation.top
+    - search.suggest
+    - search.highlight
     - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 
 plugins:
   - search
@@ -45,7 +61,13 @@ nav:
   - User guide:
       - Packaging and installation: packaging.md
       - Public API policy: public_api.md
-      - API reference: api.md
+      - API reference:
+          - Overview: api.md
+          - Inputs and configuration: api/inputs.md
+          - Results and diagnostics: api/results.md
+          - Solvers and rating curves: api/solvers.md
+          - Hydraulic methods: api/methods.md
+          - Built-ins and references: api/builtins.md
       - Changelog: changelog.md
       - Release notes: releases/README.md
   - Engineering basis:

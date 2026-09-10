@@ -871,6 +871,18 @@ Acceptance evidence:
 - the workflow follows the established `run-hy8` build/deploy split with deployment
   permissions confined to the dependent deploy job.
 
+Handoff (2026-09-10): refined the Material site with tabbed top-level navigation, light and
+dark palettes, improved search behaviour, and a shorter landing-page path into the main user
+tasks. The former single long API document is now an overview plus focused pages for inputs,
+results, solvers, hydraulic methods, and built-ins. An explicit inventory check confirmed that
+the split documents all 167 public names in `culvert_solver.__all__`, excluding only the version
+attribute described on the overview page. Local verification passed: `python -m pytest -q`
+(`333 passed`), `python -m ruff check .`, `python -m ruff format --check .`,
+`python -m pyright` (`0 errors`),
+`python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`,
+`python -m mkdocs build --strict --site-dir site`, and `git diff --check`. GitHub CI and Pages
+deployment were not run for the uncommitted documentation changes.
+
 ## CS-019 - Compatibility metadata and installed-wheel CI
 
 Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
