@@ -1,6 +1,11 @@
 """Prismatic open-channel geometry and uniform-flow calculations."""
 
-from .geometry import OpenChannelSection, RectangularChannel, TrapezoidalChannel
+from .geometry import (
+    OpenChannelSection,
+    RectangularChannel,
+    TrapezoidalChannel,
+    hydraulic_radius,
+)
 from .uniform import ChannelNormalDepthResult, calculate_channel_normal_depth
 
 __all__: list[str] = [
@@ -9,4 +14,5 @@ __all__: list[str] = [
     "RectangularChannel",
     "TrapezoidalChannel",
     "calculate_channel_normal_depth",
+    "hydraulic_radius",
 ]

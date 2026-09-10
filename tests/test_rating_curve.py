@@ -195,12 +195,8 @@ def test_crossing_rating_curve_multi_group() -> None:
         discharges=discharges,
         tailwater=tw,
     )
-    assert [point.regime for point in reversed_curve.points] == [
-        point.regime for point in rc.points
-    ]
-    assert [point.control_type for point in reversed_curve.points] == [
-        point.control_type for point in rc.points
-    ]
+    assert [point.regime for point in reversed_curve.points] == [point.regime for point in rc.points]
+    assert [point.control_type for point in reversed_curve.points] == [point.control_type for point in rc.points]
 
 
 def test_rating_curve_validation_errors() -> None:

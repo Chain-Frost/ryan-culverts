@@ -64,11 +64,7 @@ def calculate_downstream_full_flow_length(
     q = finite(discharge, "discharge")
     if q <= 0.0:
         raise InvalidInputError("discharge must be strictly positive.")
-    tw_elevation = (
-        tailwater.elevation
-        if isinstance(tailwater, TailwaterCondition)
-        else finite(tailwater, "tailwater")
-    )
+    tw_elevation = tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
     outlet_clearance = tw_elevation - (barrel.outlet_invert + barrel.geometry.rise)
     if outlet_clearance < 0.0:
         return 0.0
@@ -78,9 +74,7 @@ def calculate_downstream_full_flow_length(
         barrel.geometry.hydraulic_radius_full,
         barrel.roughness,
     )
-    inlet_clearance = (
-        tw_elevation + sf * barrel.length - (barrel.inlet_invert + barrel.geometry.rise)
-    )
+    inlet_clearance = tw_elevation + sf * barrel.length - (barrel.inlet_invert + barrel.geometry.rise)
     if inlet_clearance >= 0.0:
         return barrel.length
     transition_station = barrel.length * (-inlet_clearance) / (outlet_clearance - inlet_clearance)

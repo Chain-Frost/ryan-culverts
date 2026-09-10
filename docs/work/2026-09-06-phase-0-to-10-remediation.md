@@ -773,17 +773,45 @@ replacing newer roadway or inverse-solver work. Rectangular and asymmetric trape
 (including triangular) open-channel sections feed a generic Brent-solved normal-depth
 calculation. Standalone barrels use barrel flow, standalone groups use total group flow,
 and crossings resolve one receiving stage from total crossing flow before allocation.
-Results retain the resolved method, source, normal-depth calculation, and convergence.
-Hand-calculated fixtures cover four section configurations and crossing/rating flow basis.
+Results retain the resolved method, distinct method and project-parameter sources,
+normal-depth calculation, and convergence. The ambiguous `source` field was removed in
+favour of the breaking, explicit `method_source` contract; channel-normal depth is
+documented separately from culvert-relative tailwater depth. Hand-calculated fixtures
+cover four section configurations and crossing/rating flow basis. A reusable
+`hydraulic_radius()` utility keeps `A/P` outside the minimal open-channel protocol.
 
 Remaining before completion: implement the planned user-supplied monotonic `(Q, WSE)`
 rating boundary with explicit interpolation and out-of-range policy, and record an
 independent external comparison for the Manning boundary. Irregular sections, compound
 roughness, and downstream gradually varied flow remain separately scoped future work.
 
-Verification: `python -m pytest -q` passed 331 tests. Repository-wide Ruff check and
+Acceptance criteria for the rating boundary:
+
+- expose a typed boundary containing at least two finite `(Q, WSE)` points;
+- require strictly increasing discharge and nondecreasing water-surface elevation;
+- return the supplied elevation exactly at a curve point and use linear interpolation
+  only between the two bracketing points;
+- reject discharge below or above the supplied range by default rather than silently
+  clamping or extrapolating;
+- retain the curve, its source, interpolation method, requested discharge, and resolved
+  elevation in `TailwaterResolution`;
+- test exact points, interpolation, nonfinite values, too few points, duplicate or
+  decreasing discharge, decreasing elevation, and both out-of-range directions; and
+- prove that crossings resolve the curve from total crossing flow before allocation and
+  that crossing rating curves resolve it independently at every discharge point.
+
+Acceptance criteria for independent Manning validation: compare several normal-depth
+cases spanning rectangular, symmetric/asymmetric trapezoidal, and triangular sections and
+more than one flow scale with HEC-RAS or another identified trusted calculation. Record
+the external tool and version, complete SI inputs, expected and observed depths, numeric
+differences, tolerances, and any modelling assumptions in `docs/validation.md`. This is
+external comparison evidence, not permission to tune the Manning equation to software.
+
+Verification: `python -m pytest -q` passed 333 tests. Repository-wide Ruff check and
 format, strict Pyright, Markdown lint with MD013 excluded, strict MkDocs build, and
-`git diff --check` passed.
+`git diff --check` passed. The repository was mechanically reformatted to match its
+active 120-character Ruff configuration. No new HY-8 executable comparison was required
+or run.
 
 ### CS-030 - Slipline host/liner geometry and composite roughness
 

@@ -119,12 +119,8 @@ def test_roadway_model_rejects_nonpositive_inputs() -> None:
 
 
 def test_inventory_rejects_result_for_different_roadway() -> None:
-    configured = _crossing(
-        RoadwayWeir(crest_elevation=11.0, crest_length=20.0, discharge_coefficient=1.6)
-    )
-    solved_for = _crossing(
-        RoadwayWeir(crest_elevation=11.1, crest_length=20.0, discharge_coefficient=1.6)
-    )
+    configured = _crossing(RoadwayWeir(crest_elevation=11.0, crest_length=20.0, discharge_coefficient=1.6))
+    solved_for = _crossing(RoadwayWeir(crest_elevation=11.1, crest_length=20.0, discharge_coefficient=1.6))
     result = solve_crossing_hydraulics(solved_for, total_discharge=8.0, tailwater=9.5)
 
     with pytest.raises(InvalidInputError, match="result roadway"):

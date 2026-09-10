@@ -13,9 +13,7 @@ _HDS5_TABLE_B1_REF = SourceReference(
     source_id="FHWA-HDS5-2012-TABLE-B1",
     publication="Hydraulic Design of Highway Culverts",
     edition="Third Edition, April 2012",
-    locator=(
-        "Appendix B, Table B.1 (printed page B.6; PDF page 208): Manning's n Values for Culverts"
-    ),
+    locator=("Appendix B, Table B.1 (printed page B.6; PDF page 208): Manning's n Values for Culverts"),
     url="https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf",
     applicability="Laboratory-derived Manning roughness ranges for identified culvert materials.",
     notes=(
@@ -33,9 +31,7 @@ MRWA_CSP_REFERENCE = SourceReference(
         "https://www.mainroads.wa.gov.au/technical-commercial/technical-library/"
         "road-traffic-engineering/drainage-waterways/culverts/design-procedure/"
     ),
-    applicability=(
-        "Nominal circular CSP diameters and corrugation sizes listed in MRWA Table 2.2."
-    ),
+    applicability=("Nominal circular CSP diameters and corrugation sizes listed in MRWA Table 2.2."),
     notes=(
         "MRWA attributes the table to AISI (1999). The MRWA Part 5B supplement directs "
         "designers to manufacturer data first and this table when manufacturer data is absent. "
@@ -59,8 +55,7 @@ MRWA_CONCRETE_REFERENCE = SourceReference(
 MRWA_PART5B_REFERENCE = SourceReference(
     source_id="MRWA-SUPPLEMENT-AGRD-PART5B-1F",
     publication=(
-        "MRWA Supplement to Austroads Guide to Road Design Part 5B: Drainage, "
-        "Open Channels, Culverts and Floodways"
+        "MRWA Supplement to Austroads Guide to Road Design Part 5B: Drainage, Open Channels, Culverts and Floodways"
     ),
     edition="Version 1F, 3 July 2020; live page reviewed 8 September 2026",
     locator="Section 3.2: Information Required",
@@ -223,10 +218,7 @@ def resolve_csp_manning_roughness(
 
     lookup_diameter = 1950 if diameter >= 1950 else diameter
     for entry in MRWA_CSP_MANNING_TABLE:
-        if (
-            entry.nominal_diameter_mm == lookup_diameter
-            and entry.corrugation is selected_corrugation
-        ):
+        if entry.nominal_diameter_mm == lookup_diameter and entry.corrugation is selected_corrugation:
             return entry.manning_n
 
     raise InvalidInputError(
@@ -292,8 +284,7 @@ def resolve_manning_roughness(
                 RoughnessApplicabilityNotice(
                     code=ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
                     message=(
-                        "A hydraulic roughness fallback does not establish MRWA product or "
-                        "construction compliance."
+                        "A hydraulic roughness fallback does not establish MRWA product or construction compliance."
                     ),
                     source=MRWA_SPEC404_REFERENCE,
                 ),
@@ -302,13 +293,10 @@ def resolve_manning_roughness(
 
     if material.contextual_roughness_required:
         if material != CORRUGATED_STEEL:
-            raise InvalidInputError(
-                f"No contextual roughness resolver is registered for material {material.name!r}."
-            )
+            raise InvalidInputError(f"No contextual roughness resolver is registered for material {material.name!r}.")
         if nominal_diameter_mm is None or csp_corrugation is None:
             raise InvalidInputError(
-                "CSP preliminary roughness requires nominal_diameter_mm and csp_corrugation, "
-                "or an explicit override."
+                "CSP preliminary roughness requires nominal_diameter_mm and csp_corrugation, or an explicit override."
             )
         return ManningRoughnessSelection(
             value=resolve_csp_manning_roughness(nominal_diameter_mm, csp_corrugation),
@@ -319,8 +307,7 @@ def resolve_manning_roughness(
                 RoughnessApplicabilityNotice(
                     code=ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
                     message=(
-                        "The MRWA hydraulic lookup does not establish current product or "
-                        "construction compliance."
+                        "The MRWA hydraulic lookup does not establish current product or construction compliance."
                     ),
                     source=MRWA_SPEC404_REFERENCE,
                 ),

@@ -226,9 +226,7 @@ class TestResolveEntranceLossCoefficient:
         )
         barrel = _circular_barrel()
         with pytest.raises(InvalidInputError, match="override_source"):
-            resolve_entrance_loss_coefficient(
-                barrel, override=PIPE_CMP_PROJECTING, override_source=src
-            )
+            resolve_entrance_loss_coefficient(barrel, override=PIPE_CMP_PROJECTING, override_source=src)
 
     def test_override_source_without_override_fails(self) -> None:
         src = SourceReference(
@@ -284,12 +282,12 @@ class TestResolveEntranceLossCoefficient:
             resolve_entrance_loss_coefficient(_box_barrel(material=None))
 
     def test_specific_concrete_loss_materials_match_geometry(self) -> None:
-        assert resolve_entrance_loss_coefficient(
-            _circular_barrel(material=CONCRETE_PIPE)
-        ).ke == pytest.approx(PIPE_CONCRETE_SQUARE_EDGE.ke)
-        assert resolve_entrance_loss_coefficient(
-            _box_barrel(material=CONCRETE_BOX)
-        ).ke == pytest.approx(LOSS_BOX_FLARED.ke)
+        assert resolve_entrance_loss_coefficient(_circular_barrel(material=CONCRETE_PIPE)).ke == pytest.approx(
+            PIPE_CONCRETE_SQUARE_EDGE.ke
+        )
+        assert resolve_entrance_loss_coefficient(_box_barrel(material=CONCRETE_BOX)).ke == pytest.approx(
+            LOSS_BOX_FLARED.ke
+        )
         with pytest.raises(InvalidInputError, match="material"):
             resolve_entrance_loss_coefficient(_circular_barrel(material=CONCRETE_BOX))
         with pytest.raises(InvalidInputError, match="material"):

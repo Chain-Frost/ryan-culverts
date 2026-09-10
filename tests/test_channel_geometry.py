@@ -5,7 +5,12 @@ from collections.abc import Callable
 
 import pytest
 
-from culvert_solver import InvalidInputError, RectangularChannel, TrapezoidalChannel
+from culvert_solver import (
+    InvalidInputError,
+    RectangularChannel,
+    TrapezoidalChannel,
+    hydraulic_radius,
+)
 
 
 def test_rectangular_and_asymmetric_trapezoidal_geometry() -> None:
@@ -16,9 +21,7 @@ def test_rectangular_and_asymmetric_trapezoidal_geometry() -> None:
 
     trapezoid = TrapezoidalChannel(4.0, 3.0, 2.0)
     assert trapezoid.area(1.2) == pytest.approx(8.4)
-    assert trapezoid.wetted_perimeter(1.2) == pytest.approx(
-        4.0 + 1.2 * math.sqrt(10.0) + 1.2 * math.sqrt(5.0)
-    )
+    assert trapezoid.wetted_perimeter(1.2) == pytest.approx(4.0 + 1.2 * math.sqrt(10.0) + 1.2 * math.sqrt(5.0))
     assert trapezoid.top_width(1.2) == pytest.approx(10.0)
 
 
@@ -26,6 +29,12 @@ def test_zero_bottom_width_represents_triangular_section() -> None:
     section = TrapezoidalChannel(0.0, 2.0, 2.0)
     assert section.area(1.5) == pytest.approx(4.5)
     assert section.top_width(1.5) == pytest.approx(6.0)
+
+
+def test_hydraulic_radius_uses_area_over_wetted_perimeter() -> None:
+    section = RectangularChannel(5.0)
+    assert hydraulic_radius(section, 1.0) == pytest.approx(5.0 / 7.0)
+    assert hydraulic_radius(section, 0.0) == 0.0
 
 
 @pytest.mark.parametrize(

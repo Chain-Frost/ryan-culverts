@@ -111,16 +111,12 @@ def determine_governing_regime(
     )
 
     # Calculate critical and normal depths
-    crit_res: CriticalDepthResult = calculate_critical_depth(
-        geometry=barrel.geometry, discharge=q, g=g
-    )
+    crit_res: CriticalDepthResult = calculate_critical_depth(geometry=barrel.geometry, discharge=q, g=g)
     yc: float = crit_res.depth
     convergence: list[ConvergenceRecord] = []
     if crit_res.convergence is not None:
         convergence.append(
-            ConvergenceRecord(
-                calculation=ConvergenceCalculation.CRITICAL_DEPTH, result=crit_res.convergence
-            )
+            ConvergenceRecord(calculation=ConvergenceCalculation.CRITICAL_DEPTH, result=crit_res.convergence)
         )
 
     yn: float | None = None
@@ -134,9 +130,7 @@ def determine_governing_regime(
         )
         if norm_res.convergence is not None:
             convergence.append(
-                ConvergenceRecord(
-                    calculation=ConvergenceCalculation.NORMAL_DEPTH, result=norm_res.convergence
-                )
+                ConvergenceRecord(calculation=ConvergenceCalculation.NORMAL_DEPTH, result=norm_res.convergence)
             )
         if not norm_res.capacity_exceeded:
             yn = norm_res.depth
@@ -179,9 +173,7 @@ def determine_governing_regime(
     hydraulic_jump_station: float | None = None
     hydraulic_jump_swept_out: bool | None = None
     if tw_depth < rise and yn is not None and yn < yc:
-        steep_profile = compute_steep_inlet_control_profile(
-            barrel=barrel, discharge=q, tailwater=tw_elev, g=g
-        )
+        steep_profile = compute_steep_inlet_control_profile(barrel=barrel, discharge=q, tailwater=tw_elev, g=g)
         outlet_sequent_depth = steep_profile.outlet_sequent_depth
         hydraulic_jump_station = steep_profile.hydraulic_jump_station
         hydraulic_jump_swept_out = steep_profile.hydraulic_jump_swept_out
@@ -222,20 +214,16 @@ def determine_governing_regime(
                     # A jump leaves the upstream reach connected to inlet control.
                     hw_outlet_elev = float("-inf")
                 else:
-                    transition_result: PartialFlowOutletResult = (
-                        calculate_partial_flow_outlet_headwater(
-                            barrel=transition_barrel,
-                            discharge=q,
-                            tailwater=transition_tailwater,
-                            entrance_loss_coefficient=entrance_selection.ke,
-                            g=g,
-                        )
+                    transition_result: PartialFlowOutletResult = calculate_partial_flow_outlet_headwater(
+                        barrel=transition_barrel,
+                        discharge=q,
+                        tailwater=transition_tailwater,
+                        entrance_loss_coefficient=entrance_selection.ke,
+                        g=g,
                     )
                     hw_outlet_elev = transition_result.headwater_elevation
                     selected_profile = transition_result.profile
-                    outlet_control_losses = HeadLossComponents(
-                        entrance=transition_result.entrance_loss
-                    )
+                    outlet_control_losses = HeadLossComponents(entrance=transition_result.entrance_loss)
             elif yn is not None:
                 transition_result = calculate_partial_flow_outlet_headwater(
                     barrel=transition_barrel,
@@ -395,9 +383,7 @@ def determine_governing_regime(
         hydraulic_jump_swept_out=hydraulic_jump_swept_out,
         full_flow_length=outlet_full_flow_length,
         inlet_control_headwater_elevation=hw_inlet_elev,
-        outlet_control_headwater_elevation=(
-            None if hw_outlet_elev == float("-inf") else hw_outlet_elev
-        ),
+        outlet_control_headwater_elevation=(None if hw_outlet_elev == float("-inf") else hw_outlet_elev),
         full_flow_headwater_elevation=hw_full_elev,
         warnings=tuple(warnings),
         inlet_coefficient_selection=inlet_selection,

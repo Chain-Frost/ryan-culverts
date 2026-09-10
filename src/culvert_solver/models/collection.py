@@ -40,16 +40,10 @@ class CulvertInventoryItem:
         if self.result is not None:
             result_groups = tuple(group_result.group for group_result in self.result.group_results)
             if result_groups != self.configuration.groups:
-                raise InvalidInputError(
-                    "The hydraulic result groups do not match this crossing configuration."
-                )
-            result_roadway = (
-                None if self.result.roadway_result is None else self.result.roadway_result.roadway
-            )
+                raise InvalidInputError("The hydraulic result groups do not match this crossing configuration.")
+            result_roadway = None if self.result.roadway_result is None else self.result.roadway_result.roadway
             if result_roadway != self.configuration.roadway:
-                raise InvalidInputError(
-                    "The hydraulic result roadway does not match this crossing configuration."
-                )
+                raise InvalidInputError("The hydraulic result roadway does not match this crossing configuration.")
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,9 +73,7 @@ class CulvertInventory:
                 return index
         raise InvalidInputError(f"Unknown crossing_id {crossing_id!r}.")
 
-    def update_configuration(
-        self, crossing_id: str, new_configuration: CulvertCrossing
-    ) -> CulvertInventory:
+    def update_configuration(self, crossing_id: str, new_configuration: CulvertCrossing) -> CulvertInventory:
         """Replace a crossing configuration and discard its now-stale result."""
         index = self._index_for(crossing_id)
         new_items = list(self.items)
@@ -220,9 +212,7 @@ class InventorySummary:
         def register_source(source: SourceReference) -> None:
             existing = sources_by_id.get(source.source_id)
             if existing is not None and existing != source:
-                raise InvalidInputError(
-                    f"Conflicting source metadata uses source_id {source.source_id!r}."
-                )
+                raise InvalidInputError(f"Conflicting source metadata uses source_id {source.source_id!r}.")
             sources_by_id[source.source_id] = source
 
         for item in inventory.items:
@@ -250,14 +240,10 @@ class InventorySummary:
                             assert exit_loss is not None
                             assert roughness is not None
                             assert roughness_basis is not None
-                            generated_id = (
-                                barrel_result.barrel.parameter_set_id or _parameter_set_id(key)
-                            )
+                            generated_id = barrel_result.barrel.parameter_set_id or _parameter_set_id(key)
                             colliding_key = parameter_keys_by_id.get(generated_id)
                             if colliding_key is not None and colliding_key != key:
-                                raise InvalidInputError(
-                                    f"Parameter-set ID collision for {generated_id!r}."
-                                )
+                                raise InvalidInputError(f"Parameter-set ID collision for {generated_id!r}.")
                             parameter_set = AdoptedParameterSet(
                                 parameter_set_id=generated_id,
                                 material=barrel_result.barrel.material,
@@ -282,9 +268,7 @@ class InventorySummary:
                             register_source(parameter_set.exit_loss.source)
                         if parameter_set.roughness_source is not None:
                             register_source(parameter_set.roughness_source)
-                    group_notice_codes = tuple(
-                        dict.fromkeys(notice.code for notice in barrel_result.roughness_notices)
-                    )
+                    group_notice_codes = tuple(dict.fromkeys(notice.code for notice in barrel_result.roughness_notices))
                     for notice in barrel_result.roughness_notices:
                         register_source(notice.source)
                         if notice.code not in crossing_applicability_notice_codes:
@@ -302,9 +286,7 @@ class InventorySummary:
                             outlet_velocity=barrel_result.velocity_outlet,
                             control_type=barrel_result.control_type,
                             regime=barrel_result.regime,
-                            warning_codes=tuple(
-                                dict.fromkeys(warning.code for warning in barrel_result.warnings)
-                            ),
+                            warning_codes=tuple(dict.fromkeys(warning.code for warning in barrel_result.warnings)),
                             applicability_notice_codes=group_notice_codes,
                             hydraulic_jump_station=barrel_result.hydraulic_jump_station,
                             full_flow_length=barrel_result.full_flow_length,
@@ -324,9 +306,7 @@ class InventorySummary:
                     total_discharge=None if result is None else result.total_discharge,
                     tailwater_elevation=(None if result is None else result.tailwater_elevation),
                     roadway_crest_elevation=(
-                        None
-                        if item.configuration.roadway is None
-                        else item.configuration.roadway.crest_elevation
+                        None if item.configuration.roadway is None else item.configuration.roadway.crest_elevation
                     ),
                     roadway_discharge=(None if result is None else result.roadway_discharge),
                     parameter_set_ids=tuple(crossing_parameter_ids),
@@ -355,14 +335,8 @@ class InventorySummary:
             groups=tuple(group_rows),
             parameter_sets=tuple(parameter_sets_by_key.values()),
             materials=tuple(sorted(materials, key=lambda material: material.name)),
-            inlet_coefficients=tuple(
-                sorted(inlet_coefficients, key=lambda coefficients: coefficients.name)
-            ),
-            entrance_loss_coefficients=tuple(
-                sorted(entrance_losses, key=lambda coefficient: coefficient.name)
-            ),
-            source_references=tuple(
-                sources_by_id[source_id] for source_id in sorted(sources_by_id)
-            ),
+            inlet_coefficients=tuple(sorted(inlet_coefficients, key=lambda coefficients: coefficients.name)),
+            entrance_loss_coefficients=tuple(sorted(entrance_losses, key=lambda coefficient: coefficient.name)),
+            source_references=tuple(sources_by_id[source_id] for source_id in sorted(sources_by_id)),
             warnings=tuple(warnings),
         )

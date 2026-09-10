@@ -13,9 +13,7 @@ _HDS5_TABLE_A1_INLET_REF = SourceReference(
     edition="Third Edition, April 2012",
     locator="Appendix A, Table A.1: Constants for Inlet Control Equations",
     url="https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf",
-    applicability=(
-        "Empirical constants K, M, c, Y and equation forms for conventional culvert inlets."
-    ),
+    applicability=("Empirical constants K, M, c, Y and equation forms for conventional culvert inlets."),
     notes="Adopted from NBS research (French, Bossy) and published in FHWA HDS-5 Appendix A.",
 )
 
@@ -39,18 +37,12 @@ class InletCoefficients:
     def __post_init__(self) -> None:
         if not self.name.strip():
             raise InvalidInputError("name must be nonempty text.")
-        chart_val: None | int = (
-            None if self.chart is None else positive_integer(self.chart, "chart")
-        )
-        scale_val: None | int = (
-            None if self.scale is None else positive_integer(self.scale, "scale")
-        )
+        chart_val: None | int = None if self.chart is None else positive_integer(self.chart, "chart")
+        scale_val: None | int = None if self.scale is None else positive_integer(self.scale, "scale")
         try:
             form_val = InletEquationForm(self.form)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError(
-                "form must be InletEquationForm.SPECIFIC_HEAD or WEIR."
-            ) from exc
+            raise InvalidInputError("form must be InletEquationForm.SPECIFIC_HEAD or WEIR.") from exc
         k_val: float = finite(self.k, "k")
         if k_val <= 0:
             raise InvalidInputError("k must be strictly positive.")
@@ -67,9 +59,7 @@ class InletCoefficients:
         try:
             shape_val = GeometryShape(self.shape)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError(
-                "shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY."
-            ) from exc
+            raise InvalidInputError("shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY.") from exc
 
         object.__setattr__(self, "chart", chart_val)
         object.__setattr__(self, "scale", scale_val)

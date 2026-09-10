@@ -65,9 +65,7 @@ def test_entrance_loss_coefficient_validation() -> None:
         EntranceLossCoefficient(name="Invalid Ke", ke=-0.1)
 
     with pytest.raises(InvalidInputError, match="shape must be"):
-        EntranceLossCoefficient(
-            name="Invalid Shape", ke=0.5, shape=cast(GeometryShape, "trapezoidal")
-        )
+        EntranceLossCoefficient(name="Invalid Shape", ke=0.5, shape=cast(GeometryShape, "trapezoidal"))
 
 
 def test_exit_loss_selection_validation_and_override() -> None:
@@ -220,12 +218,8 @@ def test_full_flow_circular_unsubmerged_effective_tw() -> None:
     assert result.tailwater_depth == 0.0
     assert result.critical_depth == pytest.approx(dc, rel=1e-6)
     assert result.effective_tailwater_depth == pytest.approx(ho_eff_expected, rel=1e-6)
-    assert result.hydraulic_grade_elevation_outlet == pytest.approx(
-        99.5 + ho_eff_expected, rel=1e-6
-    )
-    assert result.headwater_elevation == pytest.approx(
-        99.5 + ho_eff_expected + result.total_head_loss, rel=1e-6
-    )
+    assert result.hydraulic_grade_elevation_outlet == pytest.approx(99.5 + ho_eff_expected, rel=1e-6)
+    assert result.headwater_elevation == pytest.approx(99.5 + ho_eff_expected + result.total_head_loss, rel=1e-6)
     assert result.headwater_depth == pytest.approx(result.headwater_elevation - 100.0, rel=1e-6)
 
 

@@ -28,9 +28,7 @@ _HDS5_SECTION_314_EXIT_REF = SourceReference(
     edition="Third Edition, April 2012",
     locator="Section 3.1.4, Equation 3.4c: Exit Loss",
     url="https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf",
-    applicability=(
-        "Exit loss ho = 1.0 * V^2 / (2*g) for culverts discharging into a reservoir or pool."
-    ),
+    applicability=("Exit loss ho = 1.0 * V^2 / (2*g) for culverts discharging into a reservoir or pool."),
     notes="Exit loss coefficient Ko = 1.0 for sudden deceleration to zero receiving velocity.",
 )
 
@@ -55,9 +53,7 @@ class EntranceLossCoefficient:
         try:
             shape_val = GeometryShape(self.shape)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError(
-                "shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY."
-            ) from exc
+            raise InvalidInputError("shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY.") from exc
         object.__setattr__(self, "ke", ke_val)
         object.__setattr__(self, "shape", shape_val)
 
@@ -110,9 +106,7 @@ def resolve_exit_loss_coefficient(override: float | None = None) -> ExitLossSele
     )
 
 
-def validate_entrance_loss_shape(
-    barrel: CulvertBarrel, coefficient: EntranceLossCoefficient
-) -> None:
+def validate_entrance_loss_shape(barrel: CulvertBarrel, coefficient: EntranceLossCoefficient) -> None:
     """Reject an entrance-loss coefficient for a different geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape: GeometryShape = GeometryShape.CIRCULAR

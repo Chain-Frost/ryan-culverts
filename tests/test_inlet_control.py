@@ -48,12 +48,10 @@ def test_tangent_transition_matches_endpoint_values_and_slopes() -> None:
     at_low = transition_headwater(low, value_low, value_high, tangent_low, tangent_high)
     at_high = transition_headwater(high, value_low, value_high, tangent_low, tangent_high)
     slope_low = (
-        transition_headwater(low + epsilon, value_low, value_high, tangent_low, tangent_high)
-        - at_low
+        transition_headwater(low + epsilon, value_low, value_high, tangent_low, tangent_high) - at_low
     ) / epsilon
     slope_high = (
-        at_high
-        - transition_headwater(high - epsilon, value_low, value_high, tangent_low, tangent_high)
+        at_high - transition_headwater(high - epsilon, value_low, value_high, tangent_low, tangent_high)
     ) / epsilon
 
     assert at_low == pytest.approx(value_low)

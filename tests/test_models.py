@@ -91,9 +91,7 @@ def test_complete_mrwa_csp_manning_lookup(
             with pytest.raises(InvalidInputError, match="No MRWA Table 2.2"):
                 resolve_csp_manning_roughness(diameter_mm, corrugation)
         else:
-            assert resolve_csp_manning_roughness(diameter_mm, corrugation) == pytest.approx(
-                expected_n
-            )
+            assert resolve_csp_manning_roughness(diameter_mm, corrugation) == pytest.approx(expected_n)
 
 
 def test_mrwa_csp_larger_row_and_string_enum_value() -> None:

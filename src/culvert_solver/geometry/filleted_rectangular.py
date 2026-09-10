@@ -121,16 +121,9 @@ class FilletedRectangularGeometry(CrossSectionGeometry):
         return self._span - 2.0 * (y - (self._rise - a))
 
     def __repr__(self) -> str:
-        return (
-            f"FilletedRectangularGeometry(span={self._span!r}, rise={self._rise!r}, "
-            f"fillet={self._fillet!r})"
-        )
+        return f"FilletedRectangularGeometry(span={self._span!r}, rise={self._rise!r}, fillet={self._fillet!r})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FilletedRectangularGeometry):
             return NotImplemented
-        return (
-            self._span == other._span
-            and self._rise == other._rise
-            and self._fillet == other._fillet
-        )
+        return self._span == other._span and self._rise == other._rise and self._fillet == other._fillet

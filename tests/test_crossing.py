@@ -60,9 +60,7 @@ def test_group_matches_independent_full_flow_conservation_fixture() -> None:
         material=CONCRETE,
     )
 
-    result: GroupHydraulicResult = solve_group_hydraulics(
-        CulvertGroup(barrel, quantity=3), 6.0, 11.0
-    )
+    result: GroupHydraulicResult = solve_group_hydraulics(CulvertGroup(barrel, quantity=3), 6.0, 11.0)
 
     # Independently evaluated from HDS-5 Equations 3.1-3.5 using Q/N=2 m3/s:
     # He=0.1653101659 m, Hf=0.3479233631 m, Ho=0.3306203318 m.
@@ -144,9 +142,7 @@ def test_single_group_crossing() -> None:
     c_res = solve_crossing_hydraulics(crossing=crossing, total_discharge=total_q, tailwater=tw)
     g_res = solve_group_hydraulics(group=group, total_discharge=total_q, tailwater=tw)
 
-    assert c_res.headwater_elevation == pytest.approx(
-        g_res.barrel_result.headwater_elevation, abs=1e-6
-    )
+    assert c_res.headwater_elevation == pytest.approx(g_res.barrel_result.headwater_elevation, abs=1e-6)
     assert c_res.total_discharge == pytest.approx(total_q)
     assert len(c_res.group_results) == 1
     assert c_res.group_results[0].barrel_discharge == pytest.approx(4.0)
@@ -185,13 +181,8 @@ def test_multi_group_crossing_equal_sharing() -> None:
     assert c_res.headwater_convergence.result.root == c_res.headwater_elevation
     for group_result in c_res.group_results:
         assert group_result.discharge_convergence is not None
-        assert (
-            group_result.discharge_convergence.calculation
-            is ConvergenceCalculation.BARREL_DISCHARGE
-        )
-        assert group_result.discharge_convergence.result.root == pytest.approx(
-            group_result.barrel_discharge
-        )
+        assert group_result.discharge_convergence.calculation is ConvergenceCalculation.BARREL_DISCHARGE
+        assert group_result.discharge_convergence.result.root == pytest.approx(group_result.barrel_discharge)
 
 
 def test_identical_crossing_matches_independent_conservation_fixture() -> None:
@@ -209,19 +200,12 @@ def test_identical_crossing_matches_independent_conservation_fixture() -> None:
     result = solve_crossing_hydraulics(crossing, total_discharge=8.0, tailwater=11.0)
 
     assert result.headwater_elevation == pytest.approx(11.843853860747691, abs=1e-6)
-    assert [group.total_discharge for group in result.group_results] == pytest.approx(
-        [2.0, 6.0], abs=1e-5
-    )
-    assert [group.barrel_discharge for group in result.group_results] == pytest.approx(
-        [2.0, 2.0], abs=1e-5
-    )
+    assert [group.total_discharge for group in result.group_results] == pytest.approx([2.0, 6.0], abs=1e-5)
+    assert [group.barrel_discharge for group in result.group_results] == pytest.approx([2.0, 2.0], abs=1e-5)
     assert sum(group.total_discharge for group in result.group_results) == pytest.approx(
         result.total_discharge, abs=1e-5
     )
-    assert all(
-        group.barrel_result.regime is FlowRegime.OUTLET_CONTROL_FULL
-        for group in result.group_results
-    )
+    assert all(group.barrel_result.regime is FlowRegime.OUTLET_CONTROL_FULL for group in result.group_results)
 
 
 def test_multi_group_crossing_different_inverts() -> None:

@@ -3,8 +3,6 @@
 import math
 from dataclasses import replace
 
-from culvert_solver.models.tailwater import TailwaterResolution
-
 from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
@@ -20,7 +18,12 @@ from ..models.results import (
     FlowRegime,
     GroupHydraulicResult,
 )
-from ..models.tailwater import TailwaterCondition, TailwaterInput, resolve_tailwater
+from ..models.tailwater import (
+    TailwaterCondition,
+    TailwaterInput,
+    TailwaterResolution,
+    resolve_tailwater,
+)
 from ..numerical.roots import RootResult, solve_brent
 from ..numerical.tolerances import RootTolerances
 from ..outlet_control.losses import EntranceLossCoefficient
@@ -130,8 +133,7 @@ def solve_crossing_discharge_for_headwater(
     )
     if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
         raise InvalidInputError(
-            "Submerged roadway overtopping is not supported: tailwater elevation "
-            "must be at or below the roadway crest."
+            "Submerged roadway overtopping is not supported: tailwater elevation must be at or below the roadway crest."
         )
     total_discharge: float = sum(
         solve_group_discharge_for_headwater(
@@ -287,8 +289,7 @@ def solve_crossing_hydraulics(
 
     if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
         raise InvalidInputError(
-            "Submerged roadway overtopping is not supported: tailwater elevation "
-            "must be at or below the roadway crest."
+            "Submerged roadway overtopping is not supported: tailwater elevation must be at or below the roadway crest."
         )
 
     # Fast path for single-group crossing

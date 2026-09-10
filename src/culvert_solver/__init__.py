@@ -6,7 +6,12 @@ provisional combined solvers. External engineering validation is not yet complet
 
 from importlib.metadata import PackageNotFoundError, version
 
-from .channel.geometry import OpenChannelSection, RectangularChannel, TrapezoidalChannel
+from .channel.geometry import (
+    OpenChannelSection,
+    RectangularChannel,
+    TrapezoidalChannel,
+    hydraulic_radius,
+)
 from .channel.uniform import ChannelNormalDepthResult, calculate_channel_normal_depth
 from .constants import (
     GRAVITATIONAL_ACCELERATION,
@@ -357,6 +362,7 @@ __all__: list[str] = [
     "friction_head_loss",
     "froude_number",
     "hydrostatic_pressure_moment",
+    "hydraulic_radius",
     "generate_barrel_rating_curve",
     "generate_crossing_rating_curve",
     "generate_discharge_range",

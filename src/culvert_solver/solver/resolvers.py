@@ -70,9 +70,7 @@ def _validate_inlet_shape(barrel: CulvertBarrel, coefficients: InletCoefficients
         )
 
 
-def _default_inlet_coefficients(
-    barrel: CulvertBarrel, config: SolverConfiguration
-) -> InletCoefficients:
+def _default_inlet_coefficients(barrel: CulvertBarrel, config: SolverConfiguration) -> InletCoefficients:
     """Select standard default inlet coefficients from geometry and material."""
     if isinstance(barrel.geometry, CircularGeometry):
         if barrel.material == CORRUGATED_STEEL:
@@ -90,9 +88,7 @@ def _default_inlet_coefficients(
             "No default inlet coefficients exist for this rectangular barrel material; "
             "provide inlet_coefficients explicitly."
         )
-    raise InvalidInputError(
-        "No default inlet coefficients exist for this geometry; provide them explicitly."
-    )
+    raise InvalidInputError("No default inlet coefficients exist for this geometry; provide them explicitly.")
 
 
 def resolve_inlet_coefficients(
@@ -200,9 +196,7 @@ def resolve_entrance_loss_coefficient(
     EntranceLossSelection
         Resolved Ke with selection basis and source provenance.
     """
-    config: SolverConfiguration = (
-        configuration if configuration is not None else DEFAULT_SOLVER_CONFIGURATION
-    )
+    config: SolverConfiguration = configuration if configuration is not None else DEFAULT_SOLVER_CONFIGURATION
     # 1. Explicit user override
     if override is not None:
         if isinstance(override, EntranceLossCoefficient):
@@ -262,8 +256,7 @@ def resolve_entrance_loss_coefficient(
             default_coeff = config.default_circular_concrete_loss
         else:
             raise InvalidInputError(
-                "No default entrance-loss coefficient exists for this circular barrel "
-                "material; provide one explicitly."
+                "No default entrance-loss coefficient exists for this circular barrel material; provide one explicitly."
             )
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:

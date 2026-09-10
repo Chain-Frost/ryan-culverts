@@ -65,9 +65,7 @@ class ModernBoxInlet:
         if not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
             self.geometry, (RectangularGeometry, FilletedRectangularGeometry)
         ):
-            raise InvalidInputError(
-                "geometry must be RectangularGeometry or FilletedRectangularGeometry."
-            )
+            raise InvalidInputError("geometry must be RectangularGeometry or FilletedRectangularGeometry.")
         try:
             wingwall = BoxWingwallTreatment(self.wingwall_treatment)
         except (TypeError, ValueError) as exc:
@@ -338,21 +336,15 @@ def resolve_modern_box_inlet_coefficients(inlet: ModernBoxInlet) -> ModernBoxInl
 
     if inlet.wingwall_treatment is BoxWingwallTreatment.FLARED_30:
         if inlet.crown_treatment is not BoxCrownTreatment.BEVEL_45:
-            raise InvalidInputError(
-                "The corrected 30-degree-flared rows require a 45-degree crown bevel."
-            )
+            raise InvalidInputError("The corrected 30-degree-flared rows require a 45-degree crown bevel.")
         if not (_is_dimension(fillet, 0.0) or _is_dimension(fillet, _SIX_INCHES)):
-            raise InvalidInputError(
-                "The supported field-cast flared rows use zero or 6-inch corner fillets."
-            )
+            raise InvalidInputError("The supported field-cast flared rows use zero or 6-inch corner fillets.")
         if math.isclose(a=skew, b=15.0, abs_tol=1e-9) and regular_multiple:
             return _ROWS[4]
         if 30.0 <= skew <= 45.0 and regular_multiple:
             return _ROWS[5]
         if not math.isclose(a=skew, b=0.0, abs_tol=1e-9):
-            raise InvalidInputError(
-                "The requested skew/count/ratio combination is not represented in Figure 93."
-            )
+            raise InvalidInputError("The requested skew/count/ratio combination is not represented in Figure 93.")
         if regular_single:
             return _ROWS[1]
         if regular_multiple:
@@ -362,25 +354,19 @@ def resolve_modern_box_inlet_coefficients(inlet: ModernBoxInlet) -> ModernBoxInl
 
     if inlet.wingwall_treatment is BoxWingwallTreatment.EXTENDED_SIDES_0:
         if not math.isclose(skew, 0.0, abs_tol=1e-9):
-            raise InvalidInputError(
-                "The corrected extended-side rows do not represent skewed headwalls."
-            )
+            raise InvalidInputError("The corrected extended-side rows do not represent skewed headwalls.")
         if inlet.crown_treatment is BoxCrownTreatment.SQUARE_EDGE:
             if regular_single and _is_dimension(fillet, 0.0):
                 return _ROWS[6]
         elif inlet.crown_treatment is BoxCrownTreatment.BEVEL_45:
-            if regular_single and (
-                _is_dimension(fillet, 0.0) or _is_dimension(fillet, _SIX_INCHES)
-            ):
+            if regular_single and (_is_dimension(fillet, 0.0) or _is_dimension(fillet, _SIX_INCHES)):
                 return _ROWS[7]
             if regular_multiple and _is_dimension(fillet, _SIX_INCHES):
                 return _ROWS[8]
             if wide_single and _is_dimension(fillet, 0.0):
                 return _ROWS[9]
         elif inlet.crown_treatment is BoxCrownTreatment.ROUNDED_8_INCH:
-            if regular_single and (
-                _is_dimension(fillet, 0.0) or _is_dimension(fillet, _SIX_INCHES)
-            ):
+            if regular_single and (_is_dimension(fillet, 0.0) or _is_dimension(fillet, _SIX_INCHES)):
                 return _ROWS[10]
             if regular_single and _is_dimension(fillet, _TWELVE_INCHES):
                 return _ROWS[11]
@@ -409,17 +395,14 @@ def calculate_modern_box_inlet_headwater(
     if acceleration <= 0.0:
         raise InvalidInputError("g must be strictly positive.")
     coefficients: ModernBoxInletCoefficients = resolve_modern_box_inlet_coefficients(inlet)
-    flow_parameter: float = q / (
-        inlet.net_opening_area * math.sqrt(acceleration * inlet.geometry.rise)
-    )
+    flow_parameter: float = q / (inlet.net_opening_area * math.sqrt(acceleration * inlet.geometry.rise))
     a, b, c, d, e, f = coefficients.polynomial
     ratio: float = a + flow_parameter * (
         b + flow_parameter * (c + flow_parameter * (d + flow_parameter * (e + flow_parameter * f)))
     )
     if not (FHWA_MODERN_BOX_HW_D_MIN < ratio < FHWA_MODERN_BOX_HW_D_MAX):
         raise InvalidInputError(
-            "The Table 12 result is outside its documented useful range "
-            "(approximately 0.4 < HW/D < 2.3)."
+            "The Table 12 result is outside its documented useful range (approximately 0.4 < HW/D < 2.3)."
         )
     return ModernBoxInletResult(
         inlet=inlet,

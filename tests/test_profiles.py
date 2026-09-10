@@ -52,8 +52,7 @@ def test_inlet_control_s2_profile_routes_downstream() -> None:
     assert profile.outlet_depth == pytest.approx(refined.outlet_depth, abs=1e-3)
     assert refined.outlet_depth == pytest.approx(0.4136573803, abs=1e-6)
     assert all(
-        first.station < second.station
-        for first, second in zip(profile.points, profile.points[1:], strict=False)
+        first.station < second.station for first, second in zip(profile.points, profile.points[1:], strict=False)
     )
     assert all(
         first.water_depth > second.water_depth
@@ -99,9 +98,7 @@ def test_steep_profile_locates_in_barrel_hydraulic_jump() -> None:
     assert refined.hydraulic_jump_station == pytest.approx(25.60633937, abs=5e-3)
     assert profile.outlet_depth == pytest.approx(0.75)
     jump_points = tuple(
-        point
-        for point in profile.points
-        if point.station == pytest.approx(profile.hydraulic_jump_station)
+        point for point in profile.points if point.station == pytest.approx(profile.hydraulic_jump_station)
     )
     assert len(jump_points) == 2
     assert jump_points[0].water_depth < jump_points[1].water_depth
@@ -179,12 +176,8 @@ def test_m2_drawdown_profile_box() -> None:
     vin = profile.inlet_velocity
     hv_in = (vin * vin) / (2.0 * 9.80665)
     he_expected = 0.4 * hv_in
-    assert profile.inlet_headwater_depth == pytest.approx(
-        profile.inlet_depth + hv_in + he_expected, rel=1e-6
-    )
-    assert profile.inlet_headwater_elevation == pytest.approx(
-        10.0 + profile.inlet_headwater_depth, rel=1e-6
-    )
+    assert profile.inlet_headwater_depth == pytest.approx(profile.inlet_depth + hv_in + he_expected, rel=1e-6)
+    assert profile.inlet_headwater_elevation == pytest.approx(10.0 + profile.inlet_headwater_depth, rel=1e-6)
 
 
 def test_m1_backwater_profile_box() -> None:

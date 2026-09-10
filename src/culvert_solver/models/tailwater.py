@@ -18,7 +18,7 @@ FHWA_HDS5_NORMAL_DEPTH_TAILWATER = SourceReference(
     locator="Section 1.4.4, Tailwater (printed page 1.19; PDF page 35)",
     url="https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf",
     applicability=(
-        "Normal-depth approximation for a downstream channel without controls that " "require a backwater calculation."
+        "Normal-depth approximation for a downstream channel without controls that require a backwater calculation."
     ),
     notes=(
         "A prismatic uniform-flow boundary is not a receiving-reach backwater model; "
@@ -37,7 +37,11 @@ class TailwaterMethod(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class TailwaterResolution:
-    """Resolved absolute tailwater elevation and calculation provenance."""
+    """Resolved absolute tailwater elevation and calculation provenance.
+
+    ``depth`` is relative to ``channel_invert_elevation`` for a Manning
+    boundary; it is not culvert-outlet-relative tailwater depth.
+    """
 
     elevation: float
     method: TailwaterMethod
@@ -48,7 +52,11 @@ class TailwaterResolution:
     friction_slope: float | None = None
     channel_section: OpenChannelSection | None = None
     normal_depth_result: ChannelNormalDepthResult | None = None
-    source: SourceReference | None = None
+    method_source: SourceReference | None = None
+    roughness_source: SourceReference | None = None
+    slope_source: SourceReference | None = None
+    geometry_source: SourceReference | None = None
+    channel_invert_source: SourceReference | None = None
 
     def __post_init__(self) -> None:
         elevation: float = finite(self.elevation, "elevation")
@@ -63,6 +71,18 @@ class TailwaterResolution:
         depth: None | float = None if self.depth is None else finite(self.depth, "depth")
         roughness: None | float = None if self.roughness is None else finite(self.roughness, "roughness")
         slope: None | float = None if self.friction_slope is None else finite(self.friction_slope, "friction_slope")
+        for name in (
+            "method_source",
+            "roughness_source",
+            "slope_source",
+            "geometry_source",
+            "channel_invert_source",
+        ):
+            value = getattr(self, name)
+            if value is not None and not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+                value, SourceReference
+            ):
+                raise InvalidInputError(f"{name} must be a SourceReference when supplied.")
         if depth is not None and depth < 0.0:
             raise InvalidInputError("depth must be nonnegative.")
         if self.method is TailwaterMethod.MANNING_NORMAL_DEPTH:
@@ -80,8 +100,8 @@ class TailwaterResolution:
                 )
             if roughness <= 0.0 or slope <= 0.0:
                 raise InvalidInputError("Manning tailwater roughness and friction slope must be positive.")
-            if self.source is None:
-                raise InvalidInputError("A Manning tailwater resolution requires a source.")
+            if self.method_source is None:
+                raise InvalidInputError("A Manning tailwater resolution requires a method_source.")
         object.__setattr__(self, "elevation", elevation)
         object.__setattr__(self, "discharge", discharge)
         object.__setattr__(self, "channel_invert_elevation", invert)
@@ -139,13 +159,19 @@ class ManningChannelTailwater:
 
     ``friction_slope`` is the Manning energy slope. Representative bed slope is
     an approximation valid only under the documented uniform-flow assumption.
+    ``method_source`` documents that method; the other source fields document
+    the independently selected project parameters.
     """
 
     section: OpenChannelSection
     channel_invert_elevation: float
     roughness: float
     friction_slope: float
-    source: SourceReference = FHWA_HDS5_NORMAL_DEPTH_TAILWATER
+    method_source: SourceReference = FHWA_HDS5_NORMAL_DEPTH_TAILWATER
+    roughness_source: SourceReference | None = None
+    slope_source: SourceReference | None = None
+    geometry_source: SourceReference | None = None
+    channel_invert_source: SourceReference | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.section, OpenChannelSection):  # pyright: ignore[reportUnnecessaryIsInstance]
@@ -157,8 +183,17 @@ class ManningChannelTailwater:
             raise InvalidInputError("roughness must be strictly positive.")
         if slope <= 0.0:
             raise InvalidInputError("friction_slope must be strictly positive.")
-        if not isinstance(self.source, SourceReference):  # pyright: ignore[reportUnnecessaryIsInstance]
-            raise InvalidInputError("source must be a SourceReference.")
+        for name, value in (
+            ("method_source", self.method_source),
+            ("roughness_source", self.roughness_source),
+            ("slope_source", self.slope_source),
+            ("geometry_source", self.geometry_source),
+            ("channel_invert_source", self.channel_invert_source),
+        ):
+            if value is not None and not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+                value, SourceReference
+            ):
+                raise InvalidInputError(f"{name} must be a SourceReference when supplied.")
         object.__setattr__(self, "channel_invert_elevation", invert)
         object.__setattr__(self, "roughness", roughness)
         object.__setattr__(self, "friction_slope", slope)
@@ -188,7 +223,11 @@ class ManningChannelTailwater:
             friction_slope=self.friction_slope,
             channel_section=self.section,
             normal_depth_result=result,
-            source=self.source,
+            method_source=self.method_source,
+            roughness_source=self.roughness_source,
+            slope_source=self.slope_source,
+            geometry_source=self.geometry_source,
+            channel_invert_source=self.channel_invert_source,
         )
 
 

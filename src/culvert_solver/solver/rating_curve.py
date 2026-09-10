@@ -3,12 +3,6 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from culvert_solver.models.results import (
-    BarrelHydraulicResult,
-    CrossingHydraulicResult,
-    GroupHydraulicResult,
-)
-
 from .._validation import finite, positive_integer
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
@@ -16,7 +10,13 @@ from ..inlet_control.coefficients import InletCoefficients
 from ..models.barrel import CulvertBarrel
 from ..models.crossing import CulvertCrossing
 from ..models.enums import ControlType
-from ..models.results import FlowRegime, HydraulicWarning
+from ..models.results import (
+    BarrelHydraulicResult,
+    CrossingHydraulicResult,
+    FlowRegime,
+    GroupHydraulicResult,
+    HydraulicWarning,
+)
 from ..models.tailwater import TailwaterInput, TailwaterResolution
 from ..outlet_control.losses import EntranceLossCoefficient
 from .barrel import solve_barrel_hydraulics
@@ -26,7 +26,13 @@ from .crossing import solve_crossing_hydraulics
 
 @dataclass(frozen=True, slots=True)
 class RatingCurvePoint:
-    """Hydraulic performance metrics at a single operating discharge."""
+    """Hydraulic performance metrics at a single operating discharge.
+
+    ``tailwater_depth`` is measured above the barrel outlet invert for a barrel
+    curve, or above the lowest outlet invert for a crossing curve. A Manning
+    boundary's channel normal depth is separately retained as
+    ``tailwater_resolution.depth`` relative to its channel invert.
+    """
 
     discharge: float
     headwater_elevation: float
@@ -209,21 +215,15 @@ def generate_crossing_rating_curve(
         # Report the maximum active outlet velocity. A multi-group point is explicitly
         # mixed when active groups do not share one control or regime.
         active_results: tuple[GroupHydraulicResult, ...] = tuple(
-            group_result
-            for group_result in c_res.group_results
-            if group_result.barrel_discharge > 0.0
+            group_result for group_result in c_res.group_results if group_result.barrel_discharge > 0.0
         )
         v_out_max: float = max(
             (group_result.barrel_result.velocity_outlet for group_result in active_results),
             default=0.0,
         )
-        control_types: set[ControlType] = {
-            result.barrel_result.control_type for result in active_results
-        }
+        control_types: set[ControlType] = {result.barrel_result.control_type for result in active_results}
         regimes: set[FlowRegime] = {result.barrel_result.regime for result in active_results}
-        control_type: ControlType = (
-            next(iter(control_types)) if len(control_types) == 1 else ControlType.MIXED
-        )
+        control_type: ControlType = next(iter(control_types)) if len(control_types) == 1 else ControlType.MIXED
         regime: FlowRegime = next(iter(regimes)) if len(regimes) == 1 else FlowRegime.MIXED
         if c_res.roadway_discharge > 0.0:
             if active_results:
@@ -233,11 +233,7 @@ def generate_crossing_rating_curve(
                 control_type = ControlType.ROADWAY
                 regime = FlowRegime.ROADWAY_OVERTOPPING
         point_warnings: tuple[HydraulicWarning, ...] = tuple(
-            dict.fromkeys(
-                warning
-                for group_result in active_results
-                for warning in group_result.barrel_result.warnings
-            )
+            dict.fromkeys(warning for group_result in active_results for warning in group_result.barrel_result.warnings)
         )
 
         hw_depth: float = c_res.headwater_elevation - crossing.min_headwater_reference_elevation

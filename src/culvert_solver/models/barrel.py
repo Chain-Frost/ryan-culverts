@@ -51,8 +51,7 @@ class CulvertBarrel:
         z_out: float = finite(self.outlet_invert, "outlet_invert")
         if z_out > z_in:
             raise InvalidInputError(
-                "Adverse slope is outside the initial solver release: "
-                "inlet_invert must be >= outlet_invert."
+                "Adverse slope is outside the initial solver release: inlet_invert must be >= outlet_invert."
             )
         roughness_selection = self.roughness_selection
         n_val: float = finite(self.roughness, "roughness")
@@ -64,32 +63,21 @@ class CulvertBarrel:
         object.__setattr__(self, "roughness", n_val)
         if roughness_selection is not None:
             if n_val != roughness_selection.value:
-                raise InvalidInputError(
-                    "roughness must equal the supplied roughness_selection value."
-                )
+                raise InvalidInputError("roughness must equal the supplied roughness_selection value.")
             if (
                 self.roughness_selection_basis is not RoughnessSelectionBasis.USER_OVERRIDE
                 and self.roughness_selection_basis is not roughness_selection.basis
             ):
-                raise InvalidInputError(
-                    "roughness_selection_basis conflicts with the supplied roughness selection."
-                )
-            if (
-                self.roughness_source is not None
-                and self.roughness_source != roughness_selection.source
-            ):
-                raise InvalidInputError(
-                    "roughness_source conflicts with the supplied roughness selection."
-                )
+                raise InvalidInputError("roughness_selection_basis conflicts with the supplied roughness selection.")
+            if self.roughness_source is not None and self.roughness_source != roughness_selection.source:
+                raise InvalidInputError("roughness_source conflicts with the supplied roughness selection.")
             object.__setattr__(self, "roughness_selection_basis", roughness_selection.basis)
             object.__setattr__(self, "roughness_source", roughness_selection.source)
             object.__setattr__(self, "roughness_notices", roughness_selection.notices)
         try:
             roughness_basis = RoughnessSelectionBasis(self.roughness_selection_basis)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError(
-                "roughness_selection_basis must be a RoughnessSelectionBasis value."
-            ) from exc
+            raise InvalidInputError("roughness_selection_basis must be a RoughnessSelectionBasis value.") from exc
         object.__setattr__(self, "roughness_selection_basis", roughness_basis)
         if self.parameter_set_id is not None and not self.parameter_set_id.strip():
             raise InvalidInputError("parameter_set_id must be nonempty text when provided.")
@@ -111,9 +99,7 @@ class CulvertBarrel:
             if not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
                 self.entrance_loss_coefficient, EntranceLossCoefficient
             ):
-                raise InvalidInputError(
-                    "entrance_loss_coefficient must be a finite number or EntranceLossCoefficient."
-                )
+                raise InvalidInputError("entrance_loss_coefficient must be a finite number or EntranceLossCoefficient.")
 
     @property
     def drop(self) -> float:

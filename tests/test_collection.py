@@ -146,12 +146,8 @@ def test_update_result_uses_identifier_and_validates_configuration() -> None:
 
 def test_update_configuration_clears_stale_result() -> None:
     barrel = _test_barrel(CONCRETE, CIRCULAR_CONCRETE_SQUARE_EDGE, 0.5)
-    inventory = CulvertInventory(
-        [CulvertInventoryItem("C-001", _crossing(barrel), _mock_crossing_result(barrel))]
-    )
-    replacement = _crossing(
-        _test_barrel(CORRUGATED_STEEL, CIRCULAR_CMP_HEADWALL, PIPE_CMP_PROJECTING)
-    )
+    inventory = CulvertInventory([CulvertInventoryItem("C-001", _crossing(barrel), _mock_crossing_result(barrel))])
+    replacement = _crossing(_test_barrel(CORRUGATED_STEEL, CIRCULAR_CMP_HEADWALL, PIPE_CMP_PROJECTING))
 
     updated = inventory.update_configuration("C-001", replacement)
 
@@ -185,15 +181,11 @@ def test_inventory_summary_has_rows_and_deduplicated_basis() -> None:
     assert [row.crossing_id for row in summary.groups] == ["C-001", "C-003"]
     assert summary.groups[0].group_index == 0
     assert summary.groups[0].parameter_set_id == summary.crossings[0].parameter_set_ids[0]
-    assert summary.groups[0].warning_codes == (
-        HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION,
-    )
+    assert summary.groups[0].warning_codes == (HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION,)
     assert summary.groups[0].applicability_notice_codes == ()
     assert summary.groups[0].hydraulic_jump_station is None
     assert summary.groups[0].full_flow_length == 0.0
-    assert summary.crossings[0].warning_codes == (
-        HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION,
-    )
+    assert summary.crossings[0].warning_codes == (HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION,)
     assert summary.crossings[1].warning_codes == ()
     assert summary.crossings[0].applicability_notice_codes == ()
     assert set(summary.materials) == {CONCRETE, CORRUGATED_STEEL}
@@ -202,10 +194,7 @@ def test_inventory_summary_has_rows_and_deduplicated_basis() -> None:
         CIRCULAR_CMP_HEADWALL,
     }
     assert summary.entrance_loss_coefficients == (PIPE_CMP_PROJECTING,)
-    assert all(
-        parameter_set.exit_loss is STANDARD_EXIT_LOSS_SELECTION
-        for parameter_set in summary.parameter_sets
-    )
+    assert all(parameter_set.exit_loss is STANDARD_EXIT_LOSS_SELECTION for parameter_set in summary.parameter_sets)
     assert set(summary.source_references) == {
         CONCRETE.reference,
         CORRUGATED_STEEL.reference,
@@ -221,9 +210,7 @@ def test_fifty_crossings_share_one_stable_adopted_parameter_set() -> None:
     barrel = _test_barrel(CONCRETE, CIRCULAR_CONCRETE_SQUARE_EDGE, 0.5)
     crossing = _crossing(barrel)
     result = _mock_crossing_result(barrel)
-    inventory = CulvertInventory(
-        [CulvertInventoryItem(f"C-{index:03d}", crossing, result) for index in range(50)]
-    )
+    inventory = CulvertInventory([CulvertInventoryItem(f"C-{index:03d}", crossing, result) for index in range(50)])
 
     first = InventorySummary.from_inventory(inventory)
     second = InventorySummary.from_inventory(inventory)
@@ -257,12 +244,8 @@ def test_equal_values_with_different_provenance_do_not_collapse() -> None:
     second_barrel = replace(base, roughness_source=second_source)
     inventory = CulvertInventory(
         [
-            CulvertInventoryItem(
-                "C-001", _crossing(first_barrel), _mock_crossing_result(first_barrel)
-            ),
-            CulvertInventoryItem(
-                "C-002", _crossing(second_barrel), _mock_crossing_result(second_barrel)
-            ),
+            CulvertInventoryItem("C-001", _crossing(first_barrel), _mock_crossing_result(first_barrel)),
+            CulvertInventoryItem("C-002", _crossing(second_barrel), _mock_crossing_result(second_barrel)),
         ]
     )
 
@@ -294,12 +277,8 @@ def test_conflicting_source_ids_fail_explicitly() -> None:
     second_barrel = replace(base, roughness_source=conflicting_source)
     inventory = CulvertInventory(
         [
-            CulvertInventoryItem(
-                "C-001", _crossing(first_barrel), _mock_crossing_result(first_barrel)
-            ),
-            CulvertInventoryItem(
-                "C-002", _crossing(second_barrel), _mock_crossing_result(second_barrel)
-            ),
+            CulvertInventoryItem("C-001", _crossing(first_barrel), _mock_crossing_result(first_barrel)),
+            CulvertInventoryItem("C-002", _crossing(second_barrel), _mock_crossing_result(second_barrel)),
         ]
     )
 
@@ -310,9 +289,7 @@ def test_conflicting_source_ids_fail_explicitly() -> None:
 def test_caller_parameter_set_id_is_preserved_and_must_be_unambiguous() -> None:
     base = _test_barrel(CONCRETE, CIRCULAR_CONCRETE_SQUARE_EDGE, 0.5)
     named = replace(base, parameter_set_id="standard-rcp")
-    inventory = CulvertInventory(
-        [CulvertInventoryItem("C-001", _crossing(named), _mock_crossing_result(named))]
-    )
+    inventory = CulvertInventory([CulvertInventoryItem("C-001", _crossing(named), _mock_crossing_result(named))])
 
     summary = InventorySummary.from_inventory(inventory)
 
@@ -354,9 +331,7 @@ def test_inventory_summary_preserves_mixed_group_regimes_in_order() -> None:
         ),
     )
 
-    summary = InventorySummary.from_inventory(
-        CulvertInventory([CulvertInventoryItem("C-MIXED", crossing, result)])
-    )
+    summary = InventorySummary.from_inventory(CulvertInventory([CulvertInventoryItem("C-MIXED", crossing, result)]))
 
     assert [row.group_index for row in summary.groups] == [0, 1]
     assert [row.control_type for row in summary.groups] == [ControlType.INLET, ControlType.OUTLET]
@@ -365,9 +340,7 @@ def test_inventory_summary_preserves_mixed_group_regimes_in_order() -> None:
         FlowRegime.OUTLET_CONTROL_FULL,
     ]
     assert len(summary.crossings[0].parameter_set_ids) == 2
-    assert summary.crossings[0].warning_codes == (
-        HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION,
-    )
+    assert summary.crossings[0].warning_codes == (HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION,)
 
 
 def test_inventory_summary_retains_unresolved_result_warning_and_provenance() -> None:
@@ -407,12 +380,8 @@ def test_inventory_summary_retains_unresolved_result_warning_and_provenance() ->
     assert summary.crossings[0].solved is True
     assert summary.crossings[0].warning_codes == expected_codes
     assert summary.groups[0].warning_codes == expected_codes
-    assert summary.crossings[0].applicability_notice_codes == (
-        ApplicabilityNoticeCode.MANUFACTURER_DATA_NOT_SUPPLIED,
-    )
-    assert summary.groups[0].applicability_notice_codes == (
-        ApplicabilityNoticeCode.MANUFACTURER_DATA_NOT_SUPPLIED,
-    )
+    assert summary.crossings[0].applicability_notice_codes == (ApplicabilityNoticeCode.MANUFACTURER_DATA_NOT_SUPPLIED,)
+    assert summary.groups[0].applicability_notice_codes == (ApplicabilityNoticeCode.MANUFACTURER_DATA_NOT_SUPPLIED,)
     assert summary.groups[0].regime is FlowRegime.OUTLET_CONTROL_MIXED
     assert summary.groups[0].parameter_set_id == summary.parameter_sets[0].parameter_set_id
     assert summary.parameter_sets[0].inlet.coefficients is CIRCULAR_CONCRETE_SQUARE_EDGE

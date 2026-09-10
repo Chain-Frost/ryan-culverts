@@ -65,9 +65,7 @@ def calculate_sequent_depth(
     y1 = finite(supercritical_depth, "supercritical_depth")
     rise = geometry.rise
     if y1 <= 0.0 or y1 >= rise:
-        raise InvalidInputError(
-            "supercritical_depth must be strictly between zero and the geometry rise."
-        )
+        raise InvalidInputError("supercritical_depth must be strictly between zero and the geometry rise.")
 
     critical_depth = calculate_critical_depth(geometry, q, g=g).depth
     depth_epsilon = max(1e-8, rise * 1e-7)

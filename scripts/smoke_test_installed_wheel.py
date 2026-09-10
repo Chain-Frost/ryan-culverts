@@ -12,9 +12,7 @@ def main() -> int:
     installed_version = importlib.metadata.version("ryan-culverts")
     metadata = importlib.metadata.metadata("ryan-culverts")
     if cs.__version__ != installed_version:
-        raise RuntimeError(
-            f"Public version {cs.__version__!r} does not match metadata {installed_version!r}."
-        )
+        raise RuntimeError(f"Public version {cs.__version__!r} does not match metadata {installed_version!r}.")
     if metadata["Requires-Python"] != "<3.15,>=3.14":
         raise RuntimeError("Installed wheel does not declare the supported Python baseline.")
     project_urls = set(metadata.get_all("Project-URL") or ())

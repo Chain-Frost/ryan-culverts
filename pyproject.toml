@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ryan-culverts"
-version = "26.9.9.2"
+version = "26.9.10.2"
 description = "Independent SI culvert hydraulics: numerical foundations and traceable methods."
 readme = "README.md"
 requires-python = ">=3.14,<3.15"
@@ -58,7 +58,7 @@ typeCheckingMode = "strict"
 
 [tool.ruff]
 target-version = "py314"
-line-length = 100
+line-length = 120
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

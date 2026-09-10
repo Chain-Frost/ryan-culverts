@@ -78,7 +78,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-026 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Research and model debris and blockage scenarios with explicit applicability limits. |
 | CS-027 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add uncertainty and sensitivity analysis over explicit input distributions. |
 | CS-028 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Extend roadway flow to irregular sag profiles and evidenced downstream-submergence correction. |
-| CS-029 | Partial | Unassigned | 2026-09-10 | 2026-09-20 | Add the planned user-supplied monotonic stage-discharge boundary and an external Manning-boundary comparison. |
+| CS-029 | Partial | Unassigned | 2026-09-10 | 2026-09-20 | Implement the documented monotonic stage-discharge boundary, then record independent external Manning comparisons. |
 | CS-030 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Model host and liner geometry plus sourced composite roughness for slip-lined culverts. |
 | CS-031 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Model downstream receiving-section area before adding Borda-Carnot exit loss. |
 | CS-032 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Research and model buried-invert geometry without using rejected embedded coefficients. |

@@ -11,11 +11,15 @@ crossing flow before allocation; rating curves recalculate it at every point. Fi
 tailwater, roadway overtopping, and the existing inverse-capacity helpers remain intact.
 
 The bundle's `A R^(2/3)` field was corrected to `section_factor`; `conveyance` now means
-`A R^(2/3)/n`. CS-029 remains partial because its planned user-supplied stage-discharge
-rating boundary and an external receiving-channel comparison are still outstanding.
+`A R^(2/3)/n`. A follow-up separates method, roughness, slope, geometry, and invert
+provenance; documents channel-normal-depth versus culvert-relative tailwater depth; and
+adds a reusable public `hydraulic_radius()` utility. CS-029 remains partial because its
+planned user-supplied stage-discharge rating boundary and an external receiving-channel
+comparison are still outstanding.
 
-Verification: 331 tests passed; Ruff check and format, strict Pyright, Markdown lint,
-strict MkDocs build, and `git diff --check` passed.
+Verification: 333 tests passed; Ruff check and format, strict Pyright, Markdown lint,
+strict MkDocs build, and `git diff --check` passed. The repository was mechanically
+reformatted to match its active 120-character Ruff configuration.
 
 ## 2026-09-10 - CS-010, CS-016, CS-019, and CS-020 development pass
 

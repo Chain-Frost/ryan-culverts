@@ -31,6 +31,12 @@ fixtures validate the transcription and integration, but no HEC-RAS or surveyed 
 channel comparison has yet been recorded. The boundary therefore remains a documented
 uniform-flow approximation rather than a validated downstream backwater model.
 
+The provenance tests distinguish the HDS-5 method reference from independent project
+sources for roughness, slope, geometry, and invert. The ambiguous `source` field is
+intentionally rejected in favour of explicit provenance names. Channel normal depth and
+culvert-outlet-relative tailwater depth remain separate, explicitly documented result
+quantities.
+
 ## Corrected modern-box fixture
 
 `tests/test_modern_box.py` checks the corrected FHWA-HRT-06-138 transcription and

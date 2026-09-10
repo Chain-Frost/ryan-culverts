@@ -47,9 +47,7 @@ def _single_name(names: set[str], suffix: str) -> str:
 def _metadata_field(metadata: str, field: str) -> tuple[str, ...]:
     """Return all values for one core-metadata field."""
     prefix = f"{field}: "
-    return tuple(
-        line.removeprefix(prefix) for line in metadata.splitlines() if line.startswith(prefix)
-    )
+    return tuple(line.removeprefix(prefix) for line in metadata.splitlines() if line.startswith(prefix))
 
 
 def _verify_wheel(wheel: Path, version: str, licence: str, repository_license: bytes) -> None:

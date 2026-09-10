@@ -2,15 +2,13 @@
 
 from dataclasses import replace
 
-from culvert_solver.models.tailwater import TailwaterResolution
-
 from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
 from ..inlet_control.coefficients import InletCoefficients
 from ..models.barrel import CulvertBarrel
 from ..models.results import BarrelHydraulicResult
-from ..models.tailwater import TailwaterInput, resolve_tailwater
+from ..models.tailwater import TailwaterInput, TailwaterResolution, resolve_tailwater
 from ..outlet_control.losses import EntranceLossCoefficient
 from ..references.models import SourceReference
 from .config import SolverConfiguration

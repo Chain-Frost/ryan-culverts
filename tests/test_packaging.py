@@ -47,9 +47,7 @@ def test_replace_project_version_changes_only_project_section(tmp_path: Path) ->
     assert 'version = "keep"' in project.read_text(encoding="utf-8")
 
 
-def test_failed_build_restores_version_and_retains_wheel(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_failed_build_restores_version_and_retains_wheel(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     project = tmp_path / "pyproject.toml"
     original = '[project]\nname = "ryan-culverts"\nversion = "26.9.9.1"\n'
     project.write_text(original, encoding="utf-8")
@@ -72,9 +70,7 @@ def test_failed_build_restores_version_and_retains_wheel(
     assert previous_wheel.read_bytes() == b"previous wheel"
 
 
-def test_non_increasing_cli_version_fails_without_changes(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_non_increasing_cli_version_fails_without_changes(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     project = tmp_path / "pyproject.toml"
     original = '[project]\nname = "ryan-culverts"\nversion = "26.9.9.2"\n'
     project.write_text(original, encoding="utf-8")
@@ -117,9 +113,7 @@ def test_failed_verification_restores_version_and_retains_wheel(
     assert list(dist_dir.glob("ryan_culverts-26.9.9.2-*.whl")) == []
 
 
-def test_promote_wheel_keeps_only_new_project_distribution(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_promote_wheel_keeps_only_new_project_distribution(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     dist_dir = tmp_path / "dist"
     dist_dir.mkdir()
     (dist_dir / "ryan_culverts-26.9.9.1-py3-none-any.whl").write_bytes(b"old")

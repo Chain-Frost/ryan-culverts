@@ -75,9 +75,7 @@ def froude_number(
         raise InvalidInputError("area must be strictly positive.")
     t: float = finite(top_width, "top_width")
     if t <= 0:
-        raise InvalidInputError(
-            "top_width must be strictly positive for free-surface Froude calculation."
-        )
+        raise InvalidInputError("top_width must be strictly positive for free-surface Froude calculation.")
     accel: float = finite(g, "g")
     if accel <= 0:
         raise InvalidInputError("g must be strictly positive.")

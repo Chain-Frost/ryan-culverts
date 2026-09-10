@@ -66,9 +66,12 @@ than pretending to be closed culvert geometry. A Manning channel boundary resolv
 from the receiving flow before culvert allocation: barrel flow for a standalone barrel,
 total group flow for a standalone group, and total crossing flow once for a crossing.
 Each rating point resolves the boundary again. The resulting method, discharge, channel
-invert, normal depth, source, and root diagnostics are retained on results. Inverse
-discharge-for-headwater helpers still require fixed tailwater because accepting a
-flow-dependent boundary there would create a different nested solve.
+invert, normal depth, parameter sources, and root diagnostics are retained on results.
+`method_source` identifies the hydraulic method; independent `roughness_source`,
+`slope_source`, `geometry_source`, and `channel_invert_source` fields prevent HDS-5 from
+being misreported as the source of project inputs. The ambiguous `source` field is not
+supported. Inverse discharge-for-headwater helpers still require fixed tailwater because
+accepting a flow-dependent boundary there would create a different nested solve.
 
 The same crossing capacity function is public in the inverse direction: callers may obtain
 total culvert-plus-roadway discharge for an absolute target headwater. Group and barrel

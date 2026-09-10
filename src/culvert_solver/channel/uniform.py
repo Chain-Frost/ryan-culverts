@@ -9,7 +9,7 @@ from ..exceptions import ConvergenceError, InvalidInputError
 from ..hydraulics.primitives import cross_section_velocity, froude_number, manning_discharge
 from ..numerical.roots import RootResult, solve_brent
 from ..numerical.tolerances import RootTolerances
-from .geometry import OpenChannelSection
+from .geometry import OpenChannelSection, hydraulic_radius
 
 _DEFAULT_CHANNEL_NORMAL_TOLERANCES = RootTolerances(x_abs=1e-7, x_rel=1e-9)
 
@@ -82,8 +82,7 @@ def calculate_channel_normal_depth(
 
     def residual(depth: float) -> float:
         area: float = section.area(depth)
-        perimeter: float = section.wetted_perimeter(depth)
-        radius: float = 0.0 if area == 0.0 else area / perimeter
+        radius: float = hydraulic_radius(section, depth)
         return manning_discharge(area=area, hydraulic_radius=radius, slope=slope, roughness=n) - q
 
     expansions = 0
@@ -106,7 +105,7 @@ def calculate_channel_normal_depth(
     depth: float = root_result.root
     area: float = section.area(depth)
     perimeter: float = section.wetted_perimeter(depth)
-    radius: float = area / perimeter
+    radius: float = hydraulic_radius(section, depth)
     width: float = section.top_width(depth)
     section_factor: float = area * radius ** (2.0 / 3.0)
     return ChannelNormalDepthResult(

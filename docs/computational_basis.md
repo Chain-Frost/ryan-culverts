@@ -197,6 +197,14 @@ friction/energy slope; using bed slope estimates it only under uniform flow. Con
 with HDS-5 Section 1.4.4, this is an approximation for a downstream channel without a
 controlling backwater influence. It is not valid as a general reach model for downstream
 impoundment, constriction, junction, tidal, or other backwater controls.
+
+The boundary's `method_source` records HDS-5 as the basis for using a normal-depth
+approximation. It does not attribute the caller's Manning roughness, friction slope,
+surveyed geometry, or channel invert to HDS-5; those inputs have separate optional source
+fields. Likewise, `TailwaterResolution.depth` is normal depth above the downstream channel
+invert. `RatingCurvePoint.tailwater_depth` retains the older culvert-relative reporting
+meaning: depth above the barrel outlet for a barrel curve or above the lowest outlet invert
+for a crossing curve. These values differ whenever the channel and culvert inverts differ.
 For HDS-5 Section 3.5 steep-slope inlet-control cases, the solver routes an S2 profile
 downstream from immediately below critical depth toward normal depth. Tailwater no higher
 than normal depth directly implies a swept-out jump. For higher sub-crown tailwater, the

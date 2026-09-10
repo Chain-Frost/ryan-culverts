@@ -90,14 +90,10 @@ class CrossSectionGeometry(ABC):
         if y == 0:
             raise InvalidInputError("Hydraulic depth is undefined for zero depth (dry section).")
         if y >= self.rise:
-            raise InvalidInputError(
-                "Hydraulic depth is undefined for closed-conduit flow at or above the crown."
-            )
+            raise InvalidInputError("Hydraulic depth is undefined for closed-conduit flow at or above the crown.")
         t: float = self.top_width(y)
         if t <= 0:
-            raise InvalidInputError(
-                "Hydraulic depth is undefined when free-surface top width is zero."
-            )
+            raise InvalidInputError("Hydraulic depth is undefined when free-surface top width is zero.")
         return self.area(y) / t
 
     def hydrostatic_pressure_moment(self, depth: float) -> float:

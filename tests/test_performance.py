@@ -91,13 +91,9 @@ def test_crossing_scalar_equivalence() -> None:
     rc = generate_crossing_rating_curve(crossing=crossing, discharges=discharges, tailwater=tw)
 
     for pt in rc.points:
-        scalar = solve_crossing_hydraulics(
-            crossing=crossing, total_discharge=pt.discharge, tailwater=tw
-        )
+        scalar = solve_crossing_hydraulics(crossing=crossing, total_discharge=pt.discharge, tailwater=tw)
         assert pt.headwater_elevation == pytest.approx(scalar.headwater_elevation, rel=1e-9)
-        assert pt.headwater_depth == pytest.approx(
-            scalar.headwater_elevation - crossing.min_inlet_invert, rel=1e-9
-        )
+        assert pt.headwater_depth == pytest.approx(scalar.headwater_elevation - crossing.min_inlet_invert, rel=1e-9)
 
     budget_result = solve_crossing_hydraulics(crossing=crossing, total_discharge=4.5, tailwater=tw)
     assert budget_result.headwater_convergence is not None

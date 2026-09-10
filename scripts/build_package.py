@@ -73,9 +73,7 @@ def validate_explicit_version(current_version: str, requested_version: str) -> s
     current = parse_calendar_version(current_version)
     requested = parse_calendar_version(requested_version)
     if requested <= current:
-        raise ValueError(
-            f"Explicit version {requested_version!r} must be newer than {current_version!r}"
-        )
+        raise ValueError(f"Explicit version {requested_version!r} must be newer than {current_version!r}")
     return requested_version
 
 
@@ -128,11 +126,7 @@ def promote_wheel(wheel: Path) -> Path:
             incoming.unlink()
     for pattern in (f"{DISTRIBUTION_PREFIX}*.whl", f"{DISTRIBUTION_PREFIX}*.tar.gz"):
         for artifact in DIST_DIR.glob(pattern):
-            if (
-                artifact != destination
-                and artifact.is_file()
-                and artifact.parent.resolve() == DIST_DIR.resolve()
-            ):
+            if artifact != destination and artifact.is_file() and artifact.parent.resolve() == DIST_DIR.resolve():
                 artifact.unlink()
     return destination
 

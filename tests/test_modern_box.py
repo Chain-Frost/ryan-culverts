@@ -28,9 +28,7 @@ def test_filleted_geometry_uses_net_area_and_piecewise_width() -> None:
     assert geometry.top_width(0.1) == pytest.approx(2.8)
     assert geometry.top_width(1.0) == pytest.approx(3.0)
     assert geometry.top_width(1.9) == pytest.approx(2.8)
-    assert geometry.wetted_perimeter_full == pytest.approx(
-        2.0 * (3.0 + 2.0) + 4.0 * (math.sqrt(2.0) - 2.0) * 0.2
-    )
+    assert geometry.wetted_perimeter_full == pytest.approx(2.0 * (3.0 + 2.0) + 4.0 * (math.sqrt(2.0) - 2.0) * 0.2)
 
 
 def test_appendix_d_six_inch_fillet_critical_depth() -> None:

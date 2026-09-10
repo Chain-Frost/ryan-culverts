@@ -36,8 +36,7 @@ def calculate_roadway_overtopping(
     tailwater: float = finite(tailwater_elevation, "tailwater_elevation")
     if tailwater > roadway.crest_elevation:
         raise InvalidInputError(
-            "Submerged roadway overtopping is not supported: tailwater_elevation "
-            "must be at or below crest_elevation."
+            "Submerged roadway overtopping is not supported: tailwater_elevation must be at or below crest_elevation."
         )
     upstream_head: float = max(0.0, headwater - roadway.crest_elevation)
     discharge: float = roadway.discharge_coefficient * roadway.crest_length * upstream_head**1.5

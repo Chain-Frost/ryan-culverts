@@ -126,13 +126,9 @@ def test_inlet_control_reports_in_barrel_jump_and_tailwater_velocity() -> None:
     assert result.hydraulic_jump_station is not None
     assert result.hydraulic_jump_swept_out is False
     assert result.outlet_depth == pytest.approx(result.tailwater_depth)
-    assert result.velocity_outlet == pytest.approx(
-        result.discharge / barrel.geometry.area(result.tailwater_depth)
-    )
+    assert result.velocity_outlet == pytest.approx(result.discharge / barrel.geometry.area(result.tailwater_depth))
     jump_records = [
-        record
-        for record in result.convergence
-        if record.calculation is ConvergenceCalculation.HYDRAULIC_JUMP
+        record for record in result.convergence if record.calculation is ConvergenceCalculation.HYDRAULIC_JUMP
     ]
     assert len(jump_records) == 1
     assert jump_records[0].result.root == result.hydraulic_jump_station

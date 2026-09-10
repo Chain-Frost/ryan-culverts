@@ -13,9 +13,7 @@ GRAVITATIONAL_ACCELERATION_REFERENCE = SourceReference(
     locator="Item 3-10, standard acceleration of free fall (gn)",
     url="https://www.iso.org/standard/64973.html",
     applicability="Standard terrestrial gravitational acceleration in SI units (m/s²).",
-    notes=(
-        "Adopted by the 3rd CGPM (1901, CR 70). Constant across all hydraulic primitive functions."
-    ),
+    notes=("Adopted by the 3rd CGPM (1901, CR 70). Constant across all hydraulic primitive functions."),
 )
 
 STANDARD_WATER_PROPERTIES_REFERENCE = SourceReference(
@@ -25,8 +23,7 @@ STANDARD_WATER_PROPERTIES_REFERENCE = SourceReference(
     locator="Section 6: Fluid Properties, Thermophysical Properties of Water",
     url="https://hbcponline.com",
     applicability=(
-        "Standard pure water density (998.2 kg/m³) and kinematic viscosity "
-        "(1.004e-6 m²/s) at 20 °C, 101.325 kPa."
+        "Standard pure water density (998.2 kg/m³) and kinematic viscosity (1.004e-6 m²/s) at 20 °C, 101.325 kPa."
     ),
     notes="Reference temperature for standard SI culvert hydraulic evaluations.",
 )

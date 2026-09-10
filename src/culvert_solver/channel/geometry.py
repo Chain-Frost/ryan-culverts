@@ -94,6 +94,26 @@ class TrapezoidalChannel:
         return self.bottom_width + (self.left_side_slope + self.right_side_slope) * y
 
 
+def hydraulic_radius(section: OpenChannelSection, depth: float) -> float:
+    """Return hydraulic radius ``A/P`` for an open-channel section.
+
+    A dry section returns zero. A wet section with no positive wetted perimeter
+    violates the geometry contract and fails explicitly.
+    """
+    if not isinstance(section, OpenChannelSection):  # pyright: ignore[reportUnnecessaryIsInstance]
+        raise InvalidInputError("section must satisfy the OpenChannelSection protocol.")
+    y: float = _depth(depth)
+    area: float = finite(section.area(y), "area")
+    perimeter: float = finite(section.wetted_perimeter(y), "wetted_perimeter")
+    if area < 0.0 or perimeter < 0.0:
+        raise InvalidInputError("Open-channel area and wetted perimeter must be nonnegative.")
+    if area == 0.0:
+        return 0.0
+    if perimeter == 0.0:
+        raise InvalidInputError("A wet open-channel section requires positive wetted perimeter.")
+    return area / perimeter
+
+
 def _depth(depth: float) -> float:
     value: float = finite(depth, "depth")
     if value < 0.0:

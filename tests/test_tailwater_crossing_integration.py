@@ -61,9 +61,7 @@ def test_crossing_resolves_tailwater_once_from_total_flow() -> None:
     assert result.tailwater_resolution is not None
     assert result.tailwater_resolution.discharge == 8.0
     assert result.tailwater_resolution.method is TailwaterMethod.MANNING_NORMAL_DEPTH
-    assert sum(item.total_discharge for item in result.group_results) == pytest.approx(
-        8.0, abs=1e-4
-    )
+    assert sum(item.total_discharge for item in result.group_results) == pytest.approx(8.0, abs=1e-4)
     assert all(
         item.tailwater_resolution is result.tailwater_resolution
         and item.barrel_result.tailwater_resolution is result.tailwater_resolution
@@ -85,3 +83,12 @@ def test_crossing_rating_curve_recalculates_tailwater_per_point() -> None:
         5.0,
         8.0,
     ]
+    last_point = curve.points[-1]
+    assert last_point.tailwater_resolution is not None
+    assert last_point.tailwater_resolution.depth is not None
+    assert last_point.tailwater_depth == pytest.approx(
+        max(0.0, last_point.tailwater_elevation - _crossing().min_outlet_invert)
+    )
+    assert last_point.tailwater_resolution.depth == pytest.approx(
+        last_point.tailwater_elevation - boundary.channel_invert_elevation
+    )

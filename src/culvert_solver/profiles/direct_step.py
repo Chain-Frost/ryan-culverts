@@ -103,9 +103,7 @@ def _make_point(
         r: float = geom.hydraulic_radius_full
         v: float = cross_section_velocity(discharge=discharge, area=a)
         hv: float = velocity_head(velocity=v, g=g)
-        sf: float = manning_friction_slope(
-            discharge=discharge, area=a, hydraulic_radius=r, roughness=barrel.roughness
-        )
+        sf: float = manning_friction_slope(discharge=discharge, area=a, hydraulic_radius=r, roughness=barrel.roughness)
         return ProfilePoint(
             station=station,
             invert_elevation=z_inv,
@@ -126,9 +124,7 @@ def _make_point(
     v = cross_section_velocity(discharge=discharge, area=a)
     hv = velocity_head(velocity=v, g=g)
     e: float = specific_energy(depth=depth, velocity_head=hv)
-    sf = manning_friction_slope(
-        discharge=discharge, area=a, hydraulic_radius=r, roughness=barrel.roughness
-    )
+    sf = manning_friction_slope(discharge=discharge, area=a, hydraulic_radius=r, roughness=barrel.roughness)
     fr: float | None
     if t > 0 and a > 0:
         fr = froude_number(discharge=discharge, area=a, top_width=t, g=g)
@@ -226,21 +222,15 @@ def compute_inlet_control_s2_profile(
     curr_y: float = max(yn + depth_epsilon, yc - depth_epsilon)
     target_y: float = yn + depth_epsilon
     curr_x = 0.0
-    points: list[ProfilePoint] = [
-        _make_point(station=curr_x, depth=curr_y, barrel=barrel, discharge=q, g=g)
-    ]
+    points: list[ProfilePoint] = [_make_point(station=curr_x, depth=curr_y, barrel=barrel, discharge=q, g=g)]
     dy: float = (target_y - curr_y) / float(steps)
     reaches_normal = False
     convergence: list[ConvergenceRecord] = []
 
     for _ in range(steps):
         next_y: float = curr_y + dy
-        e_curr, sf_curr = _energy_and_friction_slope(
-            geom=geom, q=q, roughness=barrel.roughness, y=curr_y, g=g
-        )
-        e_next, sf_next = _energy_and_friction_slope(
-            geom=geom, q=q, roughness=barrel.roughness, y=next_y, g=g
-        )
+        e_curr, sf_curr = _energy_and_friction_slope(geom=geom, q=q, roughness=barrel.roughness, y=curr_y, g=g)
+        e_next, sf_next = _energy_and_friction_slope(geom=geom, q=q, roughness=barrel.roughness, y=next_y, g=g)
         denominator: float = barrel.slope - 0.5 * (sf_curr + sf_next)
         if denominator <= 0.0:
             reaches_normal = True
@@ -280,9 +270,7 @@ def compute_inlet_control_s2_profile(
             except ConvergenceError, InvalidInputError:
                 fraction: float = (barrel.length - curr_x) / (next_x - curr_x)
                 outlet_y = curr_y + fraction * (next_y - curr_y)
-            points.append(
-                _make_point(station=barrel.length, depth=outlet_y, barrel=barrel, discharge=q, g=g)
-            )
+            points.append(_make_point(station=barrel.length, depth=outlet_y, barrel=barrel, discharge=q, g=g))
             curr_x: float = barrel.length
             curr_y = outlet_y
             break
@@ -294,9 +282,7 @@ def compute_inlet_control_s2_profile(
     if curr_x < barrel.length:
         reaches_normal = True
         curr_y = yn
-        points.append(
-            _make_point(station=barrel.length, depth=curr_y, barrel=barrel, discharge=q, g=g)
-        )
+        points.append(_make_point(station=barrel.length, depth=curr_y, barrel=barrel, discharge=q, g=g))
 
     return InletControlProfile(
         curve_type=ProfileCurve.S2,
@@ -345,17 +331,13 @@ def compute_steep_inlet_control_profile(
     if steps < 5:
         raise InvalidInputError("num_steps must be at least 5.")
     tw_elevation: float = (
-        tailwater.elevation
-        if isinstance(tailwater, TailwaterCondition)
-        else finite(tailwater, "tailwater")
+        tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
     )
     tw_depth: float = max(0.0, tw_elevation - barrel.outlet_invert)
     if tw_depth >= barrel.geometry.rise:
         raise InvalidInputError("steep inlet-control profile requires sub-crown tailwater.")
 
-    s2: InletControlProfile = compute_inlet_control_s2_profile(
-        barrel=barrel, discharge=q, num_steps=steps, g=g
-    )
+    s2: InletControlProfile = compute_inlet_control_s2_profile(barrel=barrel, discharge=q, num_steps=steps, g=g)
     normal: float = calculate_normal_depth(
         geometry=barrel.geometry,
         discharge=q,
@@ -645,9 +627,7 @@ def compute_backwater_profile(
                     ec: float = e_cur_val,
                     sfc: float = sf_cur_val,
                 ) -> float:
-                    return _inlet_station_residual(
-                        y_val, cx, ec, sfc, s0, geom, q, barrel.roughness, g
-                    )
+                    return _inlet_station_residual(y_val, cx, ec, sfc, s0, geom, q, barrel.roughness, g)
 
                 try:
                     root_res: RootResult = solve_bracketed(
@@ -678,11 +658,7 @@ def compute_backwater_profile(
             raw_points.append(_make_point(curr_x, curr_y, barrel, q, g))
 
         if curr_x > 0.0:
-            reached_crown = (
-                curve_type is ProfileCurve.M2
-                and normal_capacity_exceeded
-                and curr_y >= rise - 1e-12
-            )
+            reached_crown = curve_type is ProfileCurve.M2 and normal_capacity_exceeded and curr_y >= rise - 1e-12
             # Otherwise, the profile reached its normal-depth asymptote before the inlet.
             reaches_normal = not reached_crown
             profile_limit_station = curr_x
@@ -692,11 +668,7 @@ def compute_backwater_profile(
     sorted_points: tuple[ProfilePoint, ...] = tuple(sorted(raw_points, key=lambda p: p.station))
 
     full_flow_length = 0.0
-    if (
-        curve_type is ProfileCurve.M2
-        and normal_capacity_exceeded
-        and profile_limit_station is not None
-    ):
+    if curve_type is ProfileCurve.M2 and normal_capacity_exceeded and profile_limit_station is not None:
         full_flow_length: float = profile_limit_station
         sorted_points = (
             _make_point(0.0, rise, barrel, q, g),
