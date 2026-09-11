@@ -19,10 +19,12 @@ class RectangularGeometry(CrossSectionGeometry):
     def __init__(self, span: float, rise: float) -> None:
         s: float = finite(span, "span")
         if s <= 0:
-            raise InvalidInputError("span must be strictly positive.")
+            msg = "span must be strictly positive."
+            raise InvalidInputError(msg)
         r: float = finite(rise, "rise")
         if r <= 0:
-            raise InvalidInputError("rise must be strictly positive.")
+            msg = "rise must be strictly positive."
+            raise InvalidInputError(msg)
         self._span: float = s
         self._rise: float = r
 
@@ -58,7 +60,8 @@ class RectangularGeometry(CrossSectionGeometry):
         """Wetted flow area at the specified depth in square metres."""
         y: float = finite(depth, "depth")
         if y < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         if y == 0:
             return 0.0
         if y >= self._rise:
@@ -69,7 +72,8 @@ class RectangularGeometry(CrossSectionGeometry):
         """Wetted perimeter at the specified depth in metres."""
         y: float = finite(depth, "depth")
         if y < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         if y == 0:
             return 0.0
         if y >= self._rise:
@@ -83,7 +87,8 @@ class RectangularGeometry(CrossSectionGeometry):
         """
         y: float = finite(depth, "depth")
         if y < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         if y == 0 or y >= self._rise:
             return 0.0
         return self._span
@@ -92,7 +97,8 @@ class RectangularGeometry(CrossSectionGeometry):
         """Return the exact rectangular hydrostatic first moment in cubic metres."""
         y: float = finite(depth, "depth")
         if y < 0.0 or y > self._rise:
-            raise InvalidInputError("depth must be between zero and the geometry rise.")
+            msg = "depth must be between zero and the geometry rise."
+            raise InvalidInputError(msg)
         return 0.5 * self._span * y * y
 
     def __repr__(self) -> str:

@@ -43,12 +43,15 @@ class RoadwayWeir:
         crest_elevation: float = finite(self.crest_elevation, "crest_elevation")
         crest_length: float = finite(self.crest_length, "crest_length")
         if crest_length <= 0.0:
-            raise InvalidInputError("crest_length must be strictly positive.")
+            msg = "crest_length must be strictly positive."
+            raise InvalidInputError(msg)
         discharge_coefficient: float = finite(self.discharge_coefficient, "discharge_coefficient")
         if discharge_coefficient <= 0.0:
-            raise InvalidInputError("discharge_coefficient must be strictly positive.")
+            msg = "discharge_coefficient must be strictly positive."
+            raise InvalidInputError(msg)
         if not isinstance(self.coefficient_source, SourceReference):  # pyright: ignore[reportUnnecessaryIsInstance]
-            raise InvalidInputError("coefficient_source must be a SourceReference.")
+            msg = "coefficient_source must be a SourceReference."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "crest_elevation", crest_elevation)
         object.__setattr__(self, "crest_length", crest_length)
         object.__setattr__(self, "discharge_coefficient", discharge_coefficient)

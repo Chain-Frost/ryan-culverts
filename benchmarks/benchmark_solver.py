@@ -145,7 +145,8 @@ def main() -> None:
     }
 
     if single_operation() != single_before or crossing_operation() != crossing_before:
-        raise RuntimeError("Benchmark operations changed their deterministic hydraulic results.")
+        msg = "Benchmark operations changed their deterministic hydraulic results."
+        raise RuntimeError(msg)
     print(json.dumps(results, indent=2, sort_keys=True))
 
 

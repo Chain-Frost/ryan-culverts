@@ -24,13 +24,17 @@ class FilletedRectangularGeometry(CrossSectionGeometry):
         rise_value: float = finite(rise, "rise")
         fillet_value: float = finite(fillet, "fillet")
         if span_value <= 0:
-            raise InvalidInputError("span must be strictly positive.")
+            msg = "span must be strictly positive."
+            raise InvalidInputError(msg)
         if rise_value <= 0:
-            raise InvalidInputError("rise must be strictly positive.")
+            msg = "rise must be strictly positive."
+            raise InvalidInputError(msg)
         if fillet_value <= 0:
-            raise InvalidInputError("fillet must be strictly positive.")
+            msg = "fillet must be strictly positive."
+            raise InvalidInputError(msg)
         if 2.0 * fillet_value >= min(span_value, rise_value):
-            raise InvalidInputError("fillet must be less than half the span and rise.")
+            msg = "fillet must be less than half the span and rise."
+            raise InvalidInputError(msg)
         self._span: float = span_value
         self._rise: float = rise_value
         self._fillet: float = fillet_value
@@ -72,7 +76,8 @@ class FilletedRectangularGeometry(CrossSectionGeometry):
     def _depth(self, depth: float) -> float:
         value: float = finite(depth, "depth")
         if value < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         return min(value, self._rise)
 
     def area(self, depth: float) -> float:

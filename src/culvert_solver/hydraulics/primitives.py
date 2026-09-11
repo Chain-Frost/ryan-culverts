@@ -12,7 +12,8 @@ def cross_section_velocity(discharge: float, area: float) -> float:
     q: float = finite(discharge, "discharge")
     a: float = finite(area, "area")
     if a <= 0:
-        raise InvalidInputError("area must be strictly positive.")
+        msg = "area must be strictly positive."
+        raise InvalidInputError(msg)
     return q / a
 
 
@@ -24,7 +25,8 @@ def velocity_head(
     v: float = finite(velocity, "velocity")
     accel: float = finite(g, "g")
     if accel <= 0:
-        raise InvalidInputError("g must be strictly positive.")
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
     return (v * v) / (2.0 * accel)
 
 
@@ -35,10 +37,12 @@ def specific_energy(depth: float, velocity_head: float) -> float:
     """
     y: float = finite(depth, "depth")
     if y < 0:
-        raise InvalidInputError("depth must be nonnegative.")
+        msg = "depth must be nonnegative."
+        raise InvalidInputError(msg)
     hv: float = finite(velocity_head, "velocity_head")
     if hv < 0:
-        raise InvalidInputError("velocity_head must be nonnegative.")
+        msg = "velocity_head must be nonnegative."
+        raise InvalidInputError(msg)
     return y + hv
 
 
@@ -72,13 +76,16 @@ def froude_number(
     q: float = finite(discharge, "discharge")
     a: float = finite(area, "area")
     if a <= 0:
-        raise InvalidInputError("area must be strictly positive.")
+        msg = "area must be strictly positive."
+        raise InvalidInputError(msg)
     t: float = finite(top_width, "top_width")
     if t <= 0:
-        raise InvalidInputError("top_width must be strictly positive for free-surface Froude calculation.")
+        msg = "top_width must be strictly positive for free-surface Froude calculation."
+        raise InvalidInputError(msg)
     accel: float = finite(g, "g")
     if accel <= 0:
-        raise InvalidInputError("g must be strictly positive.")
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
 
     ratio: float = (q * q * t) / (accel * a * a * a)
     return math.sqrt(ratio)
@@ -93,16 +100,20 @@ def manning_discharge(
     """Manning uniform discharge Q = (1 / n) * A * R^(2/3) * sqrt(S0) in cubic metres per second."""
     a: float = finite(area, "area")
     if a < 0:
-        raise InvalidInputError("area must be nonnegative.")
+        msg = "area must be nonnegative."
+        raise InvalidInputError(msg)
     r: float = finite(hydraulic_radius, "hydraulic_radius")
     if r < 0:
-        raise InvalidInputError("hydraulic_radius must be nonnegative.")
+        msg = "hydraulic_radius must be nonnegative."
+        raise InvalidInputError(msg)
     s0: float = finite(slope, "slope")
     if s0 < 0:
-        raise InvalidInputError("slope must be nonnegative.")
+        msg = "slope must be nonnegative."
+        raise InvalidInputError(msg)
     n: float = finite(roughness, "roughness")
     if n <= 0:
-        raise InvalidInputError("roughness must be strictly positive.")
+        msg = "roughness must be strictly positive."
+        raise InvalidInputError(msg)
 
     if a == 0 or r == 0 or s0 == 0:
         return 0.0
@@ -120,13 +131,16 @@ def manning_friction_slope(
     q: float = finite(discharge, "discharge")
     a: float = finite(area, "area")
     if a <= 0:
-        raise InvalidInputError("area must be strictly positive.")
+        msg = "area must be strictly positive."
+        raise InvalidInputError(msg)
     r: float = finite(hydraulic_radius, "hydraulic_radius")
     if r <= 0:
-        raise InvalidInputError("hydraulic_radius must be strictly positive.")
+        msg = "hydraulic_radius must be strictly positive."
+        raise InvalidInputError(msg)
     n: float = finite(roughness, "roughness")
     if n <= 0:
-        raise InvalidInputError("roughness must be strictly positive.")
+        msg = "roughness must be strictly positive."
+        raise InvalidInputError(msg)
 
     if q == 0:
         return 0.0
@@ -139,10 +153,12 @@ def friction_head_loss(length: float, friction_slope: float) -> float:
     """Friction head loss hf = L * Sf in metres."""
     length_val: float = finite(length, "length")
     if length_val < 0:
-        raise InvalidInputError("length must be nonnegative.")
+        msg = "length must be nonnegative."
+        raise InvalidInputError(msg)
     sf_val: float = finite(friction_slope, "friction_slope")
     if sf_val < 0:
-        raise InvalidInputError("friction_slope must be nonnegative.")
+        msg = "friction_slope must be nonnegative."
+        raise InvalidInputError(msg)
     return length_val * sf_val
 
 
@@ -150,8 +166,10 @@ def minor_head_loss(loss_coefficient: float, velocity_head: float) -> float:
     """Minor / local head loss h_local = K * hv in metres."""
     k: float = finite(loss_coefficient, "loss_coefficient")
     if k < 0:
-        raise InvalidInputError("loss_coefficient must be nonnegative.")
+        msg = "loss_coefficient must be nonnegative."
+        raise InvalidInputError(msg)
     hv: float = finite(velocity_head, "velocity_head")
     if hv < 0:
-        raise InvalidInputError("velocity_head must be nonnegative.")
+        msg = "velocity_head must be nonnegative."
+        raise InvalidInputError(msg)
     return k * hv

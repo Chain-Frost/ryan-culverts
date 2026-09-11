@@ -64,10 +64,11 @@ def _validate_inlet_shape(barrel: CulvertBarrel, coefficients: InletCoefficients
     else:
         barrel_shape = GeometryShape.ANY
     if coefficients.shape not in (GeometryShape.ANY, barrel_shape):
-        raise InvalidInputError(
+        msg = (
             f"Inlet coefficients for {coefficients.shape.value!r} geometry cannot be used "
             f"with {barrel_shape.value!r} geometry."
         )
+        raise InvalidInputError(msg)
 
 
 def _default_inlet_coefficients(barrel: CulvertBarrel, config: SolverConfiguration) -> InletCoefficients:
@@ -77,18 +78,21 @@ def _default_inlet_coefficients(barrel: CulvertBarrel, config: SolverConfigurati
             return config.default_circular_cmp_inlet
         if barrel.material in {CONCRETE, CONCRETE_PIPE}:
             return config.default_circular_concrete_inlet
-        raise InvalidInputError(
+        msg = (
             "No default inlet coefficients exist for this circular barrel material; "
             "provide inlet_coefficients explicitly."
         )
+        raise InvalidInputError(msg)
     if isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
             return config.default_rectangular_inlet
-        raise InvalidInputError(
+        msg = (
             "No default inlet coefficients exist for this rectangular barrel material; "
             "provide inlet_coefficients explicitly."
         )
-    raise InvalidInputError("No default inlet coefficients exist for this geometry; provide them explicitly.")
+        raise InvalidInputError(msg)
+    msg = "No default inlet coefficients exist for this geometry; provide them explicitly."
+    raise InvalidInputError(msg)
 
 
 def resolve_inlet_coefficients(
@@ -158,11 +162,14 @@ class EntranceLossSelection:
     def __post_init__(self) -> None:
         ke_val: float = finite(self.ke, "ke")
         if ke_val < 0:
-            raise InvalidInputError("ke must be nonnegative.")
+            msg = "ke must be nonnegative."
+            raise InvalidInputError(msg)
         if not self.name.strip():
-            raise InvalidInputError("name must be nonempty text.")
+            msg = "name must be nonempty text."
+            raise InvalidInputError(msg)
         if self.basis is EntranceLossSelectionBasis.GEOMETRY_DEFAULT and self.source is None:
-            raise InvalidInputError("A geometry default must identify its source.")
+            msg = "A geometry default must identify its source."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "ke", ke_val)
 
     @property
@@ -201,10 +208,11 @@ def resolve_entrance_loss_coefficient(
     if override is not None:
         if isinstance(override, EntranceLossCoefficient):
             if override_source is not None:
-                raise InvalidInputError(
+                msg = (
                     "override_source is not used when override is an EntranceLossCoefficient "
                     "(it carries its own reference)."
                 )
+                raise InvalidInputError(msg)
             validate_entrance_loss_shape(barrel, override)
             return EntranceLossSelection(
                 ke=override.ke,
@@ -215,7 +223,8 @@ def resolve_entrance_loss_coefficient(
             )
         ke_val: float = finite(override, "override")
         if ke_val < 0:
-            raise InvalidInputError("entrance_loss_coefficient must be nonnegative.")
+            msg = "entrance_loss_coefficient must be nonnegative."
+            raise InvalidInputError(msg)
         return EntranceLossSelection(
             ke=ke_val,
             name="User-specified Ke",
@@ -225,7 +234,8 @@ def resolve_entrance_loss_coefficient(
         )
 
     if override_source is not None:
-        raise InvalidInputError("override_source requires an override value.")
+        msg = "override_source requires an override value."
+        raise InvalidInputError(msg)
 
     # 2. Barrel-attached coefficient
     barrel_ke: EntranceLossCoefficient | float | None = barrel.entrance_loss_coefficient
@@ -255,21 +265,22 @@ def resolve_entrance_loss_coefficient(
         elif barrel.material in {CONCRETE, CONCRETE_PIPE}:
             default_coeff = config.default_circular_concrete_loss
         else:
-            raise InvalidInputError(
+            msg = (
                 "No default entrance-loss coefficient exists for this circular barrel material; provide one explicitly."
             )
+            raise InvalidInputError(msg)
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
             default_coeff = config.default_rectangular_loss
         else:
-            raise InvalidInputError(
+            msg = (
                 "No default entrance-loss coefficient exists for this rectangular barrel "
                 "material; provide one explicitly."
             )
+            raise InvalidInputError(msg)
     else:
-        raise InvalidInputError(
-            "No default entrance-loss coefficient exists for this geometry; provide one explicitly."
-        )
+        msg = "No default entrance-loss coefficient exists for this geometry; provide one explicitly."
+        raise InvalidInputError(msg)
 
     validate_entrance_loss_shape(barrel, default_coeff)
     return EntranceLossSelection(

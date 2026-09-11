@@ -31,11 +31,13 @@ def _project_version() -> str:
         data: dict[str, object] = tomllib.load(pyproject_file)
     project_data = data.get("project")
     if not isinstance(project_data, dict):
-        raise ValueError("pyproject.toml has no [project] table.")
-    project = cast(dict[str, object], project_data)
+        msg = "pyproject.toml has no [project] table."
+        raise ValueError(msg)
+    project = cast("dict[str, object]", project_data)
     version = project.get("version")
     if not isinstance(version, str) or not version:
-        raise ValueError("pyproject.toml has no nonempty project version.")
+        msg = "pyproject.toml has no nonempty project version."
+        raise ValueError(msg)
     return version
 
 
@@ -43,7 +45,8 @@ def parse_calendar_version(version: str) -> tuple[dt.date, int]:
     """Parse one normalized ``yy.m.d.vv`` version or fail explicitly."""
     match = CALENDAR_VERSION.fullmatch(version)
     if match is None:
-        raise ValueError(f"Version must use normalized yy.m.d.vv form: {version!r}")
+        msg = f"Version must use normalized yy.m.d.vv form: {version!r}"
+        raise ValueError(msg)
     release_date = dt.date(
         2000 + int(match.group("year")),
         int(match.group("month")),
@@ -52,7 +55,8 @@ def parse_calendar_version(version: str) -> tuple[dt.date, int]:
     revision = int(match.group("revision"))
     normalized = f"{release_date.year % 100}.{release_date.month}.{release_date.day}.{revision}"
     if version != normalized:
-        raise ValueError(f"Version must be normalized as {normalized!r}, not {version!r}")
+        msg = f"Version must be normalized as {normalized!r}, not {version!r}"
+        raise ValueError(msg)
     return release_date, revision
 
 
@@ -60,10 +64,11 @@ def next_calendar_version(current_version: str, today: dt.date) -> str:
     """Return today's next calendar version from the current project version."""
     current_date, current_revision = parse_calendar_version(current_version)
     if today < current_date:
-        raise ValueError(
+        msg = (
             f"Local date {today.isoformat()} precedes current release date "
             f"{current_date.isoformat()}; refusing a version regression"
         )
+        raise ValueError(msg)
     revision = current_revision + 1 if current_date == today else 1
     return f"{today.year % 100}.{today.month}.{today.day}.{revision}"
 
@@ -73,7 +78,8 @@ def validate_explicit_version(current_version: str, requested_version: str) -> s
     current = parse_calendar_version(current_version)
     requested = parse_calendar_version(requested_version)
     if requested <= current:
-        raise ValueError(f"Explicit version {requested_version!r} must be newer than {current_version!r}")
+        msg = f"Explicit version {requested_version!r} must be newer than {current_version!r}"
+        raise ValueError(msg)
     return requested_version
 
 
@@ -96,7 +102,8 @@ def replace_project_version(project_path: Path, new_version: str) -> str:
             newline="\n",
         )
         return match.group("version")
-    raise ValueError("pyproject.toml [project] has no version field")
+    msg = "pyproject.toml [project] has no version field"
+    raise ValueError(msg)
 
 
 def _run_build(output_dir: Path) -> int:

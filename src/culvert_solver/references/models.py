@@ -28,6 +28,8 @@ class SourceReference:
         for name in ("source_id", "publication", "edition", "locator", "applicability"):
             value = getattr(self, name)
             if not isinstance(value, str) or not value.strip():
-                raise InvalidInputError(f"{name} must be nonempty text.")
+                msg = f"{name} must be nonempty text."
+                raise InvalidInputError(msg)
         if self.url is not None and not self.url.startswith(("https://", "http://")):
-            raise InvalidInputError("url must be an HTTP(S) source link.")
+            msg = "url must be an HTTP(S) source link."
+            raise InvalidInputError(msg)

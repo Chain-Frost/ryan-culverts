@@ -62,7 +62,8 @@ class TailwaterResolution:
         elevation: float = finite(self.elevation, "elevation")
         discharge: float = _nonnegative_discharge(self.discharge)
         if not isinstance(self.method, TailwaterMethod):  # pyright: ignore[reportUnnecessaryIsInstance]
-            raise InvalidInputError("method must be a TailwaterMethod.")
+            msg = "method must be a TailwaterMethod."
+            raise InvalidInputError(msg)
         invert: float | None = (
             None
             if self.channel_invert_elevation is None
@@ -82,9 +83,11 @@ class TailwaterResolution:
             if value is not None and not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
                 value, SourceReference
             ):
-                raise InvalidInputError(f"{name} must be a SourceReference when supplied.")
+                msg = f"{name} must be a SourceReference when supplied."
+                raise InvalidInputError(msg)
         if depth is not None and depth < 0.0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         if self.method is TailwaterMethod.MANNING_NORMAL_DEPTH:
             if (
                 invert is None
@@ -94,14 +97,17 @@ class TailwaterResolution:
                 or self.channel_section is None
                 or self.normal_depth_result is None
             ):
-                raise InvalidInputError(
+                msg = (
                     "A Manning tailwater resolution requires channel geometry, invert, "
                     "depth, roughness, friction slope, and normal-depth result."
                 )
+                raise InvalidInputError(msg)
             if roughness <= 0.0 or slope <= 0.0:
-                raise InvalidInputError("Manning tailwater roughness and friction slope must be positive.")
+                msg = "Manning tailwater roughness and friction slope must be positive."
+                raise InvalidInputError(msg)
             if self.method_source is None:
-                raise InvalidInputError("A Manning tailwater resolution requires a method_source.")
+                msg = "A Manning tailwater resolution requires a method_source."
+                raise InvalidInputError(msg)
         object.__setattr__(self, "elevation", elevation)
         object.__setattr__(self, "discharge", discharge)
         object.__setattr__(self, "channel_invert_elevation", invert)
@@ -175,14 +181,17 @@ class ManningChannelTailwater:
 
     def __post_init__(self) -> None:
         if not isinstance(self.section, OpenChannelSection):  # pyright: ignore[reportUnnecessaryIsInstance]
-            raise InvalidInputError("section must satisfy the OpenChannelSection protocol.")
+            msg = "section must satisfy the OpenChannelSection protocol."
+            raise InvalidInputError(msg)
         invert: float = finite(self.channel_invert_elevation, "channel_invert_elevation")
         roughness: float = finite(self.roughness, "roughness")
         slope: float = finite(self.friction_slope, "friction_slope")
         if roughness <= 0.0:
-            raise InvalidInputError("roughness must be strictly positive.")
+            msg = "roughness must be strictly positive."
+            raise InvalidInputError(msg)
         if slope <= 0.0:
-            raise InvalidInputError("friction_slope must be strictly positive.")
+            msg = "friction_slope must be strictly positive."
+            raise InvalidInputError(msg)
         for name, value in (
             ("method_source", self.method_source),
             ("roughness_source", self.roughness_source),
@@ -193,7 +202,8 @@ class ManningChannelTailwater:
             if value is not None and not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
                 value, SourceReference
             ):
-                raise InvalidInputError(f"{name} must be a SourceReference when supplied.")
+                msg = f"{name} must be a SourceReference when supplied."
+                raise InvalidInputError(msg)
         object.__setattr__(self, "channel_invert_elevation", invert)
         object.__setattr__(self, "roughness", roughness)
         object.__setattr__(self, "friction_slope", slope)
@@ -252,20 +262,24 @@ def resolve_tailwater(
     if isinstance(tailwater, TailwaterBoundary):
         resolution: TailwaterResolution = tailwater.resolve(q, g=accel)
         if resolution.discharge != q:
-            raise InvalidInputError("Tailwater boundary resolution must retain the requested discharge.")
+            msg = "Tailwater boundary resolution must retain the requested discharge."
+            raise InvalidInputError(msg)
         return resolution
-    raise InvalidInputError("tailwater must be a finite elevation or satisfy the TailwaterBoundary protocol.")
+    msg = "tailwater must be a finite elevation or satisfy the TailwaterBoundary protocol."
+    raise InvalidInputError(msg)
 
 
 def _nonnegative_discharge(discharge: float) -> float:
     q: float = finite(discharge, "discharge")
     if q < 0.0:
-        raise InvalidInputError("discharge must be nonnegative.")
+        msg = "discharge must be nonnegative."
+        raise InvalidInputError(msg)
     return q
 
 
 def _positive_gravity(g: float) -> float:
     accel: float = finite(g, "g")
     if accel <= 0.0:
-        raise InvalidInputError("g must be strictly positive.")
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
     return accel

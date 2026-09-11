@@ -78,15 +78,18 @@ def generate_discharge_range(
     """
     q_min: float = finite(min_discharge, "min_discharge")
     if q_min <= 0:
-        raise InvalidInputError("min_discharge must be strictly positive.")
+        msg = "min_discharge must be strictly positive."
+        raise InvalidInputError(msg)
 
     q_max: float = finite(max_discharge, "max_discharge")
     if q_max <= q_min:
-        raise InvalidInputError("max_discharge must be strictly greater than min_discharge.")
+        msg = "max_discharge must be strictly greater than min_discharge."
+        raise InvalidInputError(msg)
 
     n: int = positive_integer(num_points, "num_points")
     if n < 2:
-        raise InvalidInputError("num_points must be at least 2.")
+        msg = "num_points must be at least 2."
+        raise InvalidInputError(msg)
 
     step: float = (q_max - q_min) / float(n - 1)
     return tuple(q_min + i * step for i in range(n))
@@ -127,13 +130,15 @@ def generate_barrel_rating_curve(
         Rating curve points sorted by discharge.
     """
     if not discharges:
-        raise InvalidInputError("discharges must contain at least one value.")
+        msg = "discharges must contain at least one value."
+        raise InvalidInputError(msg)
 
     pts: list[RatingCurvePoint] = []
     for q_raw in discharges:
         q: float = finite(q_raw, "discharge")
         if q <= 0:
-            raise InvalidInputError("all discharge values must be strictly positive.")
+            msg = "all discharge values must be strictly positive."
+            raise InvalidInputError(msg)
 
         res: BarrelHydraulicResult = solve_barrel_hydraulics(
             barrel=barrel,
@@ -196,13 +201,15 @@ def generate_crossing_rating_curve(
         Rating curve points sorted by discharge.
     """
     if not discharges:
-        raise InvalidInputError("discharges must contain at least one value.")
+        msg = "discharges must contain at least one value."
+        raise InvalidInputError(msg)
 
     pts: list[RatingCurvePoint] = []
     for q_raw in discharges:
         q: float = finite(q_raw, "discharge")
         if q <= 0:
-            raise InvalidInputError("all discharge values must be strictly positive.")
+            msg = "all discharge values must be strictly positive."
+            raise InvalidInputError(msg)
 
         c_res: CrossingHydraulicResult = solve_crossing_hydraulics(
             crossing=crossing,

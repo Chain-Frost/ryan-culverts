@@ -46,14 +46,17 @@ class EntranceLossCoefficient:
 
     def __post_init__(self) -> None:
         if not self.name.strip():
-            raise InvalidInputError("name must be nonempty text.")
+            msg = "name must be nonempty text."
+            raise InvalidInputError(msg)
         ke_val: float = finite(self.ke, "ke")
         if ke_val < 0:
-            raise InvalidInputError("ke must be nonnegative.")
+            msg = "ke must be nonnegative."
+            raise InvalidInputError(msg)
         try:
             shape_val = GeometryShape(self.shape)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError("shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY.") from exc
+            msg = "shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY."
+            raise InvalidInputError(msg) from exc
         object.__setattr__(self, "ke", ke_val)
         object.__setattr__(self, "shape", shape_val)
 
@@ -70,11 +73,14 @@ class ExitLossSelection:
     def __post_init__(self) -> None:
         ko_val = finite(self.ko, "ko")
         if ko_val < 0:
-            raise InvalidInputError("ko must be nonnegative.")
+            msg = "ko must be nonnegative."
+            raise InvalidInputError(msg)
         if not self.name.strip():
-            raise InvalidInputError("name must be nonempty text.")
+            msg = "name must be nonempty text."
+            raise InvalidInputError(msg)
         if self.basis is ExitLossSelectionBasis.HDS5_STANDARD and self.source is None:
-            raise InvalidInputError("The HDS-5 standard exit loss must identify its source.")
+            msg = "The HDS-5 standard exit loss must identify its source."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "ko", ko_val)
 
     @property
@@ -97,7 +103,8 @@ def resolve_exit_loss_coefficient(override: float | None = None) -> ExitLossSele
         return STANDARD_EXIT_LOSS_SELECTION
     ko: float = finite(override, "exit_loss_coefficient")
     if ko < 0:
-        raise InvalidInputError("exit_loss_coefficient must be nonnegative.")
+        msg = "exit_loss_coefficient must be nonnegative."
+        raise InvalidInputError(msg)
     return ExitLossSelection(
         ko=ko,
         name="User-specified Ko",
@@ -115,10 +122,11 @@ def validate_entrance_loss_shape(barrel: CulvertBarrel, coefficient: EntranceLos
     else:
         barrel_shape = GeometryShape.ANY
     if coefficient.shape not in (GeometryShape.ANY, barrel_shape):
-        raise InvalidInputError(
+        msg = (
             f"Entrance-loss coefficient for {coefficient.shape.value!r} geometry cannot be "
             f"used with {barrel_shape.value!r} geometry."
         )
+        raise InvalidInputError(msg)
 
 
 # Circular concrete pipe entrance loss coefficients (HDS-5 Table C.2)
@@ -244,11 +252,14 @@ def calculate_total_head_loss(
     """Total head loss H = he + hf + ho in metres."""
     he: float = finite(entrance_loss, "entrance_loss")
     if he < 0:
-        raise InvalidInputError("entrance_loss must be nonnegative.")
+        msg = "entrance_loss must be nonnegative."
+        raise InvalidInputError(msg)
     hf: float = finite(friction_loss, "friction_loss")
     if hf < 0:
-        raise InvalidInputError("friction_loss must be nonnegative.")
+        msg = "friction_loss must be nonnegative."
+        raise InvalidInputError(msg)
     ho: float = finite(exit_loss, "exit_loss")
     if ho < 0:
-        raise InvalidInputError("exit_loss must be nonnegative.")
+        msg = "exit_loss must be nonnegative."
+        raise InvalidInputError(msg)
     return he + hf + ho

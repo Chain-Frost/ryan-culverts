@@ -36,30 +36,37 @@ class InletCoefficients:
 
     def __post_init__(self) -> None:
         if not self.name.strip():
-            raise InvalidInputError("name must be nonempty text.")
+            msg = "name must be nonempty text."
+            raise InvalidInputError(msg)
         chart_val: int | None = None if self.chart is None else positive_integer(self.chart, "chart")
         scale_val: int | None = None if self.scale is None else positive_integer(self.scale, "scale")
         try:
             form_val = InletEquationForm(self.form)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError("form must be InletEquationForm.SPECIFIC_HEAD or WEIR.") from exc
+            msg = "form must be InletEquationForm.SPECIFIC_HEAD or WEIR."
+            raise InvalidInputError(msg) from exc
         k_val: float = finite(self.k, "k")
         if k_val <= 0:
-            raise InvalidInputError("k must be strictly positive.")
+            msg = "k must be strictly positive."
+            raise InvalidInputError(msg)
         m_val: float = finite(self.m, "m")
         if m_val <= 0:
-            raise InvalidInputError("m must be strictly positive.")
+            msg = "m must be strictly positive."
+            raise InvalidInputError(msg)
         c_val: float = finite(self.c, "c")
         if c_val <= 0:
-            raise InvalidInputError("c must be strictly positive.")
+            msg = "c must be strictly positive."
+            raise InvalidInputError(msg)
         y_val: float = finite(self.y, "y")
         if y_val <= 0:
-            raise InvalidInputError("y must be strictly positive.")
+            msg = "y must be strictly positive."
+            raise InvalidInputError(msg)
         ks_val: float = finite(self.slope_correction, "slope_correction")
         try:
             shape_val = GeometryShape(self.shape)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError("shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY.") from exc
+            msg = "shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY."
+            raise InvalidInputError(msg) from exc
 
         object.__setattr__(self, "chart", chart_val)
         object.__setattr__(self, "scale", scale_val)

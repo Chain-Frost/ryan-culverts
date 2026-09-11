@@ -70,7 +70,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-009 | Deferred | Unassigned | 2026-09-06 | 2026-09-20 | Define a versioned JSON/configuration boundary only when a consumer requires it. |
 | CS-014 | Split | Unassigned | 2026-09-10 | 2026-09-20 | Do not implement this umbrella; use CS-030 through CS-033. |
 | CS-015 | Pending source clarification | Unassigned | 2026-09-09 | 2026-09-20 | Resolve the AGRD05B-23 Section 3.15.1 velocity inconsistency before numerical use. |
-| CS-021 | Deferred | Unassigned | 2026-09-11 | 2026-09-20 | Retain the Ruff 0.16.6 baseline; add the remaining maintenance guidance only when requested. |
+| CS-021 | Deferred | Unassigned | 2026-09-11 | 2026-09-20 | Retain relative internal imports and the reviewed Ruff baseline; add remaining guidance only when requested. |
 | CS-022 | Optional | Unassigned | 2026-09-09 | 2026-12-01 | Reconsider GitHub Releases only if the Git-pulled office checkout no longer meets user needs. |
 | CS-023 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Define design-option enumeration and minimum-size search as a separate consumer of the solver. |
 | CS-024 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add optional plotting without presentation dependencies in the hydraulic core. |

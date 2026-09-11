@@ -58,7 +58,8 @@ def solve_barrel_hydraulics(
     """
     q: float = finite(discharge, "discharge")
     if q <= 0.0:
-        raise InvalidInputError("discharge must be strictly positive.")
+        msg = "discharge must be strictly positive."
+        raise InvalidInputError(msg)
     tailwater_resolution: TailwaterResolution = resolve_tailwater(tailwater=tailwater, discharge=q, g=g)
     result: BarrelHydraulicResult = determine_governing_regime(
         barrel=barrel,

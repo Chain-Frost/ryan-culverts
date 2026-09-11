@@ -46,7 +46,8 @@ def solve_bracketed(
     """
     a, b = finite(value=lower, name="lower"), finite(value=upper, name="upper")
     if a >= b:
-        raise InvalidInputError("lower must be less than upper.")
+        msg = "lower must be less than upper."
+        raise InvalidInputError(msg)
     max_iterations = positive_integer(value=max_iterations, name="max_iterations")
     fa: float = finite(value=function(a), name="function(lower)")
     if fa == 0:
@@ -56,7 +57,8 @@ def solve_bracketed(
         return RootResult(root=b, residual=fb, bracket=(b, b), iterations=0)
     # Compare signs without products, which can underflow or overflow.
     if (fa < 0) == (fb < 0):
-        raise InvalidInputError("Function must change sign across the bracket.")
+        msg = "Function must change sign across the bracket."
+        raise InvalidInputError(msg)
 
     for iteration in range(1, max_iterations + 1):
         # Same-sign subtraction is safe; opposite-sign bounds need a split sum.
@@ -69,9 +71,10 @@ def solve_bracketed(
         residual_ok: bool = tolerances.residual_abs is None or abs(fm) <= tolerances.residual_abs
         if error_bound <= x_limit and residual_ok:
             return RootResult(root=mid, residual=fm, bracket=(a, b), iterations=iteration)
-        if mid == a or mid == b:
+        if mid in (a, b):
+            msg = "Floating-point resolution prevents the requested convergence."
             raise ConvergenceError(
-                "Floating-point resolution prevents the requested convergence.",
+                msg,
                 bracket=(a, b),
                 iterations=iteration,
             )
@@ -119,7 +122,8 @@ def solve_brent(
     """
     a, b = finite(value=lower, name="lower"), finite(value=upper, name="upper")
     if a >= b:
-        raise InvalidInputError("lower must be less than upper.")
+        msg = "lower must be less than upper."
+        raise InvalidInputError(msg)
     max_iter: int = positive_integer(value=max_iterations, name="max_iterations")
 
     fa: float = finite(value=function(a), name="function(lower)")
@@ -129,7 +133,8 @@ def solve_brent(
     if fb == 0:
         return RootResult(root=b, residual=fb, bracket=(b, b), iterations=0)
     if (fa < 0) == (fb < 0):
-        raise InvalidInputError("Function must change sign across the bracket.")
+        msg = "Function must change sign across the bracket."
+        raise InvalidInputError(msg)
 
     if abs(fa) < abs(fb):
         a, b = b, a
@@ -203,8 +208,9 @@ def solve_brent(
             fa, fb = fb, fa
 
         if a == b or abs(b - a) == 0.0:
+            msg = "Floating-point resolution prevents the requested convergence."
             raise ConvergenceError(
-                "Floating-point resolution prevents the requested convergence.",
+                msg,
                 bracket=(min(a, b), max(a, b)),
                 iterations=iteration,
             )

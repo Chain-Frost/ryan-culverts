@@ -36,14 +36,17 @@ class CulvertInventoryItem:
 
     def __post_init__(self) -> None:
         if not self.crossing_id.strip():
-            raise InvalidInputError("crossing_id must be nonempty text.")
+            msg = "crossing_id must be nonempty text."
+            raise InvalidInputError(msg)
         if self.result is not None:
             result_groups = tuple(group_result.group for group_result in self.result.group_results)
             if result_groups != self.configuration.groups:
-                raise InvalidInputError("The hydraulic result groups do not match this crossing configuration.")
+                msg = "The hydraulic result groups do not match this crossing configuration."
+                raise InvalidInputError(msg)
             result_roadway = None if self.result.roadway_result is None else self.result.roadway_result.roadway
             if result_roadway != self.configuration.roadway:
-                raise InvalidInputError("The hydraulic result roadway does not match this crossing configuration.")
+                msg = "The hydraulic result roadway does not match this crossing configuration."
+                raise InvalidInputError(msg)
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,21 +60,25 @@ class CulvertInventory:
         processed_items = tuple(items)
         untyped_items = cast("tuple[object, ...]", processed_items)
         if not all(isinstance(item, CulvertInventoryItem) for item in untyped_items):
-            raise InvalidInputError("items must contain only CulvertInventoryItem values.")
+            msg = "items must contain only CulvertInventoryItem values."
+            raise InvalidInputError(msg)
         crossing_ids = tuple(item.crossing_id for item in processed_items)
         if len(set(crossing_ids)) != len(crossing_ids):
-            raise InvalidInputError("crossing_id values must be unique within an inventory.")
+            msg = "crossing_id values must be unique within an inventory."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "items", processed_items)
         object.__setattr__(self, "name", name)
 
     def _index_for(self, crossing_id: str) -> int:
         """Return the position for a stable crossing identifier or fail explicitly."""
         if not crossing_id.strip():
-            raise InvalidInputError("crossing_id must be nonempty text.")
+            msg = "crossing_id must be nonempty text."
+            raise InvalidInputError(msg)
         for index, item in enumerate(self.items):
             if item.crossing_id == crossing_id:
                 return index
-        raise InvalidInputError(f"Unknown crossing_id {crossing_id!r}.")
+        msg = f"Unknown crossing_id {crossing_id!r}."
+        raise InvalidInputError(msg)
 
     def update_configuration(self, crossing_id: str, new_configuration: CulvertCrossing) -> CulvertInventory:
         """Replace a crossing configuration and discard its now-stale result."""
@@ -212,7 +219,8 @@ class InventorySummary:
         def register_source(source: SourceReference) -> None:
             existing = sources_by_id.get(source.source_id)
             if existing is not None and existing != source:
-                raise InvalidInputError(f"Conflicting source metadata uses source_id {source.source_id!r}.")
+                msg = f"Conflicting source metadata uses source_id {source.source_id!r}."
+                raise InvalidInputError(msg)
             sources_by_id[source.source_id] = source
 
         for item in inventory.items:
@@ -243,7 +251,8 @@ class InventorySummary:
                             generated_id = barrel_result.barrel.parameter_set_id or _parameter_set_id(key)
                             colliding_key = parameter_keys_by_id.get(generated_id)
                             if colliding_key is not None and colliding_key != key:
-                                raise InvalidInputError(f"Parameter-set ID collision for {generated_id!r}.")
+                                msg = f"Parameter-set ID collision for {generated_id!r}."
+                                raise InvalidInputError(msg)
                             parameter_set = AdoptedParameterSet(
                                 parameter_set_id=generated_id,
                                 material=barrel_result.barrel.material,

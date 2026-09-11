@@ -43,7 +43,8 @@ class CrossSectionGeometry(ABC):
         """Return True if water depth reaches or exceeds the conduit rise."""
         y: float = finite(depth, "depth")
         if y < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         return y >= self.rise
 
     @abstractmethod
@@ -69,7 +70,8 @@ class CrossSectionGeometry(ABC):
         """
         y: float = finite(depth, "depth")
         if y < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         if y == 0:
             return 0.0
         if y >= self.rise:
@@ -86,14 +88,18 @@ class CrossSectionGeometry(ABC):
         """
         y: float = finite(depth, "depth")
         if y < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         if y == 0:
-            raise InvalidInputError("Hydraulic depth is undefined for zero depth (dry section).")
+            msg = "Hydraulic depth is undefined for zero depth (dry section)."
+            raise InvalidInputError(msg)
         if y >= self.rise:
-            raise InvalidInputError("Hydraulic depth is undefined for closed-conduit flow at or above the crown.")
+            msg = "Hydraulic depth is undefined for closed-conduit flow at or above the crown."
+            raise InvalidInputError(msg)
         t: float = self.top_width(y)
         if t <= 0:
-            raise InvalidInputError("Hydraulic depth is undefined when free-surface top width is zero.")
+            msg = "Hydraulic depth is undefined when free-surface top width is zero."
+            raise InvalidInputError(msg)
         return self.area(y) / t
 
     def hydrostatic_pressure_moment(self, depth: float) -> float:
@@ -104,7 +110,8 @@ class CrossSectionGeometry(ABC):
         """
         y = finite(depth, "depth")
         if y < 0.0 or y > self.rise:
-            raise InvalidInputError("depth must be between zero and the geometry rise.")
+            msg = "depth must be between zero and the geometry rise."
+            raise InvalidInputError(msg)
         if y == 0.0:
             return 0.0
         panels = 64

@@ -18,13 +18,16 @@ def flow_parameter(discharge: float, area: float, rise: float, ku: float = KU_SI
     """Compute the dimensionless discharge parameter q* = (Ku * Q) / (A * D^0.5)."""
     q: float = finite(discharge, "discharge")
     if q < 0:
-        raise InvalidInputError("discharge must be nonnegative.")
+        msg = "discharge must be nonnegative."
+        raise InvalidInputError(msg)
     a: float = finite(area, "area")
     if a <= 0:
-        raise InvalidInputError("area must be strictly positive.")
+        msg = "area must be strictly positive."
+        raise InvalidInputError(msg)
     d: float = finite(rise, "rise")
     if d <= 0:
-        raise InvalidInputError("rise must be strictly positive.")
+        msg = "rise must be strictly positive."
+        raise InvalidInputError(msg)
     ku_val: float = finite(ku, "ku")
 
     if q == 0.0:
@@ -44,11 +47,13 @@ def unsubmerged_headwater_form_1(
     """
     qs: float = finite(q_star, "q_star")
     if qs < 0:
-        raise InvalidInputError("q_star must be nonnegative.")
+        msg = "q_star must be nonnegative."
+        raise InvalidInputError(msg)
     hc_d: float = finite(hc_over_d, "hc_over_d")
     s: float = finite(slope, "slope")
     if s < 0:
-        raise InvalidInputError("slope must be nonnegative.")
+        msg = "slope must be nonnegative."
+        raise InvalidInputError(msg)
 
     if qs == 0.0:
         return 0.0
@@ -66,7 +71,8 @@ def unsubmerged_headwater_form_2(
     """
     qs: float = finite(q_star, "q_star")
     if qs < 0:
-        raise InvalidInputError("q_star must be nonnegative.")
+        msg = "q_star must be nonnegative."
+        raise InvalidInputError(msg)
 
     if qs == 0.0:
         return 0.0
@@ -85,10 +91,12 @@ def submerged_headwater(
     """
     qs: float = finite(q_star, "q_star")
     if qs < 0:
-        raise InvalidInputError("q_star must be nonnegative.")
+        msg = "q_star must be nonnegative."
+        raise InvalidInputError(msg)
     s: float = finite(slope, "slope")
     if s < 0:
-        raise InvalidInputError("slope must be nonnegative.")
+        msg = "slope must be nonnegative."
+        raise InvalidInputError(msg)
 
     val: float = coefficients.c * (qs * qs) + coefficients.y + coefficients.slope_correction * s
     return max(0.0, val)
@@ -120,9 +128,11 @@ def transition_headwater(
     tangent2: float = finite(submerged_tangent, "submerged_tangent")
 
     if q2 <= q1:
-        raise InvalidInputError("q_star_high must be strictly greater than q_star_low.")
+        msg = "q_star_high must be strictly greater than q_star_low."
+        raise InvalidInputError(msg)
     if not q1 <= qs <= q2:
-        raise InvalidInputError("q_star must lie within the transition interval.")
+        msg = "q_star must lie within the transition interval."
+        raise InvalidInputError(msg)
 
     interval: float = q2 - q1
     ratio: float = (qs - q1) / interval

@@ -22,7 +22,8 @@ def hydrostatic_pressure_moment(
     """
     y = finite(depth, "depth")
     if y < 0.0 or y > geometry.rise:
-        raise InvalidInputError("depth must be between zero and the geometry rise.")
+        msg = "depth must be between zero and the geometry rise."
+        raise InvalidInputError(msg)
     return geometry.hydrostatic_pressure_moment(y)
 
 
@@ -36,13 +37,16 @@ def momentum_function(
     """Return open-channel momentum function ``Q^2/(g*A) + A*y_bar`` in m3."""
     q = finite(discharge, "discharge")
     if q <= 0.0:
-        raise InvalidInputError("discharge must be strictly positive.")
+        msg = "discharge must be strictly positive."
+        raise InvalidInputError(msg)
     accel = finite(g, "g")
     if accel <= 0.0:
-        raise InvalidInputError("g must be strictly positive.")
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
     y = finite(depth, "depth")
     if y <= 0.0 or y >= geometry.rise:
-        raise InvalidInputError("depth must be strictly between zero and the geometry rise.")
+        msg = "depth must be strictly between zero and the geometry rise."
+        raise InvalidInputError(msg)
     return q * q / (accel * geometry.area(y)) + hydrostatic_pressure_moment(geometry, y)
 
 
@@ -61,16 +65,19 @@ def calculate_sequent_depth(
     """
     q = finite(discharge, "discharge")
     if q <= 0.0:
-        raise InvalidInputError("discharge must be strictly positive.")
+        msg = "discharge must be strictly positive."
+        raise InvalidInputError(msg)
     y1 = finite(supercritical_depth, "supercritical_depth")
     rise = geometry.rise
     if y1 <= 0.0 or y1 >= rise:
-        raise InvalidInputError("supercritical_depth must be strictly between zero and the geometry rise.")
+        msg = "supercritical_depth must be strictly between zero and the geometry rise."
+        raise InvalidInputError(msg)
 
     critical_depth = calculate_critical_depth(geometry, q, g=g).depth
     depth_epsilon = max(1e-8, rise * 1e-7)
     if y1 >= critical_depth - depth_epsilon:
-        raise InvalidInputError("supercritical_depth must be below critical depth.")
+        msg = "supercritical_depth must be below critical depth."
+        raise InvalidInputError(msg)
 
     target_momentum = momentum_function(geometry, q, y1, g=g)
 

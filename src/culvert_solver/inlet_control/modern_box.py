@@ -65,19 +65,23 @@ class ModernBoxInlet:
         if not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
             self.geometry, (RectangularGeometry, FilletedRectangularGeometry)
         ):
-            raise InvalidInputError("geometry must be RectangularGeometry or FilletedRectangularGeometry.")
+            msg = "geometry must be RectangularGeometry or FilletedRectangularGeometry."
+            raise InvalidInputError(msg)
         try:
             wingwall = BoxWingwallTreatment(self.wingwall_treatment)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError("wingwall_treatment is not supported.") from exc
+            msg = "wingwall_treatment is not supported."
+            raise InvalidInputError(msg) from exc
         try:
             crown = BoxCrownTreatment(self.crown_treatment)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError("crown_treatment is not supported.") from exc
+            msg = "crown_treatment is not supported."
+            raise InvalidInputError(msg) from exc
         count: int = positive_integer(self.barrel_count, "barrel_count")
         skew: float = finite(self.headwall_skew_degrees, "headwall_skew_degrees")
         if skew < 0.0 or skew > 45.0:
-            raise InvalidInputError("headwall_skew_degrees must be between 0 and 45.")
+            msg = "headwall_skew_degrees must be between 0 and 45."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "wingwall_treatment", wingwall)
         object.__setattr__(self, "crown_treatment", crown)
         object.__setattr__(self, "barrel_count", count)
@@ -325,7 +329,8 @@ def resolve_modern_box_inlet_coefficients(inlet: ModernBoxInlet) -> ModernBoxInl
     visually similar inlet.
     """
     if not isinstance(inlet, ModernBoxInlet):  # pyright: ignore[reportUnnecessaryIsInstance]
-        raise InvalidInputError("inlet must be a ModernBoxInlet.")
+        msg = "inlet must be a ModernBoxInlet."
+        raise InvalidInputError(msg)
     count: int = inlet.barrel_count
     ratio: float = inlet.span_to_rise_ratio
     skew: float = inlet.headwall_skew_degrees
@@ -336,15 +341,18 @@ def resolve_modern_box_inlet_coefficients(inlet: ModernBoxInlet) -> ModernBoxInl
 
     if inlet.wingwall_treatment is BoxWingwallTreatment.FLARED_30:
         if inlet.crown_treatment is not BoxCrownTreatment.BEVEL_45:
-            raise InvalidInputError("The corrected 30-degree-flared rows require a 45-degree crown bevel.")
+            msg = "The corrected 30-degree-flared rows require a 45-degree crown bevel."
+            raise InvalidInputError(msg)
         if not (_is_dimension(fillet, 0.0) or _is_dimension(fillet, _SIX_INCHES)):
-            raise InvalidInputError("The supported field-cast flared rows use zero or 6-inch corner fillets.")
+            msg = "The supported field-cast flared rows use zero or 6-inch corner fillets."
+            raise InvalidInputError(msg)
         if math.isclose(a=skew, b=15.0, abs_tol=1e-9) and regular_multiple:
             return _ROWS[4]
         if 30.0 <= skew <= 45.0 and regular_multiple:
             return _ROWS[5]
         if not math.isclose(a=skew, b=0.0, abs_tol=1e-9):
-            raise InvalidInputError("The requested skew/count/ratio combination is not represented in Figure 93.")
+            msg = "The requested skew/count/ratio combination is not represented in Figure 93."
+            raise InvalidInputError(msg)
         if regular_single:
             return _ROWS[1]
         if regular_multiple:
@@ -354,7 +362,8 @@ def resolve_modern_box_inlet_coefficients(inlet: ModernBoxInlet) -> ModernBoxInl
 
     if inlet.wingwall_treatment is BoxWingwallTreatment.EXTENDED_SIDES_0:
         if not math.isclose(skew, 0.0, abs_tol=1e-9):
-            raise InvalidInputError("The corrected extended-side rows do not represent skewed headwalls.")
+            msg = "The corrected extended-side rows do not represent skewed headwalls."
+            raise InvalidInputError(msg)
         if inlet.crown_treatment is BoxCrownTreatment.SQUARE_EDGE:
             if regular_single and _is_dimension(fillet, 0.0):
                 return _ROWS[6]
@@ -375,10 +384,11 @@ def resolve_modern_box_inlet_coefficients(inlet: ModernBoxInlet) -> ModernBoxInl
             if wide_single and _is_dimension(fillet, 0.0):
                 return _ROWS[13]
 
-    raise InvalidInputError(
+    msg = (
         "The inlet's flare, crown, fillet, skew, barrel-count, and span/rise combination "
         "does not match a corrected FHWA-HRT-06-138 Figure 93 row."
     )
+    raise InvalidInputError(msg)
 
 
 def calculate_modern_box_inlet_headwater(
@@ -390,10 +400,12 @@ def calculate_modern_box_inlet_headwater(
     """Evaluate the corrected Table 12 polynomial within its documented useful range."""
     q: float = finite(discharge, "discharge")
     if q <= 0.0:
-        raise InvalidInputError("discharge must be strictly positive for the Table 12 fit.")
+        msg = "discharge must be strictly positive for the Table 12 fit."
+        raise InvalidInputError(msg)
     acceleration: float = finite(g, "g")
     if acceleration <= 0.0:
-        raise InvalidInputError("g must be strictly positive.")
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
     coefficients: ModernBoxInletCoefficients = resolve_modern_box_inlet_coefficients(inlet)
     flow_parameter: float = q / (inlet.net_opening_area * math.sqrt(acceleration * inlet.geometry.rise))
     a, b, c, d, e, f = coefficients.polynomial
@@ -401,9 +413,8 @@ def calculate_modern_box_inlet_headwater(
         b + flow_parameter * (c + flow_parameter * (d + flow_parameter * (e + flow_parameter * f)))
     )
     if not (FHWA_MODERN_BOX_HW_D_MIN < ratio < FHWA_MODERN_BOX_HW_D_MAX):
-        raise InvalidInputError(
-            "The Table 12 result is outside its documented useful range (approximately 0.4 < HW/D < 2.3)."
-        )
+        msg = "The Table 12 result is outside its documented useful range (approximately 0.4 < HW/D < 2.3)."
+        raise InvalidInputError(msg)
     return ModernBoxInletResult(
         inlet=inlet,
         coefficients=coefficients,

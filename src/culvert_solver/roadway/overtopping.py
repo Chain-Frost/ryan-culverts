@@ -31,13 +31,13 @@ def calculate_roadway_overtopping(
     3.11C. It also leaves sag-curve segmentation to a later task.
     """
     if not isinstance(roadway, RoadwayWeir):  # pyright: ignore[reportUnnecessaryIsInstance]
-        raise InvalidInputError("roadway must be a RoadwayWeir.")
+        msg = "roadway must be a RoadwayWeir."
+        raise InvalidInputError(msg)
     headwater: float = finite(headwater_elevation, "headwater_elevation")
     tailwater: float = finite(tailwater_elevation, "tailwater_elevation")
     if tailwater > roadway.crest_elevation:
-        raise InvalidInputError(
-            "Submerged roadway overtopping is not supported: tailwater_elevation must be at or below crest_elevation."
-        )
+        msg = "Submerged roadway overtopping is not supported: tailwater_elevation must be at or below crest_elevation."
+        raise InvalidInputError(msg)
     upstream_head: float = max(0.0, headwater - roadway.crest_elevation)
     discharge: float = roadway.discharge_coefficient * roadway.crest_length * upstream_head**1.5
     return RoadwayOvertoppingResult(

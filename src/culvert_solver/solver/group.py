@@ -56,11 +56,13 @@ def solve_group_hydraulics(
         Hydraulic solution for the group and its representative single barrel.
     """
     if not isinstance(group, CulvertGroup):  # pyright: ignore[reportUnnecessaryIsInstance]
-        raise InvalidInputError("group must be an instance of CulvertGroup.")
+        msg = "group must be an instance of CulvertGroup."
+        raise InvalidInputError(msg)
 
     q_tot: float = finite(total_discharge, "total_discharge")
     if q_tot <= 0:
-        raise InvalidInputError("total_discharge must be strictly positive.")
+        msg = "total_discharge must be strictly positive."
+        raise InvalidInputError(msg)
 
     tailwater_resolution: TailwaterResolution = resolve_tailwater(tailwater, q_tot, g=g)
     q_barrel: float = q_tot / float(group.quantity)

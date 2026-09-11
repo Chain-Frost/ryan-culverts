@@ -90,18 +90,21 @@ def _default_coefficients_for_barrel(barrel: CulvertBarrel) -> InletCoefficients
             return CIRCULAR_CMP_HEADWALL
         if barrel.material in {CONCRETE, CONCRETE_PIPE}:
             return CIRCULAR_CONCRETE_SQUARE_EDGE
-        raise InvalidInputError(
+        msg = (
             "No default inlet coefficients exist for this circular barrel material; "
             "provide inlet_coefficients explicitly."
         )
+        raise InvalidInputError(msg)
     if isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
             return BOX_CONCRETE_FLARED_WINGWALLS_30_75
-        raise InvalidInputError(
+        msg = (
             "No default inlet coefficients exist for this rectangular barrel material; "
             "provide inlet_coefficients explicitly."
         )
-    raise InvalidInputError("No default inlet coefficients exist for this geometry; provide them explicitly.")
+        raise InvalidInputError(msg)
+    msg = "No default inlet coefficients exist for this geometry; provide them explicitly."
+    raise InvalidInputError(msg)
 
 
 def _validate_coefficient_shape(barrel: CulvertBarrel, coefficients: InletCoefficients) -> None:
@@ -113,10 +116,11 @@ def _validate_coefficient_shape(barrel: CulvertBarrel, coefficients: InletCoeffi
     else:
         barrel_shape = GeometryShape.ANY
     if coefficients.shape not in (GeometryShape.ANY, barrel_shape):
-        raise InvalidInputError(
+        msg = (
             f"Inlet coefficients for {coefficients.shape.value!r} geometry cannot be used "
             f"with {barrel_shape.value!r} geometry."
         )
+        raise InvalidInputError(msg)
 
 
 def calculate_inlet_control_headwater(
@@ -135,10 +139,12 @@ def calculate_inlet_control_headwater(
     """
     q: float = finite(discharge, "discharge")
     if q < 0:
-        raise InvalidInputError("discharge must be nonnegative.")
+        msg = "discharge must be nonnegative."
+        raise InvalidInputError(msg)
     accel: float = finite(g, "g")
     if accel <= 0:
-        raise InvalidInputError("g must be strictly positive.")
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
 
     coeffs: InletCoefficients = coefficients or barrel.inlet_coefficients or _default_coefficients_for_barrel(barrel)
     _validate_coefficient_shape(barrel, coeffs)

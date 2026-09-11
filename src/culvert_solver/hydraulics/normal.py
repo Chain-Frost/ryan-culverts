@@ -57,16 +57,20 @@ def calculate_normal_depth(
     """
     q: float = finite(discharge, "discharge")
     if q < 0:
-        raise InvalidInputError("discharge must be nonnegative.")
+        msg = "discharge must be nonnegative."
+        raise InvalidInputError(msg)
     s0: float = finite(slope, "slope")
     if s0 < 0:
-        raise InvalidInputError("slope must be nonnegative.")
+        msg = "slope must be nonnegative."
+        raise InvalidInputError(msg)
     n: float = finite(roughness, "roughness")
     if n <= 0:
-        raise InvalidInputError("roughness must be strictly positive.")
+        msg = "roughness must be strictly positive."
+        raise InvalidInputError(msg)
     accel: float = finite(g, "g")
     if accel <= 0:
-        raise InvalidInputError("g must be strictly positive.")
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
 
     if q == 0.0:
         return NormalDepthResult(
@@ -79,7 +83,8 @@ def calculate_normal_depth(
         )
 
     if s0 == 0.0:
-        raise InvalidInputError("Normal depth is undefined for zero slope with positive discharge.")
+        msg = "Normal depth is undefined for zero slope with positive discharge."
+        raise InvalidInputError(msg)
 
     k_req: float = (n * q) / math.sqrt(s0)
 

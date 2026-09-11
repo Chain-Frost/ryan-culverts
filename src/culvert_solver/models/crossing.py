@@ -25,11 +25,13 @@ class CulvertCrossing:
         roadway: RoadwayWeir | None = None,
     ) -> None:
         if not groups:
-            raise InvalidInputError("A crossing must contain at least one culvert group.")
+            msg = "A crossing must contain at least one culvert group."
+            raise InvalidInputError(msg)
         if roadway is not None and not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
             roadway, RoadwayWeir
         ):
-            raise InvalidInputError("roadway must be a RoadwayWeir or None.")
+            msg = "roadway must be a RoadwayWeir or None."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "groups", tuple(groups))
         object.__setattr__(self, "roadway", roadway)
 

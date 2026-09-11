@@ -127,10 +127,7 @@ def _make_point(
     e: float = specific_energy(depth=depth, velocity_head=hv)
     sf = manning_friction_slope(discharge=discharge, area=a, hydraulic_radius=r, roughness=barrel.roughness)
     fr: float | None
-    if t > 0 and a > 0:
-        fr = froude_number(discharge=discharge, area=a, top_width=t, g=g)
-    else:
-        fr = None
+    fr = froude_number(discharge=discharge, area=a, top_width=t, g=g) if t > 0 and a > 0 else None
 
     return ProfilePoint(
         station=station,
@@ -200,12 +197,15 @@ def compute_inlet_control_s2_profile(
     """
     q: float = finite(discharge, "discharge")
     if q <= 0:
-        raise InvalidInputError("discharge must be strictly positive.")
+        msg = "discharge must be strictly positive."
+        raise InvalidInputError(msg)
     steps: int = positive_integer(num_steps, "num_steps")
     if steps < 5:
-        raise InvalidInputError("num_steps must be at least 5.")
+        msg = "num_steps must be at least 5."
+        raise InvalidInputError(msg)
     if barrel.is_horizontal:
-        raise InvalidInputError("an S2 profile requires a positive barrel slope.")
+        msg = "an S2 profile requires a positive barrel slope."
+        raise InvalidInputError(msg)
 
     geom: CrossSectionGeometry = barrel.geometry
     rise: float = geom.rise
@@ -214,7 +214,8 @@ def compute_inlet_control_s2_profile(
         geometry=geom, discharge=q, slope=barrel.slope, roughness=barrel.roughness, g=g
     )
     if normal.capacity_exceeded or normal.depth >= yc:
-        raise InvalidInputError("an S2 profile requires normal depth below critical depth.")
+        msg = "an S2 profile requires normal depth below critical depth."
+        raise InvalidInputError(msg)
     yn: float = normal.depth
 
     # Starting infinitesimally below critical depth avoids the zero gradient at
@@ -305,8 +306,9 @@ def _interpolate_profile_depth(points: tuple[ProfilePoint, ...], station: float)
         if first.station <= station <= second.station:
             fraction: float = (station - first.station) / (second.station - first.station)
             return first.water_depth + fraction * (second.water_depth - first.water_depth)
+    msg = "Profile interpolation could not bracket the requested station."
     raise ConvergenceError(
-        "Profile interpolation could not bracket the requested station.",
+        msg,
         bracket=(points[0].station, points[-1].station),
         iterations=len(points) - 1,
     )
@@ -327,16 +329,19 @@ def compute_steep_inlet_control_profile(
     """
     q: float = finite(discharge, "discharge")
     if q <= 0.0:
-        raise InvalidInputError("discharge must be strictly positive.")
+        msg = "discharge must be strictly positive."
+        raise InvalidInputError(msg)
     steps: int = positive_integer(num_steps, "num_steps")
     if steps < 5:
-        raise InvalidInputError("num_steps must be at least 5.")
+        msg = "num_steps must be at least 5."
+        raise InvalidInputError(msg)
     tw_elevation: float = (
         tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
     )
     tw_depth: float = max(0.0, tw_elevation - barrel.outlet_invert)
     if tw_depth >= barrel.geometry.rise:
-        raise InvalidInputError("steep inlet-control profile requires sub-crown tailwater.")
+        msg = "steep inlet-control profile requires sub-crown tailwater."
+        raise InvalidInputError(msg)
 
     s2: InletControlProfile = compute_inlet_control_s2_profile(barrel=barrel, discharge=q, num_steps=steps, g=g)
     normal: float = calculate_normal_depth(
@@ -375,8 +380,9 @@ def compute_steep_inlet_control_profile(
         g=g,
     )
     if s1.curve_type is not ProfileCurve.S1:
+        msg = "Expected an S1 profile for the steep tailwater boundary."
         raise ConvergenceError(
-            "Expected an S1 profile for the steep tailwater boundary.",
+            msg,
             bracket=(0.0, barrel.length),
             iterations=steps,
         )
@@ -409,8 +415,9 @@ def compute_steep_inlet_control_profile(
     lower_residual: float = jump_residual(limit_station)
     upper_residual: float = jump_residual(barrel.length)
     if lower_residual > 0.0 or upper_residual < 0.0:
+        msg = "S1 and S2 conjugate-depth profiles did not bracket a jump."
         raise ConvergenceError(
-            "S1 and S2 conjugate-depth profiles did not bracket a jump.",
+            msg,
             bracket=(limit_station, barrel.length),
             iterations=steps,
         )
@@ -491,11 +498,13 @@ def compute_backwater_profile(
     """
     q: float = finite(discharge, "discharge")
     if q <= 0:
-        raise InvalidInputError("discharge must be strictly positive.")
+        msg = "discharge must be strictly positive."
+        raise InvalidInputError(msg)
 
     steps: int = positive_integer(num_steps, "num_steps")
     if steps < 5:
-        raise InvalidInputError("num_steps must be at least 5.")
+        msg = "num_steps must be at least 5."
+        raise InvalidInputError(msg)
 
     tw_elev: float
     tw_elev = tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
@@ -506,7 +515,8 @@ def compute_backwater_profile(
     else:
         ke = finite(entrance_loss_coefficient, "entrance_loss_coefficient")
     if ke < 0:
-        raise InvalidInputError("entrance_loss_coefficient must be nonnegative.")
+        msg = "entrance_loss_coefficient must be nonnegative."
+        raise InvalidInputError(msg)
 
     convergence: list[ConvergenceRecord] = []
 
@@ -524,11 +534,12 @@ def compute_backwater_profile(
 
     # A submerged outlet does not by itself establish full flow along the barrel.
     if tw_depth >= rise:
-        raise InvalidInputError(
+        msg = (
             "compute_backwater_profile does not infer full-barrel flow from a "
             "submerged outlet; use determine_governing_regime for pressurised or "
             "mixed-flow classification."
         )
+        raise InvalidInputError(msg)
 
     # Free surface starting depth at outlet
     y_start: float = max(tw_depth, yc)

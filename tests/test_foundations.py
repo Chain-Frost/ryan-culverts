@@ -143,7 +143,8 @@ def test_invalid_tolerance_combinations() -> None:
 
 def test_function_exceptions_are_not_silently_replaced() -> None:
     def undefined(_: float) -> float:
-        raise ZeroDivisionError("physical singularity")
+        msg = "physical singularity"
+        raise ZeroDivisionError(msg)
 
     with pytest.raises(ZeroDivisionError, match="physical singularity"):
         solve_bracketed(undefined, 0, 1)

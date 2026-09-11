@@ -64,13 +64,11 @@ def calculate_partial_flow_outlet_headwater(
     """
     q: float = finite(discharge, "discharge")
     if q <= 0:
-        raise InvalidInputError("discharge must be strictly positive.")
+        msg = "discharge must be strictly positive."
+        raise InvalidInputError(msg)
 
     tw_elev: float
-    if isinstance(tailwater, TailwaterCondition):
-        tw_elev = tailwater.elevation
-    else:
-        tw_elev = finite(tailwater, "tailwater")
+    tw_elev = tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
 
     tw_depth: float = max(0.0, tw_elev - barrel.outlet_invert)
 

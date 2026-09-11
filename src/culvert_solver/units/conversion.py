@@ -9,5 +9,6 @@ def dimension_mm_to_m(dimension_mm: float) -> float:
     value: float = finite(value=dimension_mm, name="dimension_mm")
     converted: float = value / 1000.0
     if converted <= 0:
-        raise InvalidInputError("Dimension must remain positive and representable in metres.")
+        msg = "Dimension must remain positive and representable in metres."
+        raise InvalidInputError(msg)
     return converted

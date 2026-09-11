@@ -63,7 +63,8 @@ def calculate_downstream_full_flow_length(
     """
     q = finite(discharge, "discharge")
     if q <= 0.0:
-        raise InvalidInputError("discharge must be strictly positive.")
+        msg = "discharge must be strictly positive."
+        raise InvalidInputError(msg)
     tw_elevation = tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
     outlet_clearance = tw_elevation - (barrel.outlet_invert + barrel.geometry.rise)
     if outlet_clearance < 0.0:
@@ -124,13 +125,11 @@ def calculate_full_flow_outlet_headwater(
     """
     q: float = finite(discharge, "discharge")
     if q <= 0:
-        raise InvalidInputError("discharge must be strictly positive.")
+        msg = "discharge must be strictly positive."
+        raise InvalidInputError(msg)
 
     tw_elev: float
-    if isinstance(tailwater, TailwaterCondition):
-        tw_elev = tailwater.elevation
-    else:
-        tw_elev = finite(tailwater, "tailwater")
+    tw_elev = tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
 
     ke: float
     if isinstance(entrance_loss_coefficient, EntranceLossCoefficient):
@@ -139,7 +138,8 @@ def calculate_full_flow_outlet_headwater(
     else:
         ke = finite(entrance_loss_coefficient, "entrance_loss_coefficient")
     if ke < 0:
-        raise InvalidInputError("entrance_loss_coefficient must be nonnegative.")
+        msg = "entrance_loss_coefficient must be nonnegative."
+        raise InvalidInputError(msg)
 
     exit_selection = resolve_exit_loss_coefficient(exit_loss_coefficient)
     ko = exit_selection.ko

@@ -46,52 +46,60 @@ class CulvertBarrel:
     def __post_init__(self) -> None:
         l_val: float = finite(self.length, "length")
         if l_val <= 0:
-            raise InvalidInputError("length must be strictly positive.")
+            msg = "length must be strictly positive."
+            raise InvalidInputError(msg)
         z_in: float = finite(self.inlet_invert, "inlet_invert")
         z_out: float = finite(self.outlet_invert, "outlet_invert")
         if z_out > z_in:
-            raise InvalidInputError(
-                "Adverse slope is outside the initial solver release: inlet_invert must be >= outlet_invert."
-            )
+            msg = "Adverse slope is outside the initial solver release: inlet_invert must be >= outlet_invert."
+            raise InvalidInputError(msg)
         roughness_selection = self.roughness_selection
         n_val: float = finite(self.roughness, "roughness")
         if n_val <= 0:
-            raise InvalidInputError("roughness must be strictly positive.")
+            msg = "roughness must be strictly positive."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "length", l_val)
         object.__setattr__(self, "inlet_invert", z_in)
         object.__setattr__(self, "outlet_invert", z_out)
         object.__setattr__(self, "roughness", n_val)
         if roughness_selection is not None:
             if n_val != roughness_selection.value:
-                raise InvalidInputError("roughness must equal the supplied roughness_selection value.")
+                msg = "roughness must equal the supplied roughness_selection value."
+                raise InvalidInputError(msg)
             if (
                 self.roughness_selection_basis is not RoughnessSelectionBasis.USER_OVERRIDE
                 and self.roughness_selection_basis is not roughness_selection.basis
             ):
-                raise InvalidInputError("roughness_selection_basis conflicts with the supplied roughness selection.")
+                msg = "roughness_selection_basis conflicts with the supplied roughness selection."
+                raise InvalidInputError(msg)
             if self.roughness_source is not None and self.roughness_source != roughness_selection.source:
-                raise InvalidInputError("roughness_source conflicts with the supplied roughness selection.")
+                msg = "roughness_source conflicts with the supplied roughness selection."
+                raise InvalidInputError(msg)
             object.__setattr__(self, "roughness_selection_basis", roughness_selection.basis)
             object.__setattr__(self, "roughness_source", roughness_selection.source)
             object.__setattr__(self, "roughness_notices", roughness_selection.notices)
         try:
             roughness_basis = RoughnessSelectionBasis(self.roughness_selection_basis)
         except (TypeError, ValueError) as exc:
-            raise InvalidInputError("roughness_selection_basis must be a RoughnessSelectionBasis value.") from exc
+            msg = "roughness_selection_basis must be a RoughnessSelectionBasis value."
+            raise InvalidInputError(msg) from exc
         object.__setattr__(self, "roughness_selection_basis", roughness_basis)
         if self.parameter_set_id is not None and not self.parameter_set_id.strip():
-            raise InvalidInputError("parameter_set_id must be nonempty text when provided.")
+            msg = "parameter_set_id must be nonempty text when provided."
+            raise InvalidInputError(msg)
         if self.roughness_source is not None:
             from ..references.models import SourceReference
 
             if not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
                 self.roughness_source, SourceReference
             ):
-                raise InvalidInputError("roughness_source must be a SourceReference or None.")
+                msg = "roughness_source must be a SourceReference or None."
+                raise InvalidInputError(msg)
         if isinstance(self.entrance_loss_coefficient, (float, int)):
             ke_val = finite(self.entrance_loss_coefficient, "entrance_loss_coefficient")
             if ke_val < 0:
-                raise InvalidInputError("entrance_loss_coefficient must be nonnegative.")
+                msg = "entrance_loss_coefficient must be nonnegative."
+                raise InvalidInputError(msg)
             object.__setattr__(self, "entrance_loss_coefficient", ke_val)
         elif self.entrance_loss_coefficient is not None:
             from ..outlet_control.losses import EntranceLossCoefficient
@@ -99,7 +107,8 @@ class CulvertBarrel:
             if not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
                 self.entrance_loss_coefficient, EntranceLossCoefficient
             ):
-                raise InvalidInputError("entrance_loss_coefficient must be a finite number or EntranceLossCoefficient.")
+                msg = "entrance_loss_coefficient must be a finite number or EntranceLossCoefficient."
+                raise InvalidInputError(msg)
 
     @property
     def drop(self) -> float:

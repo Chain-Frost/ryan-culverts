@@ -20,14 +20,17 @@ def _project_metadata() -> tuple[str, str]:
         data: dict[str, object] = tomllib.load(pyproject_file)
     project_data = data.get("project")
     if not isinstance(project_data, dict):
-        raise ValueError("pyproject.toml has no [project] table.")
-    project = cast(dict[str, object], project_data)
+        msg = "pyproject.toml has no [project] table."
+        raise ValueError(msg)
+    project = cast("dict[str, object]", project_data)
     version = project.get("version")
     licence = project.get("license")
     if not isinstance(version, str) or not version:
-        raise ValueError("pyproject.toml has no nonempty project version.")
+        msg = "pyproject.toml has no nonempty project version."
+        raise ValueError(msg)
     if not isinstance(licence, str) or not licence:
-        raise ValueError("pyproject.toml has no SPDX licence expression.")
+        msg = "pyproject.toml has no SPDX licence expression."
+        raise ValueError(msg)
     return version, licence
 
 
@@ -40,7 +43,8 @@ def _single_name(names: set[str], suffix: str) -> str:
     """Return one archive member ending in suffix or fail explicitly."""
     matches = sorted(name for name in names if name.endswith(suffix))
     if len(matches) != 1:
-        raise ValueError(f"Expected one *{suffix} member, found {len(matches)}.")
+        msg = f"Expected one *{suffix} member, found {len(matches)}."
+        raise ValueError(msg)
     return matches[0]
 
 
@@ -58,17 +62,23 @@ def _verify_wheel(wheel: Path, version: str, licence: str, repository_license: b
         license_name = _single_name(names, ".dist-info/licenses/LICENSE")
         metadata = archive.read(metadata_name).decode("utf-8")
         if _metadata_field(metadata, "Version") != (version,):
-            raise ValueError("Wheel Version metadata does not match pyproject.toml.")
+            msg = "Wheel Version metadata does not match pyproject.toml."
+            raise ValueError(msg)
         if _metadata_field(metadata, "License-Expression") != (licence,):
-            raise ValueError("Wheel License-Expression does not match pyproject.toml.")
+            msg = "Wheel License-Expression does not match pyproject.toml."
+            raise ValueError(msg)
         if _metadata_field(metadata, "License-File") != ("LICENSE",):
-            raise ValueError("Wheel does not declare the packaged LICENSE file.")
+            msg = "Wheel does not declare the packaged LICENSE file."
+            raise ValueError(msg)
         if "culvert_solver/py.typed" not in names:
-            raise ValueError("Wheel does not contain culvert_solver/py.typed.")
+            msg = "Wheel does not contain culvert_solver/py.typed."
+            raise ValueError(msg)
         if any(name.startswith(("tests/", "docs/", "reference_docs/")) for name in names):
-            raise ValueError("Wheel contains development or reference inputs.")
+            msg = "Wheel contains development or reference inputs."
+            raise ValueError(msg)
         if _normalized(archive.read(license_name)) != repository_license:
-            raise ValueError("Wheel LICENSE differs from the repository LICENSE.")
+            msg = "Wheel LICENSE differs from the repository LICENSE."
+            raise ValueError(msg)
 
 
 def _sha256(path: Path) -> str:
@@ -94,9 +104,11 @@ def main(argv: list[str] | None = None) -> int:
     expected_name = f"{DISTRIBUTION_PREFIX}{version}-py3-none-any.whl"
     wheel = args.wheel.resolve() if args.wheel is not None else DIST_DIR / expected_name
     if not wheel.is_file():
-        raise FileNotFoundError("Build the current wheel first.")
+        msg = "Build the current wheel first."
+        raise FileNotFoundError(msg)
     if wheel.name != expected_name:
-        raise ValueError(f"Expected wheel named {expected_name}, found {wheel.name}.")
+        msg = f"Expected wheel named {expected_name}, found {wheel.name}."
+        raise ValueError(msg)
     repository_license = _normalized((PROJECT_ROOT / "LICENSE").read_bytes())
     _verify_wheel(wheel, version, licence, repository_license)
     print(f"Verified: {wheel.name} ({wheel.stat().st_size} bytes, sha256={_sha256(wheel)})")

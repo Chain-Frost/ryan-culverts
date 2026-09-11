@@ -14,7 +14,8 @@ def _latest_wheel(dist_dir: Path) -> Path:
     """Return the most recently modified matching wheel."""
     wheels = list(dist_dir.glob(WHEEL_PATTERN))
     if not wheels:
-        raise FileNotFoundError(f"No {WHEEL_PATTERN} wheel found in {dist_dir}")
+        msg = f"No {WHEEL_PATTERN} wheel found in {dist_dir}"
+        raise FileNotFoundError(msg)
     return max(wheels, key=lambda path: (path.stat().st_mtime_ns, path.name))
 
 

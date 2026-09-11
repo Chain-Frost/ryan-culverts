@@ -443,7 +443,8 @@ def _local_result(case: ComparisonCase) -> LocalComparisonResult:
     )
     result = solve_barrel_hydraulics(barrel, case.discharge, case.tailwater)
     if result.inlet_control_headwater_elevation is None:
-        raise RuntimeError(f"Local solver omitted inlet-control depth for {case.case_id}.")
+        msg = f"Local solver omitted inlet-control depth for {case.case_id}."
+        raise RuntimeError(msg)
     outlet_control_depth = (
         result.outlet_control_headwater_elevation - case.inlet_invert
         if result.outlet_control_headwater_elevation is not None
@@ -474,10 +475,12 @@ def _validated_hy8_culvert(
 ) -> Hy8CulvertResult:
     """Validate and return the single per-culvert diagnostic record."""
     if len(culverts) != 1:
-        raise RuntimeError(f"HY-8 returned {len(culverts)} culvert records for single-culvert case {case.case_id}.")
+        msg = f"HY-8 returned {len(culverts)} culvert records for single-culvert case {case.case_id}."
+        raise RuntimeError(msg)
     culvert = culverts[0]
     if culvert.index != 0:
-        raise RuntimeError(f"HY-8 returned culvert index {culvert.index!r} for {case.case_id}.")
+        msg = f"HY-8 returned culvert index {culvert.index!r} for {case.case_id}."
+        raise RuntimeError(msg)
     numeric_values = (
         culvert.discharge,
         culvert.inlet_control_depth,
@@ -487,20 +490,24 @@ def _validated_hy8_culvert(
         culvert.outlet_velocity,
     )
     if not all(math.isfinite(value) for value in numeric_values):
-        raise RuntimeError(f"HY-8 returned incomplete culvert diagnostics for {case.case_id}.")
+        msg = f"HY-8 returned incomplete culvert diagnostics for {case.case_id}."
+        raise RuntimeError(msg)
     if abs(culvert.discharge - row_flow) > HY8_REPORT_TOLERANCE:
-        raise RuntimeError(f"HY-8 culvert discharge disagrees with crossing flow for {case.case_id}.")
+        msg = f"HY-8 culvert discharge disagrees with crossing flow for {case.case_id}."
+        raise RuntimeError(msg)
     if abs(culvert.outlet_velocity - row_velocity) > HY8_REPORT_TOLERANCE:
-        raise RuntimeError(f"HY-8 culvert velocity disagrees with crossing velocity for {case.case_id}.")
+        msg = f"HY-8 culvert velocity disagrees with crossing velocity for {case.case_id}."
+        raise RuntimeError(msg)
     if culvert.flow_type != row_flow_type:
-        raise RuntimeError(f"HY-8 culvert and crossing flow types disagree for {case.case_id}.")
+        msg = f"HY-8 culvert and crossing flow types disagree for {case.case_id}."
+        raise RuntimeError(msg)
     if culvert.full_length < 0.0 or culvert.free_length < 0.0:
-        raise RuntimeError(f"HY-8 returned a negative barrel length for {case.case_id}.")
+        msg = f"HY-8 returned a negative barrel length for {case.case_id}."
+        raise RuntimeError(msg)
     reported_length = culvert.full_length + culvert.free_length
     if abs(reported_length - case.length) > HY8_LENGTH_BALANCE_TOLERANCE:
-        raise RuntimeError(
-            f"HY-8 full/free lengths total {reported_length!r}, not {case.length!r}, for {case.case_id}."
-        )
+        msg = f"HY-8 full/free lengths total {reported_length!r}, not {case.length!r}, for {case.case_id}."
+        raise RuntimeError(msg)
     return culvert
 
 
@@ -580,20 +587,20 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
             keep_files=case_workspace is not None,
         )
         if hy8_result.row is None:
-            raise RuntimeError(f"HY-8 returned no result row for {case.case_id}.")
+            msg = f"HY-8 returned no result row for {case.case_id}."
+            raise RuntimeError(msg)
         row = hy8_result.row
         # HY-8 reports flow and roadway discharge to 0.01 m3/s. Fail closed if
         # nearest-row selection or an unexpectedly low road crest changed the case.
         if not math.isfinite(row.flow) or abs(row.flow - case.discharge) > HY8_REPORT_TOLERANCE:
-            raise RuntimeError(
-                f"HY-8 row flow {row.flow!r} does not match requested flow {case.discharge!r} for {case.case_id}."
-            )
+            msg = f"HY-8 row flow {row.flow!r} does not match requested flow {case.discharge!r} for {case.case_id}."
+            raise RuntimeError(msg)
         if not math.isfinite(row.roadway_discharge) or abs(row.roadway_discharge) > HY8_REPORT_TOLERANCE:
-            raise RuntimeError(
-                f"HY-8 reported roadway discharge {row.roadway_discharge!r} for non-overtopping case {case.case_id}."
-            )
+            msg = f"HY-8 reported roadway discharge {row.roadway_discharge!r} for non-overtopping case {case.case_id}."
+            raise RuntimeError(msg)
         if not math.isfinite(row.headwater_elevation) or not math.isfinite(row.velocity):
-            raise RuntimeError(f"HY-8 returned non-finite hydraulics for {case.case_id}.")
+            msg = f"HY-8 returned non-finite hydraulics for {case.case_id}."
+            raise RuntimeError(msg)
         hy8_culvert = _validated_hy8_culvert(
             case=case,
             row_flow=row.flow,

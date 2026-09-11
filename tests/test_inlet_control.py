@@ -353,7 +353,7 @@ def test_inlet_coefficients_immutability_and_validation() -> None:
     with pytest.raises(FrozenInstanceError):
         setattr(coeffs, field, 0.02)
 
-    invalid_form = cast(InletEquationForm, 3)
+    invalid_form = cast("InletEquationForm", 3)
     with pytest.raises(InvalidInputError):
         InletCoefficients(
             name="Bad Form",
@@ -376,5 +376,5 @@ def test_inlet_coefficients_immutability_and_validation() -> None:
             m=2.0,
             c=0.04,
             y=0.7,
-            shape=cast(GeometryShape, "invalid_shape"),
+            shape=cast("GeometryShape", "invalid_shape"),
         )

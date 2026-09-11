@@ -82,7 +82,8 @@ def solve_barrel_discharge_for_headwater_ratio(
     """Solve barrel discharge for ``HW/D`` measured above the inlet invert."""
     ratio: float = finite(headwater_ratio, "headwater_ratio")
     if ratio < 0.0:
-        raise InvalidInputError("headwater_ratio must be nonnegative.")
+        msg = "headwater_ratio must be nonnegative."
+        raise InvalidInputError(msg)
     return solve_barrel_discharge_for_headwater(
         barrel,
         headwater_elevation=barrel.inlet_invert + ratio * barrel.geometry.rise,
@@ -105,7 +106,8 @@ def solve_group_discharge_for_headwater(
 ) -> float:
     """Return total discharge through an identical parallel-barrel group at a given HW."""
     if not isinstance(group, CulvertGroup):  # pyright: ignore[reportUnnecessaryIsInstance]
-        raise InvalidInputError("group must be an instance of CulvertGroup.")
+        msg = "group must be an instance of CulvertGroup."
+        raise InvalidInputError(msg)
     barrel_discharge: float = solve_barrel_discharge_for_headwater(
         barrel=group.barrel,
         headwater_elevation=headwater_elevation,
@@ -126,15 +128,17 @@ def solve_crossing_discharge_for_headwater(
 ) -> float:
     """Return combined culvert and roadway discharge at a target headwater elevation."""
     if not isinstance(crossing, CulvertCrossing):  # pyright: ignore[reportUnnecessaryIsInstance]
-        raise InvalidInputError("crossing must be an instance of CulvertCrossing.")
+        msg = "crossing must be an instance of CulvertCrossing."
+        raise InvalidInputError(msg)
     hw_elev: float = finite(headwater_elevation, "headwater_elevation")
     tw_elev: float = (
         tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
     )
     if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
-        raise InvalidInputError(
+        msg = (
             "Submerged roadway overtopping is not supported: tailwater elevation must be at or below the roadway crest."
         )
+        raise InvalidInputError(msg)
     total_discharge: float = sum(
         solve_group_discharge_for_headwater(
             group,
@@ -167,10 +171,7 @@ def _solve_barrel_discharge_for_headwater(
 ) -> tuple[float, RootResult | None]:
     """Return discharge and its root diagnostics for crossing aggregation."""
     tw_elev: float
-    if isinstance(tailwater, TailwaterCondition):
-        tw_elev = tailwater.elevation
-    else:
-        tw_elev = finite(tailwater, "tailwater")
+    tw_elev = tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
 
     hw_elev: float = finite(headwater_elevation, "headwater_elevation")
     if hw_elev <= barrel.inlet_invert or hw_elev <= tw_elev:
@@ -278,19 +279,22 @@ def solve_crossing_hydraulics(
         Hydraulic solution for the entire crossing and each constituent culvert group.
     """
     if not isinstance(crossing, CulvertCrossing):  # pyright: ignore[reportUnnecessaryIsInstance]
-        raise InvalidInputError("crossing must be an instance of CulvertCrossing.")
+        msg = "crossing must be an instance of CulvertCrossing."
+        raise InvalidInputError(msg)
 
     q_tot: float = finite(total_discharge, "total_discharge")
     if q_tot <= 0:
-        raise InvalidInputError("total_discharge must be strictly positive.")
+        msg = "total_discharge must be strictly positive."
+        raise InvalidInputError(msg)
 
     tailwater_resolution: TailwaterResolution = resolve_tailwater(tailwater=tailwater, discharge=q_tot, g=g)
     tw_elev: float = tailwater_resolution.elevation
 
     if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
-        raise InvalidInputError(
+        msg = (
             "Submerged roadway overtopping is not supported: tailwater elevation must be at or below the roadway crest."
         )
+        raise InvalidInputError(msg)
 
     # Fast path for single-group crossing
     if crossing.num_groups == 1 and crossing.roadway is None:

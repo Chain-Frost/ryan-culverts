@@ -34,7 +34,8 @@ class RectangularChannel:
     def __post_init__(self) -> None:
         width: float = finite(self.bottom_width, "bottom_width")
         if width <= 0.0:
-            raise InvalidInputError("bottom_width must be strictly positive.")
+            msg = "bottom_width must be strictly positive."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "bottom_width", width)
 
     def area(self, depth: float) -> float:
@@ -69,13 +70,17 @@ class TrapezoidalChannel:
         left: float = finite(self.left_side_slope, "left_side_slope")
         right: float = finite(self.right_side_slope, "right_side_slope")
         if width < 0.0:
-            raise InvalidInputError("bottom_width must be nonnegative.")
+            msg = "bottom_width must be nonnegative."
+            raise InvalidInputError(msg)
         if left < 0.0:
-            raise InvalidInputError("left_side_slope must be nonnegative.")
+            msg = "left_side_slope must be nonnegative."
+            raise InvalidInputError(msg)
         if right < 0.0:
-            raise InvalidInputError("right_side_slope must be nonnegative.")
+            msg = "right_side_slope must be nonnegative."
+            raise InvalidInputError(msg)
         if width == 0.0 and left == 0.0 and right == 0.0:
-            raise InvalidInputError("A zero-width channel requires at least one positive side slope.")
+            msg = "A zero-width channel requires at least one positive side slope."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "bottom_width", width)
         object.__setattr__(self, "left_side_slope", left)
         object.__setattr__(self, "right_side_slope", right)
@@ -107,21 +112,25 @@ def hydraulic_radius(section: OpenChannelSection, depth: float) -> float:
     violates the geometry contract and fails explicitly.
     """
     if not isinstance(section, OpenChannelSection):  # pyright: ignore[reportUnnecessaryIsInstance]
-        raise InvalidInputError("section must satisfy the OpenChannelSection protocol.")
+        msg = "section must satisfy the OpenChannelSection protocol."
+        raise InvalidInputError(msg)
     y: float = _depth(depth)
     area: float = finite(section.area(y), "area")
     perimeter: float = finite(section.wetted_perimeter(y), "wetted_perimeter")
     if area < 0.0 or perimeter < 0.0:
-        raise InvalidInputError("Open-channel area and wetted perimeter must be nonnegative.")
+        msg = "Open-channel area and wetted perimeter must be nonnegative."
+        raise InvalidInputError(msg)
     if area == 0.0:
         return 0.0
     if perimeter == 0.0:
-        raise InvalidInputError("A wet open-channel section requires positive wetted perimeter.")
+        msg = "A wet open-channel section requires positive wetted perimeter."
+        raise InvalidInputError(msg)
     return area / perimeter
 
 
 def _depth(depth: float) -> float:
     value: float = finite(depth, "depth")
     if value < 0.0:
-        raise InvalidInputError("depth must be nonnegative.")
+        msg = "depth must be nonnegative."
+        raise InvalidInputError(msg)
     return value

@@ -77,7 +77,7 @@ select = [
     # Imports.
     "I",      # isort
     "ICN",    # import conventions
-    "TID",    # tidy imports
+    # Internal imports deliberately remain package-relative where possible.
     # Code quality and maintainability.
     "A",      # built-in shadowing
     "ARG",    # unused arguments
@@ -98,7 +98,6 @@ select = [
     "TRY",    # exception-handling practices
     # Type annotations.
     "ANN",    # type annotation coverage
-    "TC",     # type-checking imports
     # Documentation.
     "D",      # pydocstyle
     # Logging.
@@ -124,22 +123,9 @@ ignore = [
     "E117",   # over-indented
     # The formatter cannot or should not wrap every valid construct.
     "E501",   # line too long
-    # Package-relative imports make internal dependencies explicit.
-    "TID252", # prefer absolute imports over parent-relative imports
-    # Keep exception messages at the validation site for domain context.
-    "EM101",  # string literal in exception
-    "EM102",  # f-string literal in exception
-    "TRY003", # long exception message outside exception class
-    # Python 3.14 evaluates annotations lazily; runtime imports remain explicit.
-    "TC001",  # application import used only for typing
-    "TC003",  # standard-library import used only for typing
-    "TC006",  # unquoted cast expression
     # Constructors and protocol methods inherit their public type documentation.
     "D105",   # missing docstring in magic method
     "D107",   # missing docstring in __init__
-    # Explicit branches and comparisons are clearer in numerical routines.
-    "SIM108", # use a ternary operator
-    "SIM109", # use membership instead of repeated equality
 ]
 
 [tool.ruff.lint.mccabe]

@@ -23,12 +23,15 @@ class RootTolerances:
         for name in ("x_abs", "x_rel"):
             value: float = finite(getattr(self, name), name)
             if value < 0:
-                raise InvalidInputError(f"{name} must be nonnegative.")
+                msg = f"{name} must be nonnegative."
+                raise InvalidInputError(msg)
             object.__setattr__(self, name, value)
         if self.x_abs == 0 and self.x_rel == 0:
-            raise InvalidInputError("At least one independent-variable tolerance must be positive.")
+            msg = "At least one independent-variable tolerance must be positive."
+            raise InvalidInputError(msg)
         if self.residual_abs is not None:
             value = finite(value=self.residual_abs, name="residual_abs")
             if value < 0:
-                raise InvalidInputError("residual_abs must be nonnegative.")
+                msg = "residual_abs must be nonnegative."
+                raise InvalidInputError(msg)
             object.__setattr__(self, "residual_abs", value)

@@ -22,7 +22,8 @@ class CircularGeometry(CrossSectionGeometry):
     def __post_init__(self) -> None:
         val: float = finite(self.diameter, "diameter")
         if val <= 0:
-            raise InvalidInputError("diameter must be strictly positive.")
+            msg = "diameter must be strictly positive."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "diameter", val)
 
     @classmethod
@@ -59,7 +60,8 @@ class CircularGeometry(CrossSectionGeometry):
         """Wetted flow area at the specified depth in square metres."""
         y: float = finite(depth, "depth")
         if y < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         if y == 0:
             return 0.0
         if y >= self.diameter:
@@ -74,7 +76,8 @@ class CircularGeometry(CrossSectionGeometry):
         """Wetted perimeter at the specified depth in metres."""
         y: float = finite(depth, "depth")
         if y < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         if y == 0:
             return 0.0
         if y >= self.diameter:
@@ -92,7 +95,8 @@ class CircularGeometry(CrossSectionGeometry):
         """
         y: float = finite(depth, "depth")
         if y < 0:
-            raise InvalidInputError("depth must be nonnegative.")
+            msg = "depth must be nonnegative."
+            raise InvalidInputError(msg)
         if y == 0 or y >= self.diameter:
             return 0.0
 
@@ -103,7 +107,8 @@ class CircularGeometry(CrossSectionGeometry):
         """Return the exact circular-segment hydrostatic first moment in cubic metres."""
         y: float = finite(depth, "depth")
         if y < 0.0 or y > self.diameter:
-            raise InvalidInputError("depth must be between zero and the geometry rise.")
+            msg = "depth must be between zero and the geometry rise."
+            raise InvalidInputError(msg)
         if y == 0.0:
             return 0.0
         radius = self.diameter / 2.0

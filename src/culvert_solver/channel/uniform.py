@@ -47,22 +47,28 @@ def calculate_channel_normal_depth(
     is commonly used only under the uniform-flow assumption.
     """
     if not isinstance(section, OpenChannelSection):  # pyright: ignore[reportUnnecessaryIsInstance]
-        raise InvalidInputError("section must satisfy the OpenChannelSection protocol.")
+        msg = "section must satisfy the OpenChannelSection protocol."
+        raise InvalidInputError(msg)
     q: float = finite(discharge, "discharge")
     if q < 0.0:
-        raise InvalidInputError("discharge must be nonnegative.")
+        msg = "discharge must be nonnegative."
+        raise InvalidInputError(msg)
     slope: float = finite(friction_slope, "friction_slope")
     if slope < 0.0:
-        raise InvalidInputError("friction_slope must be nonnegative.")
+        msg = "friction_slope must be nonnegative."
+        raise InvalidInputError(msg)
     n: float = finite(roughness, "roughness")
     if n <= 0.0:
-        raise InvalidInputError("roughness must be strictly positive.")
+        msg = "roughness must be strictly positive."
+        raise InvalidInputError(msg)
     accel: float = finite(g, "g")
     if accel <= 0.0:
-        raise InvalidInputError("g must be strictly positive.")
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
     upper: float = finite(initial_upper_depth, "initial_upper_depth")
     if upper <= 0.0:
-        raise InvalidInputError("initial_upper_depth must be strictly positive.")
+        msg = "initial_upper_depth must be strictly positive."
+        raise InvalidInputError(msg)
     expansion_limit: int = positive_integer(max_bracket_expansions, "max_bracket_expansions")
 
     if q == 0.0:
@@ -78,7 +84,8 @@ def calculate_channel_normal_depth(
             conveyance=0.0,
         )
     if slope == 0.0:
-        raise InvalidInputError("Normal depth is undefined for zero friction_slope with positive discharge.")
+        msg = "Normal depth is undefined for zero friction_slope with positive discharge."
+        raise InvalidInputError(msg)
 
     def residual(depth: float) -> float:
         area: float = section.area(depth)
@@ -90,8 +97,9 @@ def calculate_channel_normal_depth(
         upper *= 2.0
         expansions += 1
         if not math.isfinite(upper) or expansions >= expansion_limit:
+            msg = "Unable to bracket open-channel normal depth."
             raise ConvergenceError(
-                "Unable to bracket open-channel normal depth.",
+                msg,
                 bracket=(0.0, upper),
                 iterations=expansions,
             )

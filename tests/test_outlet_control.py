@@ -65,7 +65,7 @@ def test_entrance_loss_coefficient_validation() -> None:
         EntranceLossCoefficient(name="Invalid Ke", ke=-0.1)
 
     with pytest.raises(InvalidInputError, match="shape must be"):
-        EntranceLossCoefficient(name="Invalid Shape", ke=0.5, shape=cast(GeometryShape, "trapezoidal"))
+        EntranceLossCoefficient(name="Invalid Shape", ke=0.5, shape=cast("GeometryShape", "trapezoidal"))
 
 
 def test_exit_loss_selection_validation_and_override() -> None:

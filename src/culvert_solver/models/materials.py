@@ -96,20 +96,26 @@ class CulvertMaterial:
 
     def __post_init__(self) -> None:
         if not self.name.strip():
-            raise InvalidInputError("name must be nonempty text.")
+            msg = "name must be nonempty text."
+            raise InvalidInputError(msg)
         typ = finite(self.typical_n, "typical_n")
         if typ <= 0:
-            raise InvalidInputError("typical_n must be strictly positive.")
+            msg = "typical_n must be strictly positive."
+            raise InvalidInputError(msg)
         if len(self.range_n) != 2:
-            raise InvalidInputError("range_n must be a 2-tuple of (min_n, max_n).")
+            msg = "range_n must be a 2-tuple of (min_n, max_n)."
+            raise InvalidInputError(msg)
         min_n = finite(self.range_n[0], "range_n[0]")
         max_n = finite(self.range_n[1], "range_n[1]")
         if min_n <= 0:
-            raise InvalidInputError("range_n minimum must be strictly positive.")
+            msg = "range_n minimum must be strictly positive."
+            raise InvalidInputError(msg)
         if min_n > max_n:
-            raise InvalidInputError("range_n minimum cannot exceed maximum.")
+            msg = "range_n minimum cannot exceed maximum."
+            raise InvalidInputError(msg)
         if not min_n <= typ <= max_n:
-            raise InvalidInputError("typical_n must lie within range_n.")
+            msg = "typical_n must lie within range_n."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "typical_n", typ)
         object.__setattr__(self, "range_n", (min_n, max_n))
 
@@ -136,11 +142,14 @@ class ManningRoughnessSelection:
     def __post_init__(self) -> None:
         value = finite(self.value, "value")
         if value <= 0:
-            raise InvalidInputError("value must be strictly positive.")
+            msg = "value must be strictly positive."
+            raise InvalidInputError(msg)
         if not self.material_name.strip():
-            raise InvalidInputError("material_name must be nonempty text.")
+            msg = "material_name must be nonempty text."
+            raise InvalidInputError(msg)
         if self.basis is not RoughnessSelectionBasis.USER_OVERRIDE and self.source is None:
-            raise InvalidInputError("A library default must identify its source.")
+            msg = "A library default must identify its source."
+            raise InvalidInputError(msg)
         object.__setattr__(self, "value", value)
 
     @property
@@ -205,27 +214,31 @@ def resolve_csp_manning_roughness(
     if override is not None:
         override_value = finite(override, "override")
         if override_value <= 0:
-            raise InvalidInputError("override must be strictly positive.")
+            msg = "override must be strictly positive."
+            raise InvalidInputError(msg)
         return override_value
 
     diameter = finite(nominal_diameter_mm, "nominal_diameter_mm")
     if diameter <= 0:
-        raise InvalidInputError("nominal_diameter_mm must be strictly positive.")
+        msg = "nominal_diameter_mm must be strictly positive."
+        raise InvalidInputError(msg)
     try:
         selected_corrugation = CspCorrugation(corrugation)
     except TypeError, ValueError:
-        raise InvalidInputError("corrugation must be a recognized CspCorrugation value.") from None
+        msg = "corrugation must be a recognized CspCorrugation value."
+        raise InvalidInputError(msg) from None
 
     lookup_diameter = min(1950, diameter)
     for entry in MRWA_CSP_MANNING_TABLE:
         if entry.nominal_diameter_mm == lookup_diameter and entry.corrugation is selected_corrugation:
             return entry.manning_n
 
-    raise InvalidInputError(
+    msg = (
         "No MRWA Table 2.2 CSP Manning value exists for "
         f"diameter {diameter:g} mm and corrugation {selected_corrugation.value}. "
         "Supply a positive project or manufacturer override explicitly."
     )
+    raise InvalidInputError(msg)
 
 
 def resolve_manning_roughness(
@@ -252,21 +265,24 @@ def resolve_manning_roughness(
             source=override_source,
         )
     if override_source is not None:
-        raise InvalidInputError("override_source requires an override value.")
+        msg = "override_source requires an override value."
+        raise InvalidInputError(msg)
 
     if material == CONCRETE:
-        raise InvalidInputError(
+        msg = (
             "Generic concrete has no unambiguous roughness default; select "
             "CONCRETE_PIPE or CONCRETE_BOX, or provide an explicit override."
         )
+        raise InvalidInputError(msg)
 
     if material.manufacturer_roughness_required:
         if not allow_documented_fallback:
-            raise InvalidInputError(
+            msg = (
                 "Plastic-pipe Manning roughness must be supplied from the applicable "
                 "manufacturer. Pass an explicit override, or set allow_documented_fallback=True "
                 "to adopt the HDS-5 laboratory value with an applicability notice."
             )
+            raise InvalidInputError(msg)
         return ManningRoughnessSelection(
             value=material.typical_n,
             basis=RoughnessSelectionBasis.HDS5_DOCUMENTED_FALLBACK,
@@ -293,11 +309,11 @@ def resolve_manning_roughness(
 
     if material.contextual_roughness_required:
         if material != CORRUGATED_STEEL:
-            raise InvalidInputError(f"No contextual roughness resolver is registered for material {material.name!r}.")
+            msg = f"No contextual roughness resolver is registered for material {material.name!r}."
+            raise InvalidInputError(msg)
         if nominal_diameter_mm is None or csp_corrugation is None:
-            raise InvalidInputError(
-                "CSP preliminary roughness requires nominal_diameter_mm and csp_corrugation, or an explicit override."
-            )
+            msg = "CSP preliminary roughness requires nominal_diameter_mm and csp_corrugation, or an explicit override."
+            raise InvalidInputError(msg)
         return ManningRoughnessSelection(
             value=resolve_csp_manning_roughness(nominal_diameter_mm, csp_corrugation),
             basis=RoughnessSelectionBasis.MRWA_CSP_TABLE,

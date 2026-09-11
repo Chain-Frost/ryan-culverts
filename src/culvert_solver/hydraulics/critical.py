@@ -49,10 +49,12 @@ def calculate_critical_depth(
     """
     q: float = finite(discharge, "discharge")
     if q < 0:
-        raise InvalidInputError("discharge must be nonnegative.")
+        msg = "discharge must be nonnegative."
+        raise InvalidInputError(msg)
     accel: float = finite(g, "g")
     if accel <= 0:
-        raise InvalidInputError("g must be strictly positive.")
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
 
     if q == 0.0:
         return CriticalDepthResult(

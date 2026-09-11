@@ -926,11 +926,18 @@ Lint-baseline handoff (2026-09-11): Ruff is pinned to 0.16.6 for both the develo
 extra and `required-version`, and the expanded rule set passes repository-wide. Ruff's
 safe fixes and narrow manual cleanups sorted public exports, normalized annotations and
 docstring headings, used `pairwise` for adjacent values, and clarified tests without
-changing hydraulic equations. No unsafe fixes were used. Explicit policy exclusions
-retain package-relative imports, contextual exception messages, runtime imports, readable
-numerical branches, existing unhashable geometry, trusted fixed subprocess commands,
-cycle-breaking local imports, invariant assertions, and auditable decision-table
-complexity.
+changing hydraulic equations. A follow-up review exposed 678 unsafe candidates. Six
+locally equivalent simplifications were applied: five single-assignment conditional
+expressions and one float equality membership check. Five safe `cast` annotation quoting
+fixes found during the same review were also applied. The other 672 unsafe candidates were
+reviewed again against the repository policy. The 315 absolute package-import rewrites
+were rejected and the `TID` selector removed because internal imports should remain
+package-relative where possible. The 75 type-only import moves were rejected and the `TC`
+selector removed because runtime import reduction is not a repository requirement. All
+282 exception-message rewrites were applied, retaining each exception type and text while
+moving its message into a local `msg` variable. Explicit policy exclusions still retain
+existing unhashable geometry, trusted fixed subprocess commands, cycle-breaking local
+imports, invariant assertions, and auditable decision-table complexity.
 
 Verification: `python -m pytest -q` passed 333 tests; `python -m ruff check .` passed;
 `python -m ruff format --check .` reported 115 files already formatted; `python -m
