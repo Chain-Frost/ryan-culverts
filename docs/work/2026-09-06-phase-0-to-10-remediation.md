@@ -946,6 +946,27 @@ scan -r README.md docs AGENTS.md`, `python -m mkdocs build --strict`, `git diff 
 and `git diff --cached --check` passed. The remaining contribution, private security
 reporting, dependency-update, and branch-protection work stays deferred.
 
+VS Code and Ruff pinning decision (2026-09-11): keep the Ruff engine pinned to `0.16.6`
+in both the development extra and `tool.ruff.required-version`. The office workflow does
+not use a virtual environment. Workspace settings must not hard-code
+`python.defaultInterpreterPath` or `ruff.interpreter`; developers select their installed
+Python interpreter in VS Code, while the Ruff extension uses `fromEnvironment`, gives the
+filesystem configuration precedence, and enables Ruff formatting on save. The
+Marketplace extension is a separate, administratively installed component whose exact
+approved version is selected in VS Code; the locally inspected version was
+`charliermarsh.ruff@2026.78.0`. A repository extension recommendation cannot enforce that
+Marketplace version.
+
+Corporate application control must approve the user-site Ruff executable, currently
+`C:\Users\Ryan.Brook\AppData\Roaming\Python\Python314\Scripts\ruff.exe`. Environment
+discovery can fall back to the extension-bundled executable if Ruff is unavailable, but
+the repository `required-version` check fails closed when that executable is not version
+`0.16.6`; it does not install or switch versions. Both the user-site and bundled Ruff
+executables were denied by the current Windows policy during this review, so no Ruff
+execution is claimed. No hydraulic code or equations changed, and the test suite and HY-8
+executable comparison were not run. `python -m pymarkdown -d MD013 scan
+docs/work/2026-09-06-phase-0-to-10-remediation.md` and `git diff --check` passed.
+
 ## CS-022 - Optional GitHub Release distribution
 
 Status: Optional. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-12-01.

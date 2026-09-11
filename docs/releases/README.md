@@ -2,7 +2,7 @@
 
 ## Current packaged release
 
-Version `26.9.9.2` was built locally for packaging and integration testing on 2026-09-09.
+Version `26.9.11.1` was built locally for packaging and integration testing on 2026-09-11.
 It remains an alpha package, is not engineering design software, and has not been published
 to a package index. The artifact of record is the pure-Python `py3-none-any` wheel under
 `dist/`; Python 3.14 is its tested interpreter baseline.
@@ -12,11 +12,14 @@ are not in this wheel. Creating the next wheel must increment the calendar versi
 
 ## Included capability
 
-- Typed SI geometry and hydraulic primitives for circular and rectangular culverts.
+- Typed SI geometry and hydraulic primitives for circular, rectangular, and filleted
+  rectangular culverts, plus rectangular and asymmetric trapezoidal receiving channels.
 - Critical depth, normal depth, HDS-5 inlet-control branches, full-flow losses, and
   supported direct-step outlet-control profiles.
-- Provisional barrel, identical-barrel group, mixed-group crossing, rating-curve, and
-  road-level inventory calculations.
+- Provisional barrel, identical-barrel group, mixed-group crossing, rating-curve, inverse
+  discharge-for-headwater, constant-crest roadway-overtopping, and road-level inventory
+  calculations.
+- Fixed and discharge-dependent Manning normal-depth tailwater boundaries.
 - Structured convergence records, adopted coefficient and roughness provenance, hydraulic
   warnings, and applicability notices.
 
@@ -35,8 +38,9 @@ comparison evidence and does not define correctness. The combined solver remains
 provisional; review the [computational basis](../computational_basis.md) and
 [validation record](../validation.md) before interpreting results.
 
-The packaged `26.9.9.2` artifact does not include roadway overtopping, design-option search,
-uncertainty analysis, plotting, GIS integration, or a versioned JSON/spreadsheet interface.
+The packaged `26.9.11.1` artifact does not include design-option search, irregular or
+submerged roadway crests, user-supplied tailwater rating tables, uncertainty analysis,
+plotting, GIS integration, or a versioned JSON/spreadsheet interface.
 Supported shapes, inlets, materials, and profile families remain deliberately limited.
 
 ## Installation
