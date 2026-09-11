@@ -31,6 +31,7 @@ from culvert_solver.outlet_control.losses import (
     PIPE_CMP_PROJECTING,
     PIPE_CONCRETE_SQUARE_EDGE,
 )
+from culvert_solver.solver.config import SolverConfiguration
 from culvert_solver.solver.resolvers import (
     resolve_entrance_loss_coefficient,
     resolve_inlet_coefficients,
@@ -336,8 +337,6 @@ class TestResolverConfiguration:
     """Test injecting custom SolverConfiguration into resolvers."""
 
     def test_inlet_custom_configuration(self) -> None:
-        from culvert_solver.solver.config import SolverConfiguration
-
         # Create a custom config that replaces concrete circular with CMP
         config = SolverConfiguration(default_circular_concrete_inlet=CIRCULAR_CMP_HEADWALL)
         barrel = _circular_barrel(material=CONCRETE)
@@ -346,8 +345,6 @@ class TestResolverConfiguration:
         assert result.coefficients is CIRCULAR_CMP_HEADWALL
 
     def test_entrance_loss_custom_configuration(self) -> None:
-        from culvert_solver.solver.config import SolverConfiguration
-
         config = SolverConfiguration(default_circular_concrete_loss=PIPE_CMP_PROJECTING)
         barrel = _circular_barrel(material=CONCRETE)
 
@@ -373,12 +370,15 @@ class TestResolverConfiguration:
                 return 1.0
 
             def area(self, depth: float) -> float:
+                del depth
                 return 1.0
 
             def wetted_perimeter(self, depth: float) -> float:
+                del depth
                 return 1.0
 
             def top_width(self, depth: float) -> float:
+                del depth
                 return 1.0
 
         barrel = CulvertBarrel(

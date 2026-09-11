@@ -82,7 +82,7 @@ def determine_governing_regime(
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
-    Returns
+    Returns:
     -------
     BarrelHydraulicResult
         Complete hydraulic result for the barrel including governing regime,

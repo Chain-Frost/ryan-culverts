@@ -116,7 +116,7 @@ def calculate_full_flow_outlet_headwater(
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
-    Returns
+    Returns:
     -------
     FullFlowOutletResult
         Comprehensive hydraulic result including headwater depth, headwater elevation,

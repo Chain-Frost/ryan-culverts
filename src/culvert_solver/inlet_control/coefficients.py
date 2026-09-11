@@ -37,8 +37,8 @@ class InletCoefficients:
     def __post_init__(self) -> None:
         if not self.name.strip():
             raise InvalidInputError("name must be nonempty text.")
-        chart_val: None | int = None if self.chart is None else positive_integer(self.chart, "chart")
-        scale_val: None | int = None if self.scale is None else positive_integer(self.scale, "scale")
+        chart_val: int | None = None if self.chart is None else positive_integer(self.chart, "chart")
+        scale_val: int | None = None if self.scale is None else positive_integer(self.scale, "scale")
         try:
             form_val = InletEquationForm(self.form)
         except (TypeError, ValueError) as exc:

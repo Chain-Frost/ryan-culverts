@@ -25,8 +25,8 @@ def test_circular_creation_and_immutability() -> None:
     assert c.wetted_perimeter_full == pytest.approx(math.pi * 1.2)
     assert c.hydraulic_radius_full == pytest.approx(1.2 / 4.0)
 
+    field = "diameter"
     with pytest.raises(FrozenInstanceError):
-        field = "diameter"
         setattr(c, field, 1.5)
 
 
@@ -132,8 +132,8 @@ def test_rectangular_creation_and_immutability() -> None:
     assert box != RectangularGeometry(span=2.0, rise=1.2)
     assert box != "not-a-geometry"
 
+    field = "span"
     with pytest.raises(AttributeError):
-        field = "span"
         setattr(box, field, 3.0)
 
 
@@ -143,7 +143,7 @@ def test_rectangular_from_mm() -> None:
     assert box.rise == pytest.approx(1.2)
 
 
-@pytest.mark.parametrize("s,r", [(0, 1), (-1, 1), (1, 0), (1, -1), (math.nan, 1), (1, math.inf)])
+@pytest.mark.parametrize(("s", "r"), [(0, 1), (-1, 1), (1, 0), (1, -1), (math.nan, 1), (1, math.inf)])
 def test_rectangular_invalid_dimensions(s: float, r: float) -> None:
     with pytest.raises(InvalidInputError):
         RectangularGeometry(span=s, rise=r)

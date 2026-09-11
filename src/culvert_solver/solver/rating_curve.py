@@ -71,7 +71,7 @@ def generate_discharge_range(
     num_points : int, default=11
         Number of points in sequence, must be at least 2.
 
-    Returns
+    Returns:
     -------
     tuple[float, ...]
         Linearly spaced sequence of discharges.
@@ -121,7 +121,7 @@ def generate_barrel_rating_curve(
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
-    Returns
+    Returns:
     -------
     RatingCurveResult
         Rating curve points sorted by discharge.
@@ -190,7 +190,7 @@ def generate_crossing_rating_curve(
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
-    Returns
+    Returns:
     -------
     RatingCurveResult
         Rating curve points sorted by discharge.

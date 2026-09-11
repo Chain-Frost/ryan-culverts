@@ -50,7 +50,7 @@ def solve_group_hydraulics(
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
-    Returns
+    Returns:
     -------
     GroupHydraulicResult
         Hydraulic solution for the group and its representative single barrel.

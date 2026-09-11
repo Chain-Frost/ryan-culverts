@@ -63,14 +63,14 @@ class TailwaterResolution:
         discharge: float = _nonnegative_discharge(self.discharge)
         if not isinstance(self.method, TailwaterMethod):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise InvalidInputError("method must be a TailwaterMethod.")
-        invert: None | float = (
+        invert: float | None = (
             None
             if self.channel_invert_elevation is None
             else finite(self.channel_invert_elevation, "channel_invert_elevation")
         )
-        depth: None | float = None if self.depth is None else finite(self.depth, "depth")
-        roughness: None | float = None if self.roughness is None else finite(self.roughness, "roughness")
-        slope: None | float = None if self.friction_slope is None else finite(self.friction_slope, "friction_slope")
+        depth: float | None = None if self.depth is None else finite(self.depth, "depth")
+        roughness: float | None = None if self.roughness is None else finite(self.roughness, "roughness")
+        slope: float | None = None if self.friction_slope is None else finite(self.friction_slope, "friction_slope")
         for name in (
             "method_source",
             "roughness_source",

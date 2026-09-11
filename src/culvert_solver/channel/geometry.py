@@ -38,13 +38,16 @@ class RectangularChannel:
         object.__setattr__(self, "bottom_width", width)
 
     def area(self, depth: float) -> float:
+        """Return wetted flow area in square metres."""
         return self.bottom_width * _depth(depth)
 
     def wetted_perimeter(self, depth: float) -> float:
+        """Return wetted perimeter in metres."""
         y: float = _depth(depth)
         return 0.0 if y == 0.0 else self.bottom_width + 2.0 * y
 
     def top_width(self, depth: float) -> float:
+        """Return free-surface top width in metres."""
         _depth(depth)
         return self.bottom_width
 
@@ -78,10 +81,12 @@ class TrapezoidalChannel:
         object.__setattr__(self, "right_side_slope", right)
 
     def area(self, depth: float) -> float:
+        """Return wetted flow area in square metres."""
         y: float = _depth(depth)
         return self.bottom_width * y + 0.5 * (self.left_side_slope + self.right_side_slope) * y * y
 
     def wetted_perimeter(self, depth: float) -> float:
+        """Return wetted perimeter in metres."""
         y: float = _depth(depth)
         if y == 0.0:
             return 0.0
@@ -90,6 +95,7 @@ class TrapezoidalChannel:
         )
 
     def top_width(self, depth: float) -> float:
+        """Return free-surface top width in metres."""
         y: float = _depth(depth)
         return self.bottom_width + (self.left_side_slope + self.right_side_slope) * y
 

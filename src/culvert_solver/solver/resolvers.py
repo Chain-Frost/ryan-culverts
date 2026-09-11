@@ -108,7 +108,7 @@ def resolve_inlet_coefficients(
     configuration : SolverConfiguration | None, optional
         Project configuration supplying defaults. Uses library defaults if None.
 
-    Returns
+    Returns:
     -------
     InletCoefficientSelection
         Resolved coefficients with selection basis and source provenance.
@@ -191,7 +191,7 @@ def resolve_entrance_loss_coefficient(
     configuration : SolverConfiguration | None, optional
         Project configuration supplying defaults. Uses library defaults if None.
 
-    Returns
+    Returns:
     -------
     EntranceLossSelection
         Resolved Ke with selection basis and source provenance.

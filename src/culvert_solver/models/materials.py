@@ -216,7 +216,7 @@ def resolve_csp_manning_roughness(
     except TypeError, ValueError:
         raise InvalidInputError("corrugation must be a recognized CspCorrugation value.") from None
 
-    lookup_diameter = 1950 if diameter >= 1950 else diameter
+    lookup_diameter = min(1950, diameter)
     for entry in MRWA_CSP_MANNING_TABLE:
         if entry.nominal_diameter_mm == lookup_diameter and entry.corrugation is selected_corrugation:
             return entry.manning_n

@@ -1,6 +1,7 @@
 """Direct-step method for free-surface water profile computation in prismatic culverts."""
 
 from dataclasses import dataclass
+from itertools import pairwise
 
 from .._validation import finite, positive_integer
 from ..constants import GRAVITATIONAL_ACCELERATION
@@ -300,7 +301,7 @@ def _interpolate_profile_depth(points: tuple[ProfilePoint, ...], station: float)
         return points[0].water_depth
     if station >= points[-1].station:
         return points[-1].water_depth
-    for first, second in zip(points, points[1:], strict=False):
+    for first, second in pairwise(points):
         if first.station <= station <= second.station:
             fraction: float = (station - first.station) / (second.station - first.station)
             return first.water_depth + fraction * (second.water_depth - first.water_depth)
@@ -476,13 +477,13 @@ def compute_backwater_profile(
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
-    Returns
+    Returns:
     -------
     WaterSurfaceProfile
         Computed profile points ordered from inlet (station 0.0) to outlet (station L),
         governing curve type, and upstream headwater elevation.
 
-    Notes
+    Notes:
     -----
     This routine supports free-surface backwater curves and an upstream full-flow
     continuation when an M2 profile reaches the crown. A submerged outlet alone does
@@ -497,10 +498,7 @@ def compute_backwater_profile(
         raise InvalidInputError("num_steps must be at least 5.")
 
     tw_elev: float
-    if isinstance(tailwater, TailwaterCondition):
-        tw_elev = tailwater.elevation
-    else:
-        tw_elev = finite(tailwater, "tailwater")
+    tw_elev = tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
 
     ke: float
     if isinstance(entrance_loss_coefficient, EntranceLossCoefficient):

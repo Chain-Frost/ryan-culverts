@@ -88,7 +88,7 @@ def test_complete_mrwa_csp_manning_lookup(
     assert len(MRWA_CSP_MANNING_TABLE) == 27
     for corrugation, expected_n in zip(corrugations, expected_values, strict=True):
         if expected_n is None:
-            with pytest.raises(InvalidInputError, match="No MRWA Table 2.2"):
+            with pytest.raises(InvalidInputError, match=r"No MRWA Table 2\.2"):
                 resolve_csp_manning_roughness(diameter_mm, corrugation)
         else:
             assert resolve_csp_manning_roughness(diameter_mm, corrugation) == pytest.approx(expected_n)
@@ -99,9 +99,9 @@ def test_mrwa_csp_larger_row_and_string_enum_value() -> None:
 
 
 def test_mrwa_csp_manning_lookup_fails_closed_but_allows_override() -> None:
-    with pytest.raises(InvalidInputError, match="No MRWA Table 2.2"):
+    with pytest.raises(InvalidInputError, match=r"No MRWA Table 2\.2"):
         resolve_csp_manning_roughness(600, CspCorrugation.PITCH_75_DEPTH_25)
-    with pytest.raises(InvalidInputError, match="No MRWA Table 2.2"):
+    with pytest.raises(InvalidInputError, match=r"No MRWA Table 2\.2"):
         resolve_csp_manning_roughness(500, CspCorrugation.PITCH_68_DEPTH_13)
 
     assert resolve_csp_manning_roughness(
@@ -425,12 +425,10 @@ def test_domain_models_immutability() -> None:
     group = CulvertGroup(barrel=barrel, quantity=2)
     tw = TailwaterCondition(elevation=10.0)
 
-    with pytest.raises(FrozenInstanceError):
-        field = "length"
-        setattr(barrel, field, 40.0)
-    with pytest.raises(FrozenInstanceError):
-        field = "quantity"
-        setattr(group, field, 4)
-    with pytest.raises(FrozenInstanceError):
-        field = "elevation"
-        setattr(tw, field, 12.0)
+    for instance, field, value in (
+        (barrel, "length", 40.0),
+        (group, "quantity", 4),
+        (tw, "elevation", 12.0),
+    ):
+        with pytest.raises(FrozenInstanceError):
+            setattr(instance, field, value)

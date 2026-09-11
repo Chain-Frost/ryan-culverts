@@ -25,11 +25,11 @@ __all__ = [
     "generate_barrel_rating_curve",
     "generate_crossing_rating_curve",
     "generate_discharge_range",
-    "solve_barrel_hydraulics",
     "solve_barrel_discharge_for_headwater",
     "solve_barrel_discharge_for_headwater_ratio",
+    "solve_barrel_hydraulics",
     "solve_crossing_discharge_for_headwater",
     "solve_crossing_hydraulics",
-    "solve_group_hydraulics",
     "solve_group_discharge_for_headwater",
+    "solve_group_hydraulics",
 ]

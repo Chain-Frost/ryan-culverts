@@ -38,7 +38,7 @@ dev = [
     "pymarkdownlnt>=0.9.39",
     "pyright>=1.1.410",
     "pytest>=9",
-    "ruff>=0.15",
+    "ruff==0.16.6",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -57,8 +57,142 @@ pythonVersion = "3.14"
 typeCheckingMode = "strict"
 
 [tool.ruff]
+required-version = "==0.16.6"
 target-version = "py314"
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]
+select = [
+    # Core correctness and Python errors.
+    "E",      # pycodestyle errors
+    "F",      # Pyflakes
+    "B",      # flake8-bugbear
+    "PLE",    # Pylint errors
+    "PLW",    # Pylint warnings
+    "RUF",    # Ruff-specific rules
+    # Modern Python.
+    "UP",     # pyupgrade
+    "FURB",   # refurb
+    "FLY",    # flynt-style string improvements
+    # Imports.
+    "I",      # isort
+    "ICN",    # import conventions
+    "TID",    # tidy imports
+    # Code quality and maintainability.
+    "A",      # built-in shadowing
+    "ARG",    # unused arguments
+    "BLE",    # broad exception handling
+    "C4",     # comprehensions
+    "C90",    # McCabe complexity
+    "EM",     # exception-message style
+    "ERA",    # commented-out code
+    "ISC",    # implicit string concatenation
+    "N",      # naming conventions
+    "PERF",   # performance
+    "PGH",    # pygrep-hooks / code hygiene
+    "PIE",    # miscellaneous Python improvements
+    "PLC",    # Pylint convention
+    "RET",    # return-statement improvements
+    "RSE",    # raise-statement improvements
+    "SIM",    # simplification
+    "TRY",    # exception-handling practices
+    # Type annotations.
+    "ANN",    # type annotation coverage
+    "TC",     # type-checking imports
+    # Documentation.
+    "D",      # pydocstyle
+    # Logging.
+    "G",      # logging-format checks
+    "LOG",    # logging-specific checks
+    # Security.
+    "S",      # flake8-bandit
+    # Filesystem and general hygiene.
+    "EXE",    # executable/shebang checks
+    "PTH",    # pathlib usage
+    "T10",    # debugger statements
+    "YTT",    # sys.version checks
+    # Testing.
+    "PT",     # pytest style and correctness
+]
+
+ignore = [
+    # Ruff formatter compatibility.
+    "D206",   # docstring tab indentation
+    "D300",   # triple-single-quoted docstrings
+    "E111",   # indentation with invalid multiple
+    "E114",   # indentation with invalid multiple in comments
+    "E117",   # over-indented
+    # The formatter cannot or should not wrap every valid construct.
+    "E501",   # line too long
+    # Package-relative imports make internal dependencies explicit.
+    "TID252", # prefer absolute imports over parent-relative imports
+    # Keep exception messages at the validation site for domain context.
+    "EM101",  # string literal in exception
+    "EM102",  # f-string literal in exception
+    "TRY003", # long exception message outside exception class
+    # Python 3.14 evaluates annotations lazily; runtime imports remain explicit.
+    "TC001",  # application import used only for typing
+    "TC003",  # standard-library import used only for typing
+    "TC006",  # unquoted cast expression
+    # Constructors and protocol methods inherit their public type documentation.
+    "D105",   # missing docstring in magic method
+    "D107",   # missing docstring in __init__
+    # Explicit branches and comparisons are clearer in numerical routines.
+    "SIM108", # use a ternary operator
+    "SIM109", # use membership instead of repeated equality
+]
+
+[tool.ruff.lint.mccabe]
+# Allow moderately complex engineering/numerical routines before requiring refactoring.
+max-complexity = 15
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "D",      # Test functions do not need production-quality docstrings.
+    "S101",   # assert is expected in pytest tests.
+]
+
+"scripts/**/*.py" = [
+    "ERA",    # Utility/wrapper scripts may intentionally retain commented-out code.
+]
+"scripts/build_package.py" = [
+    "S603",   # Runs fixed interpreter/build commands assembled by this repository.
+    "TRY004", # Invalid TOML content is reported consistently as ValueError.
+]
+"scripts/install_latest_wheel.py" = [
+    "S603",   # Runs a fixed pip command with a locally selected wheel path.
+]
+"scripts/verify_wheel.py" = [
+    "TRY004", # Invalid wheel metadata is reported consistently as ValueError.
+]
+"src/culvert_solver/geometry/filleted_rectangular.py" = [
+    "PLW1641", # Equality is intentional; retain the existing unhashable contract.
+]
+"src/culvert_solver/geometry/rectangular.py" = [
+    "PLW1641", # Equality is intentional; retain the existing unhashable contract.
+]
+"src/culvert_solver/inlet_control/modern_box.py" = [
+    "C901",   # Applicability decision table is clearer as one auditable routine.
+]
+"src/culvert_solver/models/barrel.py" = [
+    "C901",   # Validation branches preserve field-specific failures.
+    "PLC0415", # Local imports avoid package import cycles during validation.
+]
+"src/culvert_solver/models/collection.py" = [
+    "C901",   # Inventory reconstruction keeps validation and provenance together.
+    "S101",   # Assertions narrow invariants established by the parameter-set key.
+]
+"src/culvert_solver/profiles/direct_step.py" = [
+    "C901",   # Profile routing remains one traceable numerical procedure.
+]
+"src/culvert_solver/solver/regime.py" = [
+    "C901",   # Regime selection remains one auditable decision procedure.
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

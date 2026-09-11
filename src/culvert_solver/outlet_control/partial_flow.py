@@ -57,7 +57,7 @@ def calculate_partial_flow_outlet_headwater(
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
-    Returns
+    Returns:
     -------
     PartialFlowOutletResult
         Comprehensive partial-flow outlet control result including full profile points.

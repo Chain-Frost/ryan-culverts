@@ -272,7 +272,7 @@ def solve_crossing_hydraulics(
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
-    Returns
+    Returns:
     -------
     CrossingHydraulicResult
         Hydraulic solution for the entire crossing and each constituent culvert group.
@@ -411,7 +411,7 @@ def solve_crossing_hydraulics(
         )
         group_results.append(g_res)
 
-    roadway_result: None | RoadwayOvertoppingResult = (
+    roadway_result: RoadwayOvertoppingResult | None = (
         None
         if crossing.roadway is None
         else calculate_roadway_overtopping(

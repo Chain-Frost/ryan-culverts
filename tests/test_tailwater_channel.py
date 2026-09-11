@@ -81,5 +81,6 @@ def test_explicit_method_source_is_retained() -> None:
 def test_manning_tailwater_stage_increases_with_discharge() -> None:
     low = _boundary().resolve(2.0)
     high = _boundary().resolve(10.0)
-    assert low.depth is not None and high.depth is not None
+    assert low.depth is not None
+    assert high.depth is not None
     assert high.depth > low.depth

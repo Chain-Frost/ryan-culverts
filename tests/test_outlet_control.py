@@ -185,7 +185,7 @@ def test_full_flow_circular_submerged_outlet() -> None:
 
     # HW_elev = HGL_out + H = 11.0 + H
     assert result.headwater_elevation == pytest.approx(11.0 + h_total_expected, rel=1e-5)
-    # HW_depth = HW_elev - 10.0
+    # Headwater depth is the headwater elevation minus the 10.0 m inlet invert.
     assert result.headwater_depth == pytest.approx(1.0 + h_total_expected, rel=1e-5)
 
 

@@ -47,12 +47,12 @@ def solve_barrel_hydraulics(
     g : float, default=GRAVITATIONAL_ACCELERATION
         Gravitational acceleration (m/s²).
 
-    Returns
+    Returns:
     -------
     BarrelHydraulicResult
         Hydraulic result including the selected regime, headwater, and outlet velocity.
 
-    Notes
+    Notes:
     -----
     Hydraulic jumps and mixed free-surface/pressurised profiles are not yet supported.
     """

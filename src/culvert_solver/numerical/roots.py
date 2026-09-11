@@ -112,7 +112,7 @@ def solve_brent(
     max_iterations : int, default=100
         Maximum allowed iterations, strictly positive.
 
-    Returns
+    Returns:
     -------
     RootResult
         Converged root, residual, enclosing bracket, and iteration count.

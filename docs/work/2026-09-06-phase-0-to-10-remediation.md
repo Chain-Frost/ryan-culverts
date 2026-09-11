@@ -912,7 +912,7 @@ and package metadata links documentation and the changelog.
 
 ## CS-021 - Repository maintenance guidance
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-11. Next review: 2026-09-20.
 
 Boundary: add concise contribution and security-reporting guidance, dependency-update
 configuration, and documented branch-protection expectations appropriate to a small
@@ -921,6 +921,23 @@ maintained repository. Avoid enterprise process that does not reduce an identifi
 Acceptance criteria: contributors can reproduce checks, hydraulic defects have a private
 reporting path where necessary, automated dependency changes run the normal CI, and the
 documented main-branch rules match GitHub settings.
+
+Lint-baseline handoff (2026-09-11): Ruff is pinned to 0.16.6 for both the development
+extra and `required-version`, and the expanded rule set passes repository-wide. Ruff's
+safe fixes and narrow manual cleanups sorted public exports, normalized annotations and
+docstring headings, used `pairwise` for adjacent values, and clarified tests without
+changing hydraulic equations. No unsafe fixes were used. Explicit policy exclusions
+retain package-relative imports, contextual exception messages, runtime imports, readable
+numerical branches, existing unhashable geometry, trusted fixed subprocess commands,
+cycle-breaking local imports, invariant assertions, and auditable decision-table
+complexity.
+
+Verification: `python -m pytest -q` passed 333 tests; `python -m ruff check .` passed;
+`python -m ruff format --check .` reported 115 files already formatted; `python -m
+pyright` reported zero errors, warnings, or information; `python -m pymarkdown -d MD013
+scan -r README.md docs AGENTS.md`, `python -m mkdocs build --strict`, `git diff --check`,
+and `git diff --cached --check` passed. The remaining contribution, private security
+reporting, dependency-update, and branch-protection work stays deferred.
 
 ## CS-022 - Optional GitHub Release distribution
 

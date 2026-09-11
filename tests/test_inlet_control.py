@@ -2,6 +2,7 @@
 
 import math
 from dataclasses import FrozenInstanceError
+from itertools import pairwise
 from typing import cast
 
 import pytest
@@ -88,7 +89,7 @@ def test_standard_inlet_transitions_are_monotonic_and_tangent(
         return result.headwater_depth / geometry.rise
 
     values = [dimensionless_headwater(3.5 + index * 0.01) for index in range(51)]
-    assert all(first <= second for first, second in zip(values, values[1:], strict=False))
+    assert all(first <= second for first, second in pairwise(values))
 
     epsilon = 1e-4
     left_low = (dimensionless_headwater(3.5) - dimensionless_headwater(3.5 - epsilon)) / epsilon
@@ -348,16 +349,17 @@ def test_zero_discharge_inlet_control() -> None:
 
 def test_inlet_coefficients_immutability_and_validation() -> None:
     coeffs = CIRCULAR_CONCRETE_SQUARE_EDGE
+    field = "k"
     with pytest.raises(FrozenInstanceError):
-        field = "k"
         setattr(coeffs, field, 0.02)
 
+    invalid_form = cast(InletEquationForm, 3)
     with pytest.raises(InvalidInputError):
         InletCoefficients(
             name="Bad Form",
             chart=1,
             scale=1,
-            form=cast(InletEquationForm, 3),
+            form=invalid_form,
             k=0.01,
             m=2.0,
             c=0.04,
