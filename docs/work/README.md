@@ -20,11 +20,18 @@ Recommended order:
 3. CS-012 performs release checks only for a deliberate wheel handoff.
 4. CS-013 and CS-034 have completed their bounded implementations.
 5. CS-014 was split before implementation; CS-030 through CS-033 own its former scope.
-6. CS-015 and CS-022 through CS-033 preserve future work.
+6. CS-015 and the remaining core-hydraulic tasks preserve future work.
 
 CS-015 and the split NCHRP tasks must not be folded silently into the current equations
 or release claim. Reopen CS-013 only if corrected source evidence changes its bounded
 catalogue or validation.
+
+Application-level culvert project configuration, design-option search, reporting,
+plotting, and GUI work now belongs in `ryan-tools`. In particular, project/scenario
+configuration is tracked by `ryan-tools` issue #81, design-option/minimum-size search by
+issue #82, CLI/reporting by issue #83, and plotting/GUI by issue #84. Do not re-create
+those application layers inside `ryan-culverts`. Core hydraulic capabilities required by
+those consumers remain here.
 
 Before handoff, run focused tests for edited modules and record their exact commands and
 results. The ordinary repository checks are:
@@ -67,13 +74,13 @@ or create a release artifact merely to complete an earlier task.
 
 | ID | Status | Owner | Updated | Next review | Next action |
 | --- | --- | --- | --- | --- | --- |
-| CS-009 | Deferred | Unassigned | 2026-09-06 | 2026-09-20 | Define a versioned JSON/configuration boundary only when a consumer requires it. |
+| CS-009 | Core-only deferred | Unassigned | 2026-09-12 | 2026-09-20 | Keep project/scenario configuration in `ryan-tools` #81; add core serialization only if a stable hydraulic-object interchange contract is later required. |
 | CS-014 | Split | Unassigned | 2026-09-10 | 2026-09-20 | Do not implement this umbrella; use CS-030 through CS-033. |
 | CS-015 | Pending source clarification | Unassigned | 2026-09-09 | 2026-09-20 | Resolve the AGRD05B-23 Section 3.15.1 velocity inconsistency before numerical use. |
 | CS-021 | Deferred | Unassigned | 2026-09-12 | 2026-09-20 | Maintain `ruff.toml` and the recorded rule boundaries; add remaining maintenance guidance only when requested. |
 | CS-022 | Optional | Unassigned | 2026-09-09 | 2026-12-01 | Reconsider GitHub Releases only if the Git-pulled office checkout no longer meets user needs. |
-| CS-023 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Define design-option enumeration and minimum-size search as a separate consumer of the solver. |
-| CS-024 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add optional plotting without presentation dependencies in the hydraulic core. |
+| CS-023 | Moved downstream | Unassigned | 2026-09-12 | 2026-09-20 | Do not implement design-option search here; `ryan-tools` #82 owns candidate generation, design criteria, feasibility and ranking. |
+| CS-024 | Moved downstream | Unassigned | 2026-09-12 | 2026-09-20 | Do not add plotting dependencies here; `ryan-tools` #84 owns plotting/GUI while core result completeness is tracked in GitHub issue #9. |
 | CS-025 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Prioritise and add supported shapes and materials independently of design automation. |
 | CS-026 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Research and model debris and blockage scenarios with explicit applicability limits. |
 | CS-027 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add uncertainty and sensitivity analysis over explicit input distributions. |
@@ -83,6 +90,22 @@ or create a release artifact merely to complete an earlier task.
 | CS-031 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Model downstream receiving-section area before adding Borda-Carnot exit loss. |
 | CS-032 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Research and model buried-invert geometry without using rejected embedded coefficients. |
 | CS-033 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Add depth-dependent roughness only with an explicit supported applicability model. |
+
+## Repository-review follow-up
+
+The 2026-09-12 repository review identified additional work that is tracked as GitHub
+issues rather than new CS identifiers:
+
+- #5 synchronises packaged version and release documentation;
+- #6 reconciles public API documentation with implemented capabilities;
+- #7 adds machine-readable hydraulic result validity/severity;
+- #8 adds independent heterogeneous-crossing and rating-curve validation;
+- #9 adds longitudinal HGL/EGL data for full and pressurised reaches; and
+- #10 exposes representative-barrel/equal-flow applicability limits.
+
+Issues #1 through #4 continue to track discharge-dependent inverse tailwater, user-supplied
+tailwater rating curves, additional standard shapes/materials, and advanced roadway
+overtopping respectively.
 
 Agents must update the status, owner, date, next review, and next action when
 taking over or handing off a task. Do not mark a task complete solely because
