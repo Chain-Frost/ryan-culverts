@@ -8,10 +8,14 @@ from culvert_solver.geometry.rectangular import RectangularGeometry
 from culvert_solver.inlet_control.coefficients import CIRCULAR_CONCRETE_SQUARE_EDGE
 from culvert_solver.models.barrel import CulvertBarrel
 from culvert_solver.models.crossing import CulvertCrossing
-from culvert_solver.models.enums import ConvergenceCalculation
+from culvert_solver.models.enums import ApplicabilityNoticeCode, ConvergenceCalculation
 from culvert_solver.models.group import CulvertGroup
 from culvert_solver.models.materials import CONCRETE
-from culvert_solver.models.results import FlowRegime, GroupHydraulicResult
+from culvert_solver.models.results import (
+    NCHRP_734_REPRESENTATIVE_BARREL,
+    FlowRegime,
+    GroupHydraulicResult,
+)
 from culvert_solver.models.tailwater import TailwaterCondition
 from culvert_solver.solver.crossing import (
     solve_barrel_discharge_for_headwater,
@@ -47,6 +51,28 @@ def test_solve_group_hydraulics() -> None:
     assert res.barrel_discharge == pytest.approx(2.0)
     assert res.barrel_result.discharge == pytest.approx(2.0)
     assert res.barrel_result.headwater_elevation > 10.0
+    assert tuple(notice.code for notice in res.applicability_notices) == (
+        ApplicabilityNoticeCode.REPRESENTATIVE_BARREL_EQUAL_FLOW,
+    )
+    notice = res.applicability_notices[0]
+    assert notice.source is NCHRP_734_REPRESENTATIVE_BARREL
+    assert "Total group discharge" in notice.message
+    assert "Individual barrel discharge and velocity may differ" in notice.message
+
+
+def test_single_barrel_group_has_no_representative_barrel_notice() -> None:
+    barrel = CulvertBarrel(
+        geometry=CircularGeometry(diameter=1.0),
+        length=40.0,
+        inlet_invert=10.0,
+        outlet_invert=9.5,
+        roughness=0.013,
+        material=CONCRETE,
+    )
+
+    result = solve_group_hydraulics(CulvertGroup(barrel, quantity=1), 2.0, 9.5)
+
+    assert result.applicability_notices == ()
 
 
 def test_group_matches_independent_full_flow_conservation_fixture() -> None:
@@ -146,6 +172,7 @@ def test_single_group_crossing() -> None:
     assert c_res.total_discharge == pytest.approx(total_q)
     assert len(c_res.group_results) == 1
     assert c_res.group_results[0].barrel_discharge == pytest.approx(4.0)
+    assert c_res.applicability_notices == c_res.group_results[0].applicability_notices
 
 
 def test_multi_group_crossing_equal_sharing() -> None:

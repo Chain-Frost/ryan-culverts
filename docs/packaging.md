@@ -13,10 +13,11 @@ configuration or Hatch environment is required.
 | `[tool.hatch.build.targets.wheel]` | Universal-wheel package contents |
 
 The distribution name is `ryan-culverts`; the Python import is `culvert_solver`.
-Version `26.9.9.2` is the current packaged alpha release. `pyproject.toml` is the version
-authority. Releases use the PEP 440-normalized calendar scheme `yy.m.d.vv`, where `vv`
-starts at `1` and increments for each release made on the same local date. It is intended
-for integration and packaging tests, not engineering design acceptance.
+`pyproject.toml` is the version authority, and the sole retained project wheel under
+`dist/` is the packaged alpha release. Releases use the PEP 440-normalized calendar scheme
+`yy.m.d.vv`, where `vv` starts at `1` and increments for each release made on the same local
+date. The package is intended for integration and packaging tests, not engineering design
+acceptance.
 
 ## Python support policy
 
@@ -75,6 +76,11 @@ and exclusion of development/reference inputs before promoting the new wheel. On
 successful verification does it remove older top-level `ryan_culverts-*` distributions
 from `dist/`. A failed build or verification restores `pyproject.toml` and retains the
 previous wheel.
+
+`verify-package.bat` requires exactly one retained project wheel and checks its filename
+and embedded metadata against `pyproject.toml`. This makes a stale or ambiguous retained
+artifact fail explicitly. Human-facing documentation points to that authority instead of
+duplicating a version that must be updated separately.
 
 Use an explicit newer version when required:
 

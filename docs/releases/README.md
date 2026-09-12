@@ -2,10 +2,11 @@
 
 ## Current packaged release
 
-Version `26.9.11.1` was built locally for packaging and integration testing on 2026-09-11.
-It remains an alpha package, is not engineering design software, and has not been published
-to a package index. The artifact of record is the pure-Python `py3-none-any` wheel under
-`dist/`; Python 3.14 is its tested interpreter baseline.
+`pyproject.toml` identifies the current packaged version. It remains an alpha package, is
+not engineering design software, and has not been published to a package index. The
+artifact of record is the sole pure-Python `py3-none-any` wheel under `dist/`; its filename
+and embedded version metadata must match `pyproject.toml`. Python 3.14 is its tested
+interpreter baseline.
 
 The current `main` source may contain changes listed as [unreleased](../changelog.md) that
 are not in this wheel. Creating the next wheel must increment the calendar version.
@@ -38,9 +39,9 @@ comparison evidence and does not define correctness. The combined solver remains
 provisional; review the [computational basis](../computational_basis.md) and
 [validation record](../validation.md) before interpreting results.
 
-The packaged `26.9.11.1` artifact does not include design-option search, irregular or
-submerged roadway crests, user-supplied tailwater rating tables, uncertainty analysis,
-plotting, GIS integration, or a versioned JSON/spreadsheet interface.
+The packaged artifact does not include design-option search, irregular or submerged
+roadway crests, user-supplied tailwater rating tables, uncertainty analysis, plotting, GIS
+integration, or a versioned JSON/spreadsheet interface.
 Supported shapes, inlets, materials, and profile families remain deliberately limited.
 
 ## Installation

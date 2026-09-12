@@ -15,6 +15,7 @@ from .crossing import CulvertCrossing
 from .enums import (
     ApplicabilityNoticeCode,
     ControlType,
+    HydraulicResultStatus,
     HydraulicWarningCode,
     RoughnessSelectionBasis,
 )
@@ -120,6 +121,7 @@ class CrossingSummary:
     parameter_set_ids: tuple[str, ...] = ()
     warning_codes: tuple[HydraulicWarningCode, ...] = ()
     applicability_notice_codes: tuple[ApplicabilityNoticeCode, ...] = ()
+    status: HydraulicResultStatus | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -156,6 +158,7 @@ class GroupSummary:
     applicability_notice_codes: tuple[ApplicabilityNoticeCode, ...] = ()
     hydraulic_jump_station: float | None = None
     full_flow_length: float = 0.0
+    status: HydraulicResultStatus = HydraulicResultStatus.VALID
 
 
 def _adopted_parameter_key(result: BarrelHydraulicResult) -> tuple[object, ...] | None:
@@ -277,9 +280,13 @@ class InventorySummary:
                             register_source(parameter_set.exit_loss.source)
                         if parameter_set.roughness_source is not None:
                             register_source(parameter_set.roughness_source)
-                    group_notice_codes = tuple(dict.fromkeys(notice.code for notice in barrel_result.roughness_notices))
+                    group_notices = (*barrel_result.roughness_notices, *group_result.applicability_notices)
+                    group_notice_codes = tuple(dict.fromkeys(notice.code for notice in group_notices))
                     for notice in barrel_result.roughness_notices:
                         register_source(notice.source)
+                    for notice in group_result.applicability_notices:
+                        register_source(notice.source)
+                    for notice in group_notices:
                         if notice.code not in crossing_applicability_notice_codes:
                             crossing_applicability_notice_codes.append(notice.code)
                     group_rows.append(
@@ -299,6 +306,7 @@ class InventorySummary:
                             applicability_notice_codes=group_notice_codes,
                             hydraulic_jump_station=barrel_result.hydraulic_jump_station,
                             full_flow_length=barrel_result.full_flow_length,
+                            status=group_result.status,
                         )
                     )
                     for warning in barrel_result.warnings:
@@ -321,6 +329,7 @@ class InventorySummary:
                     parameter_set_ids=tuple(crossing_parameter_ids),
                     warning_codes=tuple(crossing_warning_codes),
                     applicability_notice_codes=tuple(crossing_applicability_notice_codes),
+                    status=None if result is None else result.status,
                 )
             )
             if item.configuration.roadway is not None:

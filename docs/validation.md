@@ -86,6 +86,35 @@ Set numerical values per fixture when independently deriving its expected result
 Record source precision separately from solver tolerance. Tests must cover failure
 and applicability boundaries, not just successful cases or inverse self-consistency.
 
+## Representative-barrel applicability contract
+
+Multi-barrel `CulvertGroup` results carry the stable
+`representative_barrel_equal_flow` applicability code and NCHRP 734 Chapter 5 provenance.
+The notice states that representative-barrel superposition supports total-flow calculation
+under sufficiently uniform approach conditions while individual-barrel discharge and
+velocity remain uncertain under nonuniform approach flow or depressed-barrel conditions.
+The published differences recorded in the research notes are limitations, not correction
+factors; the hydraulic calculation still uses `Q_barrel = Q_total / N` without an arbitrary
+efficiency reduction.
+
+Focused tests verify the structured notice and source on multi-barrel group and crossing
+results, its absence for a single-barrel group, unchanged discharge conservation, and code
+and source propagation through inventory group/crossing summaries.
+
+## Hydraulic result status contract
+
+`HydraulicResultStatus` distinguishes clean results, supported results with applicability
+advisories, results using an explicit approximation, and hydraulically unresolved results.
+High-head inlet-control extension warnings are advisories; the inlet-control outlet-depth
+fallback is approximate; `mixed_flow_not_resolved` is unresolved. When multiple warnings
+exist, the most conservative status governs. Group and crossing aggregation ignores
+inactive zero-flow groups, while rating points and inventory summaries retain the status of
+the underlying calculation. Status describes computational/hydraulic resolution only; it
+does not confer regulatory approval or engineering design acceptance.
+
+Contract tests cover all four states, conservative mixed-result aggregation, inactive-group
+handling, rating-point retention, and inventory group/crossing propagation.
+
 ## Independent primitive fixtures
 
 The following CS-006 fixtures use fixed expected values calculated independently of the

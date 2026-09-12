@@ -31,14 +31,18 @@ def solve_group_hydraulics(
     Discharge is equally distributed across all N identical barrels:
         Q_barrel = Q_total / N
 
+    For ``N > 1``, the result carries a structured representative-barrel applicability
+    notice. The assumption supports total-flow calculation under sufficiently uniform
+    approach conditions, but does not establish exact barrel-specific flow or velocity.
+
     Parameters
     ----------
     group : CulvertGroup
         Group domain model containing barrel definition and barrel quantity N >= 1.
     total_discharge : float
         Total volumetric discharge through the entire culvert group (m³/s), strictly positive.
-    tailwater : TailwaterCondition | float
-        Tailwater boundary condition or absolute elevation (m).
+    tailwater : TailwaterInput
+        Absolute tailwater elevation (m) or a boundary resolved at total group discharge.
     inlet_coefficients : InletCoefficients | None, optional
         Inlet control regression constants.
     entrance_loss_coefficient : float | EntranceLossCoefficient | None, optional

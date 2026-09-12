@@ -9,7 +9,7 @@ from ..exceptions import InvalidInputError
 from ..inlet_control.coefficients import InletCoefficients
 from ..models.barrel import CulvertBarrel
 from ..models.crossing import CulvertCrossing
-from ..models.enums import ControlType
+from ..models.enums import ControlType, HydraulicResultStatus
 from ..models.results import (
     BarrelHydraulicResult,
     CrossingHydraulicResult,
@@ -44,6 +44,7 @@ class RatingCurvePoint:
     regime: FlowRegime
     warnings: tuple[HydraulicWarning, ...] = ()
     tailwater_resolution: TailwaterResolution | None = None
+    status: HydraulicResultStatus = HydraulicResultStatus.VALID
 
 
 @dataclass(frozen=True, slots=True)
@@ -113,8 +114,9 @@ def generate_barrel_rating_curve(
         Culvert barrel domain model.
     discharges : Sequence[float]
         Sequence of strictly positive flow rates Q (m³/s), ordered monotonically.
-    tailwater : TailwaterCondition | float
-        Tailwater boundary condition or elevation (m).
+    tailwater : TailwaterInput
+        Absolute tailwater elevation (m) or a boundary resolved independently at each
+        barrel discharge.
     inlet_coefficients : InletCoefficients | None, optional
         Inlet control regression constants.
     entrance_loss_coefficient : float | EntranceLossCoefficient | None, optional
@@ -161,6 +163,7 @@ def generate_barrel_rating_curve(
             regime=res.regime,
             warnings=res.warnings,
             tailwater_resolution=res.tailwater_resolution,
+            status=res.status,
         )
         pts.append(pt)
 
@@ -188,8 +191,9 @@ def generate_crossing_rating_curve(
         Culvert crossing domain model.
     discharges : Sequence[float]
         Sequence of strictly positive total crossing discharges Q (m³/s).
-    tailwater : TailwaterCondition | float
-        Tailwater boundary condition or elevation (m).
+    tailwater : TailwaterInput
+        Absolute tailwater elevation (m) or a boundary resolved independently at each
+        total crossing discharge.
     configuration : SolverConfiguration | None, optional
         Injectable defaults applied consistently to every crossing calculation.
     g : float, default=GRAVITATIONAL_ACCELERATION
@@ -257,6 +261,7 @@ def generate_crossing_rating_curve(
             regime=regime,
             warnings=point_warnings,
             tailwater_resolution=c_res.tailwater_resolution,
+            status=c_res.status,
         )
         pts.append(pt)
 

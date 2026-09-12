@@ -339,6 +339,8 @@ already-modified inlet solver without changing its logic.
 
 ### CS-005 - Complete public results and diagnostics
 
+Status: Complete. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
+
 Scope: preserve each adopted calculation value as a typed value plus selection basis,
 source, applicability, and override/default status. Expose those adopted values alongside
 candidate headwaters, depths, velocities, losses, convergence data, profile state, and
@@ -397,6 +399,34 @@ Verification: `python -m pytest -q tests/test_outlet_control.py tests/test_regim
 tests/test_models.py tests/test_collection.py tests/test_crossing.py tests/test_rating_curve.py`
 passed 87 tests; `python -m pytest -q` passed all 270 tests. Repository-wide Ruff check and
 format, strict Pyright, Markdown lint with MD013 excluded, and `git diff --check` passed.
+
+Maintenance handoff (2026-09-13): resolved GitHub issue #10 without changing discharge,
+headwater, regime, or loss calculations. Multi-barrel `GroupHydraulicResult` values now
+carry the stable `representative_barrel_equal_flow` notice with NCHRP 734 Chapter 5
+provenance. `CrossingHydraulicResult` aggregates it, and inventory group/crossing summaries
+retain its code and register its source. The message distinguishes suitability for total
+flow from uncertainty in barrel-specific discharge and velocity under nonuniform approach
+or depressed-barrel conditions. Single-barrel groups do not receive the notice, and no
+efficiency factor was introduced. Focused model, crossing, collection, and public API tests
+passed (`69 passed`); the full suite passed (`345 passed`). Ruff check and format (`115
+files already formatted`), strict Pyright (`0 errors`), Markdown lint, strict MkDocs,
+retained-wheel verification, and `git diff --check` also passed. HY-8 was not run because
+the task exposes an existing literature-backed applicability limit and changes no hydraulic
+method. Nothing was built, versioned, published, committed, or pushed.
+
+Maintenance handoff (2026-09-13): resolved GitHub issue #7 with the public
+`HydraulicResultStatus` values `valid`, `valid_with_advisory`, `approximate`, and
+`unresolved`. Status is derived from stable warning codes: high-head inlet-control warnings
+remain advisories, the explicit outlet-depth fallback is approximate, and unresolved mixed
+flow remains unresolved. The most conservative active child governs group/crossing status;
+inactive groups are excluded. Rating-curve points and inventory group/crossing rows retain
+the computed status. Documentation explicitly states that this is computational/hydraulic
+resolution, not regulatory or design approval. Focused result/regime/crossing/rating/
+inventory/API tests passed (`92 passed`); the full suite passed (`345 passed`). Ruff check
+and format (`115 files already formatted`), strict Pyright (`0 errors`), Markdown lint,
+strict MkDocs, retained-wheel verification, and `git diff --check` passed. No hydraulic
+equation or acceptance threshold changed. Nothing was built, versioned, published,
+committed, or pushed.
 
 ### CS-006 - Independent validation for Phases 1-10
 
@@ -677,7 +707,7 @@ gate remained green after the move.
 
 ## CS-017 - Transactional calendar-version packaging
 
-Status: Complete. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
 
 Boundary: make the existing local wheel workflow increment the normalized `yy.m.d.vv`
 version automatically, build and verify away from `dist/`, and replace prior project
@@ -705,6 +735,18 @@ isolated zip-import checks passed. The final wheel is 77,413 bytes with SHA-256
 The build uses the packaging machine's local date and deliberately performs no network
 copy, commit, push, tag, or publication. Pull the repository and verify the system date
 before packaging from another location.
+
+Maintenance handoff (2026-09-13): resolved GitHub issue #5 locally. Current-version prose
+now points to authoritative `pyproject.toml` and the sole retained wheel instead of
+duplicating a value; the changelog records packaged version `26.9.10.2`. Retained-wheel
+verification now rejects zero, multiple, or incorrectly named project wheels before
+checking embedded metadata, and CI performs that check before rebuilding. Two focused
+regression tests bring `tests/test_packaging.py` to 15 passing tests. The full suite passed
+with 335 tests, Ruff check and format (`115 files already formatted`), strict Pyright (`0
+errors`), Markdown lint, strict MkDocs, and `git diff --check`. A fresh isolated wheel build
+also passed verification (`94,627` bytes; SHA-256
+`1c26023545d08e2b170ca6c37feb0f04c3b72d50093cef2603390763d96e3aee`). The tracked wheel
+was verified unchanged; nothing was published.
 
 ## Deferred and future scope
 
@@ -856,7 +898,7 @@ then use the case only as a workflow and reporting checklist.
 
 ## CS-016 - Documentation site and Pages publication
 
-Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
 
 Boundary: design a navigable MkDocs information architecture for the existing maintained
 documentation, add an intentional landing page and API reference, and validate the site
@@ -882,6 +924,29 @@ attribute described on the overview page. Local verification passed: `python -m 
 `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`,
 `python -m mkdocs build --strict --site-dir site`, and `git diff --check`. GitHub CI and Pages
 deployment were not run for the uncommitted documentation changes.
+
+Maintenance handoff (2026-09-12): repaired the work-register issue references that strict
+Markdown lint interpreted as malformed ATX headings by making them explicit GitHub issue
+links. Local verification passed: `python -m pytest -q` (`333 passed`),
+`python -m ruff check .`, `python -m ruff format --check .` (`115 files already formatted`),
+`python -m pyright` (`0 errors`),
+`python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`,
+`python -m mkdocs build --strict --site-dir site`, and `git diff --check`. GitHub CI was not
+rerun because the repair remains uncommitted.
+
+Maintenance handoff (2026-09-13): resolved GitHub issue #6 locally without changing
+hydraulic equations or thresholds. Audited the 169-name `culvert_solver.__all__` surface:
+all 168 names other than separately documented `__version__` appear exactly once across the
+API pages, and all 128 callable exports have docstrings. `TailwaterInput` is now an explicit
+top-level export and API input contract. The six public forward functions annotated with it
+name it in their documentation; barrel, group, crossing, and rating-curve descriptions now
+state the applicable discharge basis. The stale claim that hydraulic jumps and mixed
+free/full states are unsupported was replaced with the current bounded support statement.
+Regression tests enforce callable documentation, exact API-page coverage, and the six
+tailwater annotations/docstrings. Focused public API validation passed with 10 tests and a
+strict MkDocs build. Combined full-repository validation passed with 343 tests, Ruff check
+and format (`115 files already formatted`), strict Pyright (`0 errors`), Markdown lint,
+strict MkDocs, retained-wheel verification, and `git diff --check`.
 
 ## CS-019 - Compatibility metadata and installed-wheel CI
 

@@ -266,8 +266,8 @@ def solve_crossing_hydraulics(
         Crossing domain model containing one or more culvert groups.
     total_discharge : float
         Total crossing discharge Q_crossing (m³/s), strictly positive.
-    tailwater : TailwaterCondition | float
-        Downstream tailwater condition or elevation (m).
+    tailwater : TailwaterInput
+        Absolute tailwater elevation (m) or a boundary resolved at total crossing discharge.
     configuration : SolverConfiguration | None, optional
         Injectable defaults applied consistently to every group calculation.
     g : float, default=GRAVITATIONAL_ACCELERATION

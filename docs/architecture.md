@@ -120,6 +120,13 @@ CS-005 and CS-011 in the work plan.
 Crossing summaries retain configured roadway crest elevation and calculated roadway flow,
 and roadway coefficient provenance participates in the inventory source register.
 
+For a group containing more than one hydraulically identical barrel,
+`GroupHydraulicResult.applicability_notices` records the representative-barrel/equal-flow
+assumption and its NCHRP 734 source. `CrossingHydraulicResult` aggregates those notices.
+Inventory group and crossing rows propagate their stable codes, and the source catalogue
+retains the supporting reference. This describes the limits of barrel-specific flow and
+velocity certainty without changing total discharge or applying an efficiency factor.
+
 Barrel results also retain the evaluated inlet-, outlet-, and full-flow headwater
 candidates where physically applicable, the selected profile curve, hydraulic-jump
 station, pressurised-reach length, and typed hydraulic warnings. The length is upstream
@@ -127,6 +134,13 @@ of an M2-to-full transition or downstream of an S1f/JS1f transition. Rating-curv
 preserve the warnings. Inventory summaries expose
 deduplicated warning codes at group and crossing level so a compact road inventory does
 not hide provisional hydraulic states.
+
+`HydraulicResultStatus` provides the machine-readable computational resolution state:
+`valid`, `valid_with_advisory`, `approximate`, or `unresolved`. Barrel status is derived
+from stable warning codes, group status follows its representative barrel, and crossing
+status conservatively aggregates active groups. Rating-curve points and inventory rows
+retain the resulting status so downstream screening does not reinterpret warning text.
+This status is not regulatory approval or engineering design acceptance.
 
 `HeadLossComponents` preserves the scalar losses that a calculation actually evaluates.
 `full_flow_losses` describes the always-evaluated full-flow candidate;

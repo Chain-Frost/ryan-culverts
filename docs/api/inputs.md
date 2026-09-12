@@ -2,6 +2,10 @@
 
 Public types used to describe culverts, crossings, boundaries, and solver policy.
 
+`TailwaterInput` is the public input contract for forward barrel, group, crossing, and
+rating-curve solvers. It accepts either an absolute water-surface elevation in metres or a
+`TailwaterBoundary` that resolves elevation and provenance for the applicable discharge.
+
 ::: culvert_solver
     options:
       members:
@@ -17,6 +21,7 @@ Public types used to describe culverts, crossings, boundaries, and solver policy
         - RoadwayWeir
         - TailwaterBoundary
         - TailwaterCondition
+        - TailwaterInput
         - ManningChannelTailwater
         - OpenChannelSection
         - RectangularChannel

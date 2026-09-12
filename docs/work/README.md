@@ -56,7 +56,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-002 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Monitor source revisions; reopen only for a supported new material or fallback. |
 | CS-003 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen only if primary evidence supports a different digital transition or high-head extension. |
 | CS-004 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen only for a new supported profile family, geometry, or contrary primary evidence. |
-| CS-005 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen only when a supported method calculates an additional diagnostic or adopted value. |
+| CS-005 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Preserve machine-readable result status and applicability notices through downstream result structures. |
 | CS-006 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen for a new supported method or stronger independent combined-system evidence. |
 | CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression. |
 | CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned external comparison that changes a disposition. |
@@ -64,8 +64,8 @@ or create a release artifact merely to complete an earlier task.
 | CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation. |
 | CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the current verified wheel for integration tests; packaging now increments the calendar version. |
 | CS-013 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Use only the typed Figure 93 configurations and keep corrected Table 12 within its documented range. |
-| CS-016 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Keep the focused API sections aligned with `culvert_solver.__all__` and retain strict local and CI builds. |
-| CS-017 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use `package.bat` to create the next verified wheel; reopen only for a packaging failure or changed version policy. |
+| CS-016 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Keep all exported names covered once and preserve the documented public `TailwaterInput` contract. |
+| CS-017 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Retain exactly one version-consistent wheel and keep current-version prose anchored to `pyproject.toml`. |
 | CS-019 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Python 3.14 is the supported baseline; keep the installed-wheel OS matrix green. |
 | CS-020 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Maintain top-level exports, version discovery, changelog entries, and project links together. |
 | CS-034 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Maintain public barrel, group, and crossing discharge-for-headwater helpers and their round-trip tests. |
@@ -96,16 +96,23 @@ or create a release artifact merely to complete an earlier task.
 The 2026-09-12 repository review identified additional work that is tracked as GitHub
 issues rather than new CS identifiers:
 
-- #5 synchronises packaged version and release documentation;
-- #6 reconciles public API documentation with implemented capabilities;
-- #7 adds machine-readable hydraulic result validity/severity;
-- #8 adds independent heterogeneous-crossing and rating-curve validation;
-- #9 adds longitudinal HGL/EGL data for full and pressurised reaches; and
-- #10 exposes representative-barrel/equal-flow applicability limits.
+- [#5](https://github.com/Chain-Frost/ryan-culverts/issues/5) synchronises packaged version
+  and release documentation;
+- [#6](https://github.com/Chain-Frost/ryan-culverts/issues/6) reconciles public API
+  documentation with implemented capabilities;
+- [#7](https://github.com/Chain-Frost/ryan-culverts/issues/7) adds machine-readable hydraulic
+  result validity/severity;
+- [#8](https://github.com/Chain-Frost/ryan-culverts/issues/8) adds independent
+  heterogeneous-crossing and rating-curve validation;
+- [#9](https://github.com/Chain-Frost/ryan-culverts/issues/9) adds longitudinal HGL/EGL data
+  for full and pressurised reaches; and
+- [#10](https://github.com/Chain-Frost/ryan-culverts/issues/10) exposes
+  representative-barrel/equal-flow applicability limits.
 
-Issues #1 through #4 continue to track discharge-dependent inverse tailwater, user-supplied
-tailwater rating curves, additional standard shapes/materials, and advanced roadway
-overtopping respectively.
+Issues [#1](https://github.com/Chain-Frost/ryan-culverts/issues/1) through
+[#4](https://github.com/Chain-Frost/ryan-culverts/issues/4) continue to track
+discharge-dependent inverse tailwater, user-supplied tailwater rating curves, additional
+standard shapes/materials, and advanced roadway overtopping respectively.
 
 Agents must update the status, owner, date, next review, and next action when
 taking over or handing off a task. Do not mark a task complete solely because

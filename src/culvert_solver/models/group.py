@@ -8,7 +8,13 @@ from .barrel import CulvertBarrel
 
 @dataclass(frozen=True, slots=True)
 class CulvertGroup:
-    """A collection of hydraulically identical parallel barrels."""
+    """Hydraulically identical parallel barrels represented with equal barrel flow.
+
+    For ``quantity > 1``, solvers divide total group discharge equally between barrels.
+    This representative-barrel model is intended for total-flow calculations under
+    sufficiently uniform approach conditions; it does not establish exact barrel-specific
+    discharge or velocity under nonuniform approach flow or depressed-barrel conditions.
+    """
 
     barrel: CulvertBarrel
     quantity: int = 1

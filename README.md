@@ -1,8 +1,8 @@
 # ryan-culverts
 
 An early-stage culvert hydraulics library built around primary hydraulic references,
-analytical validation, and mixed-group crossings. Version `26.9.9.2` is the current packaged
-alpha release for integration testing; it is not engineering design software.
+analytical validation, and mixed-group crossings. The retained wheel is an alpha package
+for integration testing; it is not engineering design software.
 
 The [long-term development plan](docs/work/long-term-development-plan.md) defines the scope and
 development sequence. The `culvert_solver` package contains provisional circular and box

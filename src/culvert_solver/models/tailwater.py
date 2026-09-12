@@ -250,7 +250,7 @@ def resolve_tailwater(
     *,
     g: float = GRAVITATIONAL_ACCELERATION,
 ) -> TailwaterResolution:
-    """Resolve a numeric, fixed, or flow-dependent tailwater boundary."""
+    """Resolve a numeric, fixed, or flow-dependent ``TailwaterInput`` boundary."""
     q: float = _nonnegative_discharge(discharge)
     accel: float = _positive_gravity(g)
     if isinstance(tailwater, (float, int)) and not isinstance(tailwater, bool):

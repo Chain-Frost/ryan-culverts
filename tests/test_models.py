@@ -2,7 +2,7 @@
 
 import json
 import math
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, replace
 
 import pytest
 
@@ -25,6 +25,9 @@ from culvert_solver import (
     CulvertMaterial,
     FlowRegime,
     GroupHydraulicResult,
+    HydraulicResultStatus,
+    HydraulicWarning,
+    HydraulicWarningCode,
     InvalidInputError,
     ManningRoughnessSelection,
     RectangularGeometry,
@@ -411,6 +414,34 @@ def test_result_contracts_and_flow_regimes() -> None:
     )
     assert c_res.headwater_elevation == 11.5
     assert len(c_res.group_results) == 1
+    assert b_res.status is HydraulicResultStatus.VALID
+    assert g_res.status is HydraulicResultStatus.VALID
+    assert c_res.status is HydraulicResultStatus.VALID
+
+    advisory = replace(
+        b_res,
+        warnings=(HydraulicWarning(HydraulicWarningCode.INLET_CONTROL_HIGH_HEAD_EXTENSION, "Advisory."),),
+    )
+    approximate = replace(
+        b_res,
+        warnings=(HydraulicWarning(HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION, "Approximate."),),
+    )
+    unresolved = replace(
+        b_res,
+        warnings=(
+            HydraulicWarning(HydraulicWarningCode.INLET_CONTROL_HIGH_HEAD_EXTENSION, "Advisory."),
+            HydraulicWarning(HydraulicWarningCode.MIXED_FLOW_NOT_RESOLVED, "Unresolved."),
+        ),
+    )
+    assert advisory.status is HydraulicResultStatus.VALID_WITH_ADVISORY
+    assert approximate.status is HydraulicResultStatus.APPROXIMATE
+    assert unresolved.status is HydraulicResultStatus.UNRESOLVED
+
+    unresolved_group = replace(g_res, barrel_result=unresolved)
+    assert unresolved_group.status is HydraulicResultStatus.UNRESOLVED
+    assert replace(c_res, group_results=(g_res, unresolved_group)).status is HydraulicResultStatus.UNRESOLVED
+    inactive_unresolved = replace(unresolved_group, total_discharge=0.0, barrel_discharge=0.0)
+    assert replace(c_res, group_results=(g_res, inactive_unresolved)).status is HydraulicResultStatus.VALID
 
 
 def test_domain_models_immutability() -> None:

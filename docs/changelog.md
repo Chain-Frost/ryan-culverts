@@ -5,6 +5,20 @@ This file records user-visible changes. Detailed validation evidence remains in
 
 ## Unreleased
 
+Source-only maintenance may exist above the retained wheel without requiring a release
+entry. User-visible package changes must be listed here before the next wheel is built.
+
+- Exported the `TailwaterInput` contract, corrected forward-solver tailwater and supported
+  profile documentation, and added public API documentation drift checks.
+- Synchronized packaged-release documentation with authoritative project metadata and
+  strengthened retained-wheel consistency verification.
+- Added a source-backed representative-barrel/equal-flow applicability notice to
+  multi-barrel group and crossing results and propagated it through inventory summaries.
+- Added machine-readable hydraulic result status with conservative group/crossing
+  aggregation and propagation into rating-curve points and inventory summaries.
+
+## 26.9.10.2 - 2026-09-10
+
 - Added rectangular and asymmetric trapezoidal/triangular open-channel geometry and a
   source-traceable Manning normal-depth tailwater boundary that uses receiving flow at the
   barrel, group, or crossing boundary and recalculates stage at each rating point.

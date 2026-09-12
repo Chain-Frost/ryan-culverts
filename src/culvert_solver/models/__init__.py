@@ -8,6 +8,7 @@ from .enums import (
     CspCorrugation,
     ExitLossSelectionBasis,
     GeometryShape,
+    HydraulicResultStatus,
     InletEquationForm,
     ProfileCurve,
     RoughnessSelectionBasis,
@@ -32,10 +33,13 @@ from .materials import (
     resolve_manning_roughness,
 )
 from .results import (
+    NCHRP_734_REPRESENTATIVE_BARREL,
+    REPRESENTATIVE_BARREL_EQUAL_FLOW_NOTICE,
     BarrelHydraulicResult,
     CrossingHydraulicResult,
     FlowRegime,
     GroupHydraulicResult,
+    HydraulicApplicabilityNotice,
 )
 from .roadway import FHWA_HDS5_ROADWAY_OVERTOPPING, RoadwayWeir
 from .tailwater import (
@@ -60,6 +64,8 @@ __all__: list[str] = [
     "MRWA_CSP_REFERENCE",
     "MRWA_PART5B_REFERENCE",
     "MRWA_SPEC404_REFERENCE",
+    "NCHRP_734_REPRESENTATIVE_BARREL",
+    "REPRESENTATIVE_BARREL_EQUAL_FLOW_NOTICE",
     "SMOOTH_HDPE",
     "ApplicabilityNoticeCode",
     "BarrelHydraulicResult",
@@ -75,6 +81,8 @@ __all__: list[str] = [
     "FlowRegime",
     "GeometryShape",
     "GroupHydraulicResult",
+    "HydraulicApplicabilityNotice",
+    "HydraulicResultStatus",
     "InletEquationForm",
     "ManningChannelTailwater",
     "ManningRoughnessSelection",

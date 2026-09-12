@@ -25,6 +25,9 @@ Return types retain adopted values, source provenance, warnings, and convergence
         - ConvergenceRecord
         - RootResult
         - HydraulicWarning
+        - HydraulicApplicabilityNotice
+        - REPRESENTATIVE_BARREL_EQUAL_FLOW_NOTICE
+        - NCHRP_734_REPRESENTATIVE_BARREL
         - ManningRoughnessSelection
         - RoughnessApplicabilityNotice
         - InletCoefficientSelection
@@ -38,6 +41,7 @@ Return types retain adopted values, source provenance, warnings, and convergence
         - FlowRegime
         - ProfileCurve
         - HydraulicWarningCode
+        - HydraulicResultStatus
         - ConvergenceCalculation
         - ApplicabilityNoticeCode
         - RoughnessSelectionBasis

@@ -40,10 +40,11 @@ class RoughnessSelectionBasis(StrEnum):
 
 
 class ApplicabilityNoticeCode(StrEnum):
-    """Stable codes for limitations attached to adopted defaults."""
+    """Stable codes for hydraulic and adopted-default applicability limitations."""
 
     MANUFACTURER_DATA_NOT_SUPPLIED = "manufacturer_data_not_supplied"
     HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE = "hydraulic_value_not_construction_compliance"
+    REPRESENTATIVE_BARREL_EQUAL_FLOW = "representative_barrel_equal_flow"
 
 
 class InletEquationForm(IntEnum):
@@ -95,6 +96,15 @@ class HydraulicWarningCode(StrEnum):
     INLET_CONTROL_EXTREME_HEADWATER = "inlet_control_extreme_headwater"
     INLET_OUTLET_DEPTH_APPROXIMATION = "inlet_outlet_depth_approximation"
     MIXED_FLOW_NOT_RESOLVED = "mixed_flow_not_resolved"
+
+
+class HydraulicResultStatus(StrEnum):
+    """Computational and hydraulic resolution status of a result."""
+
+    VALID = "valid"
+    VALID_WITH_ADVISORY = "valid_with_advisory"
+    APPROXIMATE = "approximate"
+    UNRESOLVED = "unresolved"
 
 
 class ConvergenceCalculation(StrEnum):

@@ -9,7 +9,7 @@ from culvert_solver.geometry.circular import CircularGeometry
 from culvert_solver.geometry.rectangular import RectangularGeometry
 from culvert_solver.models.barrel import CulvertBarrel
 from culvert_solver.models.crossing import CulvertCrossing
-from culvert_solver.models.enums import HydraulicWarningCode
+from culvert_solver.models.enums import HydraulicResultStatus, HydraulicWarningCode
 from culvert_solver.models.group import CulvertGroup
 from culvert_solver.models.materials import CONCRETE
 from culvert_solver.models.results import FlowRegime
@@ -147,6 +147,7 @@ def test_rating_curve_retains_high_head_applicability_warning() -> None:
     assert tuple(warning.code for warning in point.warnings) == (
         HydraulicWarningCode.INLET_CONTROL_HIGH_HEAD_EXTENSION,
     )
+    assert point.status is HydraulicResultStatus.VALID_WITH_ADVISORY
 
 
 def test_crossing_rating_curve_multi_group() -> None:

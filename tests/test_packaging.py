@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts import build_package
+from scripts import build_package, verify_wheel
 
 
 def test_calendar_version_increments_same_day() -> None:
@@ -129,3 +129,25 @@ def test_promote_wheel_keeps_only_new_project_distribution(tmp_path: Path, monke
     assert promoted.read_bytes() == b"new"
     assert [path.name for path in dist_dir.glob("ryan_culverts-*")] == [promoted.name]
     assert unrelated.read_bytes() == b"unrelated"
+
+
+def test_retained_wheel_must_match_project_version(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    dist_dir = tmp_path / "dist"
+    dist_dir.mkdir()
+    stale_wheel = dist_dir / "ryan_culverts-26.9.9.2-py3-none-any.whl"
+    stale_wheel.write_bytes(b"stale")
+    monkeypatch.setattr(verify_wheel, "DIST_DIR", dist_dir)
+
+    with pytest.raises(ValueError, match=r"does not match project version 26\.9\.10\.2"):
+        verify_wheel.retained_wheel("26.9.10.2")
+
+
+def test_exactly_one_retained_project_wheel_is_required(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    dist_dir = tmp_path / "dist"
+    dist_dir.mkdir()
+    (dist_dir / "ryan_culverts-26.9.9.2-py3-none-any.whl").write_bytes(b"old")
+    (dist_dir / "ryan_culverts-26.9.10.2-py3-none-any.whl").write_bytes(b"current")
+    monkeypatch.setattr(verify_wheel, "DIST_DIR", dist_dir)
+
+    with pytest.raises(ValueError, match="exactly one retained project wheel under dist/, found 2"):
+        verify_wheel.retained_wheel("26.9.10.2")

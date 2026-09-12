@@ -90,6 +90,20 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def retained_wheel(version: str) -> Path:
+    """Return the sole retained project wheel when it matches the project version."""
+    wheels = sorted(DIST_DIR.glob(f"{DISTRIBUTION_PREFIX}*.whl"))
+    if len(wheels) != 1:
+        msg = f"Expected exactly one retained project wheel under dist/, found {len(wheels)}."
+        raise ValueError(msg)
+    wheel = wheels[0]
+    expected_name = f"{DISTRIBUTION_PREFIX}{version}-py3-none-any.whl"
+    if wheel.name != expected_name:
+        msg = f"Retained wheel {wheel.name} does not match project version {version}."
+        raise ValueError(msg)
+    return wheel
+
+
 def main(argv: list[str] | None = None) -> int:
     """Verify the wheel and print its reproducibility identifier."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -102,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     version, licence = _project_metadata()
     expected_name = f"{DISTRIBUTION_PREFIX}{version}-py3-none-any.whl"
-    wheel = args.wheel.resolve() if args.wheel is not None else DIST_DIR / expected_name
+    wheel = args.wheel.resolve() if args.wheel is not None else retained_wheel(version)
     if not wheel.is_file():
         msg = "Build the current wheel first."
         raise FileNotFoundError(msg)

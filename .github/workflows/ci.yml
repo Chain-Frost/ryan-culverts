@@ -61,6 +61,7 @@ jobs:
       - name: Build and verify wheel
         shell: pwsh
         run: |
+          python scripts/verify_wheel.py
           python scripts/build_package.py --no-bump
           python scripts/verify_wheel.py
 

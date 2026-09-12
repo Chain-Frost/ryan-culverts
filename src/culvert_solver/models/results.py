@@ -6,10 +6,13 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
+from ..references.models import SourceReference
 from .barrel import CulvertBarrel
 from .enums import (
+    ApplicabilityNoticeCode,
     ControlType,
     ConvergenceCalculation,
+    HydraulicResultStatus,
     HydraulicWarningCode,
     ProfileCurve,
     RoughnessSelectionBasis,
@@ -20,7 +23,6 @@ if TYPE_CHECKING:
     from ..numerical.roots import RootResult
     from ..outlet_control.losses import ExitLossSelection
     from ..profiles.direct_step import InletControlProfile, WaterSurfaceProfile
-    from ..references.models import SourceReference
     from ..roadway.overtopping import RoadwayOvertoppingResult
     from ..solver.resolvers import EntranceLossSelection, InletCoefficientSelection
     from .materials import RoughnessApplicabilityNotice
@@ -47,6 +49,67 @@ class HydraulicWarning:
 
     code: HydraulicWarningCode
     message: str
+
+    @property
+    def result_status(self) -> HydraulicResultStatus:
+        """Return the minimum result status implied by this warning."""
+        return _WARNING_RESULT_STATUS[self.code]
+
+
+_WARNING_RESULT_STATUS: dict[HydraulicWarningCode, HydraulicResultStatus] = {
+    HydraulicWarningCode.INLET_CONTROL_HIGH_HEAD_EXTENSION: HydraulicResultStatus.VALID_WITH_ADVISORY,
+    HydraulicWarningCode.INLET_CONTROL_EXTREME_HEADWATER: HydraulicResultStatus.VALID_WITH_ADVISORY,
+    HydraulicWarningCode.INLET_OUTLET_DEPTH_APPROXIMATION: HydraulicResultStatus.APPROXIMATE,
+    HydraulicWarningCode.MIXED_FLOW_NOT_RESOLVED: HydraulicResultStatus.UNRESOLVED,
+}
+_RESULT_STATUS_PRIORITY: dict[HydraulicResultStatus, int] = {
+    HydraulicResultStatus.VALID: 0,
+    HydraulicResultStatus.VALID_WITH_ADVISORY: 1,
+    HydraulicResultStatus.APPROXIMATE: 2,
+    HydraulicResultStatus.UNRESOLVED: 3,
+}
+
+
+def aggregate_result_status(statuses: tuple[HydraulicResultStatus, ...]) -> HydraulicResultStatus:
+    """Return the most conservative status, or ``VALID`` for an empty collection."""
+    return max(statuses, key=_RESULT_STATUS_PRIORITY.__getitem__, default=HydraulicResultStatus.VALID)
+
+
+@dataclass(frozen=True, slots=True)
+class HydraulicApplicabilityNotice:
+    """Machine-readable hydraulic limitation with its supporting source."""
+
+    code: ApplicabilityNoticeCode
+    message: str
+    source: SourceReference
+
+
+NCHRP_734_REPRESENTATIVE_BARREL = SourceReference(
+    source_id="NCHRP-734-2012-CHAPTER-5-MULTI-BARREL",
+    publication="Hydraulic Loss Coefficients for Culverts, NCHRP Report 734",
+    edition="2012",
+    locator="Chapter 5 conclusions, printed page 49 (local PDF page 57)",
+    url="https://doi.org/10.17226/22673",
+    applicability=(
+        "Representative average-barrel superposition for total flow through hydraulically "
+        "identical parallel barrels under sufficiently uniform approach conditions."
+    ),
+    notes=(
+        "Reported nonuniform-approach, depressed-barrel, and individual-barrel differences "
+        "are observed limitations, not deterministic correction factors."
+    ),
+)
+
+REPRESENTATIVE_BARREL_EQUAL_FLOW_NOTICE = HydraulicApplicabilityNotice(
+    code=ApplicabilityNoticeCode.REPRESENTATIVE_BARREL_EQUAL_FLOW,
+    message=(
+        "Total group discharge uses a representative-barrel equal-flow assumption for "
+        "hydraulically identical barrels under sufficiently uniform approach conditions. "
+        "Individual barrel discharge and velocity may differ with nonuniform approach flow "
+        "or depressed barrels, so barrel-specific performance requires separate review."
+    ),
+    source=NCHRP_734_REPRESENTATIVE_BARREL,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,10 +172,15 @@ class BarrelHydraulicResult:
     convergence: tuple[ConvergenceRecord, ...] = ()
     tailwater_resolution: TailwaterResolution | None = None
 
+    @property
+    def status(self) -> HydraulicResultStatus:
+        """Return the most conservative status implied by structured warnings."""
+        return aggregate_result_status(tuple(warning.result_status for warning in self.warnings))
+
 
 @dataclass(frozen=True, slots=True)
 class GroupHydraulicResult:
-    """Hydraulic calculation results for a group of identical parallel barrels."""
+    """Hydraulic results for identical barrels, including equal-flow applicability."""
 
     group: CulvertGroup
     total_discharge: float
@@ -120,11 +188,26 @@ class GroupHydraulicResult:
     barrel_result: BarrelHydraulicResult
     discharge_convergence: ConvergenceRecord | None = None
     tailwater_resolution: TailwaterResolution | None = None
+    applicability_notices: tuple[HydraulicApplicabilityNotice, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.group.quantity <= 1 or REPRESENTATIVE_BARREL_EQUAL_FLOW_NOTICE in self.applicability_notices:
+            return
+        object.__setattr__(
+            self,
+            "applicability_notices",
+            (*self.applicability_notices, REPRESENTATIVE_BARREL_EQUAL_FLOW_NOTICE),
+        )
+
+    @property
+    def status(self) -> HydraulicResultStatus:
+        """Return the representative barrel's computational resolution status."""
+        return self.barrel_result.status
 
 
 @dataclass(frozen=True, slots=True)
 class CrossingHydraulicResult:
-    """Hydraulic calculation results across all culvert groups in a road crossing."""
+    """Hydraulic results across a crossing, including aggregated applicability notices."""
 
     headwater_elevation: float
     total_discharge: float
@@ -133,6 +216,25 @@ class CrossingHydraulicResult:
     headwater_convergence: ConvergenceRecord | None = None
     roadway_result: RoadwayOvertoppingResult | None = None
     tailwater_resolution: TailwaterResolution | None = None
+    applicability_notices: tuple[HydraulicApplicabilityNotice, ...] = ()
+
+    def __post_init__(self) -> None:
+        notices: tuple[HydraulicApplicabilityNotice, ...] = tuple(
+            dict.fromkeys(
+                (
+                    *self.applicability_notices,
+                    *(notice for result in self.group_results for notice in result.applicability_notices),
+                )
+            )
+        )
+        object.__setattr__(self, "applicability_notices", notices)
+
+    @property
+    def status(self) -> HydraulicResultStatus:
+        """Conservatively aggregate the status of active culvert groups."""
+        return aggregate_result_status(
+            tuple(result.status for result in self.group_results if result.barrel_discharge > 0.0)
+        )
 
     @property
     def culvert_discharge(self) -> float:

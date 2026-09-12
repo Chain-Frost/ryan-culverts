@@ -34,8 +34,8 @@ def solve_barrel_hydraulics(
         Culvert barrel domain model.
     discharge : float
         Discharge Q (m³/s), strictly positive.
-    tailwater : TailwaterCondition | float
-        Tailwater boundary condition or elevation (m).
+    tailwater : TailwaterInput
+        Absolute tailwater elevation (m) or a boundary resolved at this barrel discharge.
     inlet_coefficients : InletCoefficients | None, optional
         Empirical inlet control coefficients.
     entrance_loss_coefficient : float | EntranceLossCoefficient | None, optional
@@ -54,7 +54,9 @@ def solve_barrel_hydraulics(
 
     Notes:
     -----
-    Hydraulic jumps and mixed free-surface/pressurised profiles are not yet supported.
+    Supported outlet-control profile paths include S1/S2 profiles, hydraulic jumps, and
+    selected mixed free-surface/full-flow states. Unsupported or unresolved transitions
+    remain explicit in the result warnings.
     """
     q: float = finite(discharge, "discharge")
     if q <= 0.0:

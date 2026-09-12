@@ -2,6 +2,10 @@
 
 Use these functions for ordinary barrel, group, crossing, capacity, and rating-curve work.
 
+Forward solvers accept the public `TailwaterInput` contract. Discharge-dependent boundaries
+are resolved using barrel discharge, total group discharge, or total crossing discharge as
+documented by each function; rating curves resolve the boundary again at every point.
+
 ::: culvert_solver
     options:
       members:
