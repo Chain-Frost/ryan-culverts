@@ -19,7 +19,7 @@ def _latest_wheel(dist_dir: Path) -> Path:
     return max(wheels, key=lambda path: (path.stat().st_mtime_ns, path.name))
 
 
-def _pip_command(wheel: Path, target: Path | None, force_reinstall: bool) -> list[str]:
+def _pip_command(wheel: Path, target: Path | None, *, force_reinstall: bool) -> list[str]:
     """Build the user or isolated-target installation command."""
     command = [sys.executable, "-m", "pip", "install", "--upgrade"]
     if target is None:
@@ -59,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     target = args.target.resolve() if args.target is not None else None
-    command = _pip_command(wheel, target, args.force_reinstall)
+    command = _pip_command(wheel, target, force_reinstall=args.force_reinstall)
     print(f"Using Python: {sys.executable}")
     print(f"Installing:   {wheel}")
     print(f"Command:      {subprocess.list2cmdline(command)}")

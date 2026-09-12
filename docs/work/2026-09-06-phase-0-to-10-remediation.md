@@ -912,7 +912,7 @@ and package metadata links documentation and the changelog.
 
 ## CS-021 - Repository maintenance guidance
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-11. Next review: 2026-09-20.
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-12. Next review: 2026-09-20.
 
 Boundary: add concise contribution and security-reporting guidance, dependency-update
 configuration, and documented branch-protection expectations appropriate to a small
@@ -966,6 +966,20 @@ executables were denied by the current Windows policy during this review, so no 
 execution is claimed. No hydraulic code or equations changed, and the test suite and HY-8
 executable comparison were not run. `python -m pymarkdown -d MD013 scan
 docs/work/2026-09-06-phase-0-to-10-remediation.md` and `git diff --check` passed.
+
+Ruff policy extraction (2026-09-12): the lint and formatting configuration moved from
+`pyproject.toml` to the repository-level `ruff.toml`; `pyproject.toml` remains the dependency
+authority and continues to pin Ruff 0.16.6 in the development extra. The `W`, `SLOT`, `INP`,
+`FBT`, and `SLF` families are now enforced. Explicit `INP001` exclusions preserve the
+intentional non-package status of `benchmarks/`, `scripts/`, and `tests/`. The only active
+`FBT` finding was resolved by making the private wheel-installer helper's boolean option
+keyword-only. `TID`, `TC`, and `DTZ` remain outside policy; no hydraulic behaviour changed.
+
+Verification: `python -m pytest -q tests/test_packaging.py` passed 13 tests; `python -m
+pytest -q` passed 333 tests; `python -m ruff check .` passed; `python -m ruff format --check
+.` reported 115 files already formatted; `python -m pyright` reported zero diagnostics;
+`python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`, `python -m mkdocs build
+--strict`, `git diff --check`, and `git diff --cached --check` passed.
 
 ## CS-022 - Optional GitHub Release distribution
 
