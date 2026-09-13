@@ -21,6 +21,9 @@ Return types retain adopted values, source provenance, warnings, and convergence
         - WaterSurfaceProfile
         - InletControlProfile
         - ProfilePoint
+        - LongitudinalHydraulicProfile
+        - HydraulicProfilePoint
+        - HydraulicProfileState
         - HeadLossComponents
         - ConvergenceRecord
         - RootResult
