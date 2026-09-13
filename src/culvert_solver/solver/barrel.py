@@ -41,8 +41,6 @@ def _build_longitudinal_profile(
             return None
         return build_free_surface_longitudinal_profile(
             profile,
-            full_flow,
-            upstream_full_length=profile.full_flow_length,
             entrance_loss=(None if result.outlet_control_losses is None else result.outlet_control_losses.entrance),
         )
 
@@ -75,9 +73,11 @@ def _build_longitudinal_profile(
         return build_mixed_longitudinal_profile(
             result.barrel,
             profile,
-            full_flow,
-            downstream_full_length=result.full_flow_length,
-            entrance_loss=(None if result.outlet_control_losses is None else result.outlet_control_losses.entrance),
+            friction_loss=full_losses.friction,
+            velocity=full_velocity,
+            velocity_head=full_velocity_head,
+            upstream_full_length=profile.full_flow_length,
+            entrance_loss=entrance_loss,
         )
 
     return build_mixed_longitudinal_profile(
