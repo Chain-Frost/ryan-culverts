@@ -142,6 +142,45 @@ def test_submergence_above_supported_ratio_fails_closed() -> None:
         calculate_roadway_overtopping(roadway, 12.5, 12.4975)
 
 
+def test_submerged_crossing_uses_supported_lower_headwater_bound() -> None:
+    roadway = RoadwayWeir(
+        crest_elevation=11.0,
+        crest_length=20.0,
+        discharge_coefficient=1.6,
+        surface=RoadwaySurface.PAVED,
+    )
+
+    result = solve_crossing_hydraulics(
+        _crossing(roadway),
+        total_discharge=8.0,
+        tailwater=11.2,
+    )
+
+    assert result.roadway_result is not None
+    assert result.roadway_discharge > 0.0
+    assert all(
+        segment.submergence_correction is None
+        or segment.submergence_correction.ratio <= 0.99
+        for segment in result.roadway_result.segment_results
+    )
+
+
+def test_submerged_crossing_below_supported_capacity_fails_closed() -> None:
+    roadway = RoadwayWeir(
+        crest_elevation=11.0,
+        crest_length=20.0,
+        discharge_coefficient=1.6,
+        surface=RoadwaySurface.PAVED,
+    )
+
+    with pytest.raises(InvalidInputError, match="supported FHWA correction range"):
+        solve_crossing_hydraulics(
+            _crossing(roadway),
+            total_discharge=0.1,
+            tailwater=11.2,
+        )
+
+
 def test_submerged_roadway_without_surface_fails_closed() -> None:
     roadway = RoadwayWeir(
         crest_elevation=12.0,
@@ -165,12 +204,19 @@ def test_irregular_roadway_participates_in_common_headwater_conservation() -> No
         discharge_coefficient=1.6,
     )
 
-    result = solve_crossing_hydraulics(_crossing(roadway), total_discharge=8.0, tailwater=9.5)
+    result = solve_crossing_hydraulics(
+        _crossing(roadway),
+        total_discharge=8.0,
+        tailwater=9.5,
+    )
 
     assert result.roadway_result is not None
     assert result.roadway_discharge > 0.0
     assert result.culvert_discharge > 0.0
-    assert result.culvert_discharge + result.roadway_discharge == pytest.approx(8.0, abs=1e-5)
+    assert result.culvert_discharge + result.roadway_discharge == pytest.approx(
+        8.0,
+        abs=1e-5,
+    )
 
 
 def test_submerged_roadway_round_trip_with_discharge_dependent_tailwater() -> None:
@@ -190,7 +236,11 @@ def test_submerged_roadway_round_trip_with_discharge_dependent_tailwater() -> No
     )
     crossing = _crossing(roadway)
 
-    forward = solve_crossing_hydraulics(crossing, total_discharge=8.0, tailwater=boundary)
+    forward = solve_crossing_hydraulics(
+        crossing,
+        total_discharge=8.0,
+        tailwater=boundary,
+    )
     inverse = solve_crossing_discharge_for_headwater(
         crossing,
         headwater_elevation=forward.headwater_elevation,
