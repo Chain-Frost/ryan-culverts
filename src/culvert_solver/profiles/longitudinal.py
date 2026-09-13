@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 from enum import StrEnum
-from itertools import pairwise
 
 from ..models.barrel import CulvertBarrel
 from ..outlet_control.full_flow import FullFlowOutletResult
