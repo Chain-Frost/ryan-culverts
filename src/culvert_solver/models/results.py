@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from ..numerical.roots import RootResult
     from ..outlet_control.losses import ExitLossSelection
     from ..profiles.direct_step import InletControlProfile, WaterSurfaceProfile
+    from ..profiles.longitudinal import LongitudinalHydraulicProfile
     from ..roadway.overtopping import RoadwayOvertoppingResult
     from ..solver.resolvers import EntranceLossSelection, InletCoefficientSelection
     from .materials import RoughnessApplicabilityNotice
@@ -169,6 +170,7 @@ class BarrelHydraulicResult:
     outlet_control_losses: HeadLossComponents | None = None
     full_flow_losses: HeadLossComponents | None = None
     profile: WaterSurfaceProfile | InletControlProfile | None = None
+    longitudinal_profile: LongitudinalHydraulicProfile | None = None
     convergence: tuple[ConvergenceRecord, ...] = ()
     tailwater_resolution: TailwaterResolution | None = None
 
