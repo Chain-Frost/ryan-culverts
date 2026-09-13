@@ -64,12 +64,10 @@ def test_flat_profile_matches_constant_crest_and_preserves_segment_sum() -> None
     profile_result = calculate_roadway_overtopping(profile, 12.5, 11.8)
 
     assert profile_result.discharge == pytest.approx(constant_result.discharge)
-    assert sum(
-        segment.discharge for segment in profile_result.segment_results
-    ) == pytest.approx(profile_result.discharge)
-    assert sum(
-        segment.effective_length for segment in profile_result.segment_results
-    ) == pytest.approx(25.0)
+    assert sum(segment.discharge for segment in profile_result.segment_results) == pytest.approx(
+        profile_result.discharge
+    )
+    assert sum(segment.effective_length for segment in profile_result.segment_results) == pytest.approx(25.0)
 
 
 def test_sag_profile_retains_local_geometry_and_flow_contributions() -> None:
@@ -88,9 +86,7 @@ def test_sag_profile_retains_local_geometry_and_flow_contributions() -> None:
 
     assert result.discharge > 0.0
     assert result.upstream_head == pytest.approx(0.5)
-    assert sum(segment.discharge for segment in result.segment_results) == pytest.approx(
-        result.discharge
-    )
+    assert sum(segment.discharge for segment in result.segment_results) == pytest.approx(result.discharge)
     assert {segment.source_interval_index for segment in result.segment_results} == {0, 1}
     assert min(segment.crest_elevation for segment in result.segment_results) < max(
         segment.crest_elevation for segment in result.segment_results
@@ -138,7 +134,7 @@ def test_submergence_above_supported_ratio_fails_closed() -> None:
         surface=RoadwaySurface.PAVED,
     )
 
-    with pytest.raises(InvalidInputError, match="0.99"):
+    with pytest.raises(InvalidInputError, match=r"0\.99"):
         calculate_roadway_overtopping(roadway, 12.5, 12.4975)
 
 
@@ -159,8 +155,7 @@ def test_submerged_crossing_uses_supported_lower_headwater_bound() -> None:
     assert result.roadway_result is not None
     assert result.roadway_discharge > 0.0
     assert all(
-        segment.submergence_correction is None
-        or segment.submergence_correction.ratio <= 0.99
+        segment.submergence_correction is None or segment.submergence_correction.ratio <= 0.99
         for segment in result.roadway_result.segment_results
     )
 
@@ -188,7 +183,7 @@ def test_submerged_roadway_without_surface_fails_closed() -> None:
         discharge_coefficient=1.6,
     )
 
-    with pytest.raises(InvalidInputError, match="requires roadway.surface"):
+    with pytest.raises(InvalidInputError, match=r"requires roadway\.surface"):
         calculate_roadway_overtopping(roadway, 12.5, 12.1)
 
 
@@ -249,8 +244,5 @@ def test_submerged_roadway_round_trip_with_discharge_dependent_tailwater() -> No
 
     assert forward.tailwater_elevation == pytest.approx(11.2)
     assert forward.roadway_result is not None
-    assert any(
-        segment.submergence_correction is not None
-        for segment in forward.roadway_result.segment_results
-    )
+    assert any(segment.submergence_correction is not None for segment in forward.roadway_result.segment_results)
     assert inverse == pytest.approx(8.0, abs=1e-4)
