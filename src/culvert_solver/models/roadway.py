@@ -105,7 +105,7 @@ class RoadwayCrestProfile:
         ):
             msg = "points must contain only RoadwayCrestPoint values."
             raise InvalidInputError(msg)
-        for left, right in zip(processed_points, processed_points[1:]):
+        for left, right in zip(processed_points, processed_points[1:], strict=False):
             if right.station <= left.station:
                 msg = "Roadway crest stations must be strictly increasing."
                 raise InvalidInputError(msg)
