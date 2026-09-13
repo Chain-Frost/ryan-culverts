@@ -1,40 +1,23 @@
-# Work register
+# Work tracking and background index
 
-This is the entry point for agents continuing the culvert solver. The detailed,
-authoritative execution record is the
-[Phase 0-10 remediation and forward plan](2026-09-06-phase-0-to-10-remediation.md).
-The [long-term development plan](long-term-development-plan.md) defines the
-long-term scope; it is not a claim that its phases are complete.
+GitHub Issues are the authoritative source for current task scope, status, ownership,
+dependencies, and acceptance criteria in `ryan-culverts`.
+
+The detailed [Phase 0-10 remediation and forward plan](2026-09-06-phase-0-to-10-remediation.md)
+and the [long-term development plan](long-term-development-plan.md) are retained as
+engineering background, design rationale, research context, and historical execution
+evidence. They are not a second live task tracker.
 
 ## Selecting work
 
-An agent must claim one task by replacing `Unassigned` with its name before editing.
-Stay within that task's boundary in the detailed plan, record evidence in the named
-documents, and return the owner to `Unassigned` at handoff. A task may be implemented
-without being complete; only its acceptance criteria permit `Complete` status.
+Use the relevant GitHub issue to select, coordinate, and close current work. Do not claim a
+migrated task by editing a legacy CS `Owner` field, and do not infer current issue status
+from a CS table entry. If an issue links to a CS section, treat that section as background
+context unless the issue explicitly says otherwise.
 
-Recommended order:
-
-1. CS-001 through CS-008 and CS-011 have completed their bounded work.
-2. CS-010 now provides the bounded first roadway-overtopping increment.
-3. CS-012 performs release checks only for a deliberate wheel handoff.
-4. CS-013 and CS-034 have completed their bounded implementations.
-5. CS-014 was split before implementation; CS-030 through CS-033 own its former scope.
-6. CS-015 and the remaining core-hydraulic tasks preserve future work.
-
-CS-015 and the split NCHRP tasks must not be folded silently into the current equations
-or release claim. Reopen CS-013 only if corrected source evidence changes its bounded
-catalogue or validation.
-
-Application-level culvert project configuration, design-option search, reporting,
-plotting, and GUI work now belongs in `ryan-tools`. In particular, project/scenario
-configuration is tracked by `ryan-tools` issue #81, design-option/minimum-size search by
-issue #82, CLI/reporting by issue #83, and plotting/GUI by issue #84. Do not re-create
-those application layers inside `ryan-culverts`. Core hydraulic capabilities required by
-those consumers remain here.
-
-Before handoff, run focused tests for edited modules and record their exact commands and
-results. The ordinary repository checks are:
+Before handoff, run focused tests for edited modules and record the exact commands and
+results in the issue/PR or maintained engineering documentation as appropriate. The
+ordinary repository checks are:
 
 ```powershell
 python -m pytest -q
@@ -42,81 +25,75 @@ python -m ruff check .
 python -m ruff format --check .
 python -m pyright
 python -m pymarkdown -d MD013 scan -r README.md docs
+python -m mkdocs build --strict
 git diff --check
 ```
 
-CS-012 adds the package build and isolated installed-wheel checks; do not bump a version
-or create a release artifact merely to complete an earlier task.
+Packaging/release work adds the package build and isolated installed-wheel checks. Do not
+bump a version or create a release artifact merely to complete unrelated work.
 
-## Active work
+## Repository boundary
 
-| ID | Status | Owner | Updated | Next review | Next action |
-| --- | --- | --- | --- | --- | --- |
-| CS-001 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for a corrected source edition or evidence that changes a recorded decision. |
-| CS-002 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Monitor source revisions; reopen only for a supported new material or fallback. |
-| CS-003 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen only if primary evidence supports a different digital transition or high-head extension. |
-| CS-004 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen only for a new supported profile family, geometry, or contrary primary evidence. |
-| CS-005 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Preserve machine-readable result status and applicability notices through downstream result structures. |
-| CS-006 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Maintain the version-pinned heterogeneous-crossing fixture; reopen for stronger independent combined-system evidence. |
-| CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression. |
-| CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned external comparison that changes a disposition. |
-| CS-010 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Use the constant-crest free-flow roadway model; CS-028 owns irregular crests and submergence. |
-| CS-011 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only when a new result or notice field requires inventory representation. |
-| CS-012 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Use the current verified wheel for integration tests; packaging now increments the calendar version. |
-| CS-013 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Use only the typed Figure 93 configurations and keep corrected Table 12 within its documented range. |
-| CS-016 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Keep all exported names covered once and preserve the documented public `TailwaterInput` contract. |
-| CS-017 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Retain exactly one version-consistent wheel and keep current-version prose anchored to `pyproject.toml`. |
-| CS-019 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Python 3.14 is the supported baseline; keep the installed-wheel OS matrix green. |
-| CS-020 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Keep `pyproject.toml` and the package-local version marker synchronized; retain standalone and vendored wheel smoke coverage. |
-| CS-034 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Maintain coupled `TailwaterInput` inverse helpers and their barrel/group/mixed-crossing/roadway round trips. |
+`ryan-culverts` owns reusable hydraulic-domain models, equations, solver behaviour,
+result/provenance contracts, and low-level domain utilities required by multiple consumers.
 
-## Deferred work
+Application-level culvert project configuration, design-option search, batch/reporting
+policy, plotting, GUI, and project-level uncertainty-study orchestration belong in
+`ryan-tools`. In particular:
 
-| ID | Status | Owner | Updated | Next review | Next action |
-| --- | --- | --- | --- | --- | --- |
-| CS-009 | Core-only deferred | Unassigned | 2026-09-12 | 2026-09-20 | Keep project/scenario configuration in `ryan-tools` #81; add core serialization only if a stable hydraulic-object interchange contract is later required. |
-| CS-014 | Split | Unassigned | 2026-09-10 | 2026-09-20 | Do not implement this umbrella; use CS-030 through CS-033. |
-| CS-015 | Pending source clarification | Unassigned | 2026-09-09 | 2026-09-20 | Resolve the AGRD05B-23 Section 3.15.1 velocity inconsistency before numerical use. |
-| CS-021 | Deferred | Unassigned | 2026-09-12 | 2026-09-20 | Maintain `ruff.toml` and the recorded rule boundaries; add remaining maintenance guidance only when requested. |
-| CS-022 | Optional | Unassigned | 2026-09-09 | 2026-12-01 | Reconsider GitHub Releases only if the Git-pulled office checkout no longer meets user needs. |
-| CS-023 | Moved downstream | Unassigned | 2026-09-12 | 2026-09-20 | Do not implement design-option search here; `ryan-tools` #82 owns candidate generation, design criteria, feasibility and ranking. |
-| CS-024 | Moved downstream | Unassigned | 2026-09-12 | 2026-09-20 | Do not add plotting dependencies here; `ryan-tools` #84 owns plotting/GUI while core result completeness is tracked in GitHub issue #9. |
-| CS-025 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Prioritise and add supported shapes and materials independently of design automation. |
-| CS-026 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Research and model debris and blockage scenarios with explicit applicability limits. |
-| CS-027 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add uncertainty and sensitivity analysis over explicit input distributions. |
-| CS-028 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Extend roadway flow to irregular sag profiles and evidenced downstream-submergence correction. |
-| CS-029 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Maintain the pinned HEC-RAS 7.0.1 matrix; keep generated projects ignored and external evidence non-authoritative. |
-| CS-030 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Model host and liner geometry plus sourced composite roughness for slip-lined culverts. |
-| CS-031 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Model downstream receiving-section area before adding Borda-Carnot exit loss. |
-| CS-032 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Research and model buried-invert geometry without using rejected embedded coefficients. |
-| CS-033 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Add depth-dependent roughness only with an explicit supported applicability model. |
+- `ryan-tools` #81 owns project/scenario/alternative configuration;
+- `ryan-tools` #82 owns design-option/minimum-size search and ranking;
+- `ryan-tools` #83 owns CLI/reporting/export;
+- `ryan-tools` #84 owns plotting/GUI;
+- `ryan-tools` #87 owns floodway formation assessment/reporting; and
+- `ryan-tools` #91 owns project-level culvert uncertainty/sensitivity studies.
 
-## Repository-review follow-up
+Core hydraulic prerequisites and reusable classes used by those workflows remain in
+`ryan-culverts`.
 
-The 2026-09-12 repository review identified additional work that is tracked as GitHub
-issues rather than new CS identifiers:
+## Legacy CS mapping
 
-- [#5](https://github.com/Chain-Frost/ryan-culverts/issues/5) synchronises packaged version
-  and release documentation;
-- [#6](https://github.com/Chain-Frost/ryan-culverts/issues/6) reconciles public API
-  documentation with implemented capabilities;
-- [#7](https://github.com/Chain-Frost/ryan-culverts/issues/7) adds machine-readable hydraulic
-  result validity/severity;
-- [#8](https://github.com/Chain-Frost/ryan-culverts/issues/8) adds independent
-  heterogeneous-crossing and rating-curve validation;
-- [#9](https://github.com/Chain-Frost/ryan-culverts/issues/9) adds longitudinal HGL/EGL data
-  for full and pressurised reaches; and
-- [#10](https://github.com/Chain-Frost/ryan-culverts/issues/10) exposes
-  representative-barrel/equal-flow applicability limits; and
-- [#11](https://github.com/Chain-Frost/ryan-culverts/issues/11) makes package version
-  reporting truthful when `culvert_solver` is vendored by another distribution.
+The CS identifiers below remain useful references into the detailed remediation record.
+Their current implementation status is determined by the linked GitHub issue, not by this
+table.
 
-Issues [#1](https://github.com/Chain-Frost/ryan-culverts/issues/1) and
-[#2](https://github.com/Chain-Frost/ryan-culverts/issues/2) are implemented by the current
-CS-034 and CS-029 increments. Issues [#3](https://github.com/Chain-Frost/ryan-culverts/issues/3)
-and [#4](https://github.com/Chain-Frost/ryan-culverts/issues/4) continue to track additional
-standard shapes/materials and advanced roadway overtopping respectively.
+| Legacy ID | Current tracking | Boundary / disposition |
+| --- | --- | --- |
+| CS-009 | `ryan-tools` #81; core work only if later required | Keep project/scenario configuration downstream. Add core serialization only if a stable hydraulic-object interchange contract becomes necessary. |
+| CS-014 | Split background umbrella | Do not implement as one task. Its former hydraulic scope is separated into issues #20 through #23. |
+| CS-015 | `ryan-culverts` #15 | Resolve the Austroads worked-example velocity inconsistency before numerical use. |
+| CS-021 | `ryan-culverts` #16 | GitHub issue is authoritative; currently closed/not planned unless reopened. |
+| CS-022 | `ryan-culverts` #17 | GitHub issue is authoritative; currently closed/not planned because the release-distribution activation trigger is not met. |
+| CS-023 | `ryan-tools` #82 | Design-option enumeration, feasibility and ranking remain downstream. |
+| CS-024 | `ryan-tools` #84; core result support in `ryan-culverts` #9 | Plotting dependencies stay out of the hydraulic core. |
+| CS-025 | `ryan-culverts` #3 | Additional supported shapes and source-traceable materials. |
+| CS-026 | `ryan-culverts` #18 | Explicit debris/blockage hydraulic scenarios. |
+| CS-027 | `ryan-culverts` #19 plus `ryan-tools` #91 | Core owns reusable uncertainty contracts/primitives; downstream owns study orchestration, aggregation and reporting. |
+| CS-028 | `ryan-culverts` #4 and #14; PR #13 | Core owns advanced roadway overtopping and the downstream-consumable roadway hydraulic state. |
+| CS-029 | `ryan-culverts` #2 | Implemented/closed issue; retain the CS section as background validation history. |
+| CS-030 | `ryan-culverts` #20 | Slipline host/liner geometry and sourced roughness treatment. |
+| CS-031 | `ryan-culverts` #21 | Receiving-section model and Borda-Carnot exit-loss refinement. |
+| CS-032 | `ryan-culverts` #22 | Buried-invert geometry and coefficient disposition. |
+| CS-033 | `ryan-culverts` #23 | Depth-dependent roughness with explicit material zones. |
+| CS-034 | `ryan-culverts` #1 | Implemented/closed issue; retain the CS section as background inverse-capacity history. |
 
-Agents must update the status, owner, date, next review, and next action when
-taking over or handing off a task. Do not mark a task complete solely because
-tests pass; satisfy its acceptance criteria and record the evidence first.
+Completed CS-001 through CS-013, CS-016, CS-017, CS-019, and CS-020 remain historical
+records of bounded work already delivered. Reopen or create a GitHub issue if new evidence
+requires additional work rather than silently changing their historical status.
+
+## Repository-review issues
+
+The repository review and subsequent integration work are tracked directly as GitHub
+issues:
+
+- #5 synchronises packaged version, wheel and release documentation;
+- #6 reconciles public API documentation with implemented capabilities;
+- #7 provides machine-readable hydraulic result validity/severity;
+- #8 covers independent heterogeneous-crossing and rating-curve validation;
+- #9 provides longitudinal HGL/EGL data for full and pressurised reaches;
+- #10 exposes representative-barrel/equal-flow applicability limits;
+- #11 makes version reporting truthful for standalone and vendored layouts;
+- #14 exposes roadway segment hydraulic state for downstream floodway analysis;
+- #15 through #23 carry the migrated remaining CS work where applicable.
+
+Always use the GitHub issue itself for current status and acceptance criteria.
