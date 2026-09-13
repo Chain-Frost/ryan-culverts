@@ -49,12 +49,16 @@ from culvert_solver import (
     PIPE_LOSS_SQUARE_EDGE,
     CircularGeometry,
     CulvertBarrel,
+    CulvertCrossing,
+    CulvertGroup,
     RectangularGeometry,
     solve_barrel_hydraulics,
+    solve_crossing_hydraulics,
 )
 
 HY8_REPORT_TOLERANCE = 0.0051
 HY8_LENGTH_BALANCE_TOLERANCE = 0.011
+HETEROGENEOUS_DISCHARGES: tuple[float, ...] = (0.5, 1.0, 2.0, 3.0, 5.0, 8.0)
 
 
 @dataclass(frozen=True, slots=True)
@@ -414,6 +418,79 @@ def _hy8_crossing(case: ComparisonCase) -> Hy8Crossing:
     return crossing
 
 
+def _hy8_heterogeneous_crossing() -> Hy8Crossing:
+    """Return the version-pinned mixed circular/box comparison crossing."""
+    crossing = Hy8Crossing(name="mixed-relief-crossing")
+    crossing.tailwater = TailwaterDefinition(constant_elevation=99.0, invert_elevation=99.0)
+    crossing.roadway = RoadwayProfile(
+        width=10.0,
+        stations=[-10.0, 0.0, 10.0],
+        elevations=[120.0, 120.0, 120.0],
+    )
+    crossing.culverts.extend(
+        (
+            Hy8Barrel(
+                name="circular",
+                span=1.0,
+                rise=1.0,
+                shape=Hy8Shape.CIRCLE,
+                material=Hy8Material.CONCRETE,
+                number_of_barrels=1,
+                inlet_configuration=CircularConcreteInlet.SQUARE_EDGE_WITH_HEADWALL,
+                inlet_invert_station=0.0,
+                outlet_invert_station=40.0,
+                inlet_invert_elevation=100.0,
+                outlet_invert_elevation=99.0,
+                roadway_station=0.0,
+                manning_n_top=0.013,
+                manning_n_bottom=0.013,
+            ),
+            Hy8Barrel(
+                name="box-relief",
+                span=1.2,
+                rise=0.8,
+                shape=Hy8Shape.BOX,
+                material=Hy8Material.CONCRETE,
+                number_of_barrels=2,
+                inlet_configuration=ConcreteBoxInlet.SQUARE_EDGE_30_TO_75_DEG_WINGWALL,
+                inlet_invert_station=0.0,
+                outlet_invert_station=30.0,
+                inlet_invert_elevation=101.0,
+                outlet_invert_elevation=99.5,
+                roadway_station=0.0,
+                manning_n_top=0.015,
+                manning_n_bottom=0.015,
+            ),
+        )
+    )
+    return crossing
+
+
+def _local_heterogeneous_crossing() -> CulvertCrossing:
+    """Return the local crossing matched to ``_hy8_heterogeneous_crossing``."""
+    circular = CulvertBarrel(
+        geometry=CircularGeometry(diameter=1.0),
+        length=40.0,
+        inlet_invert=100.0,
+        outlet_invert=99.0,
+        roughness=0.013,
+        material=CONCRETE,
+        inlet_coefficients=CIRCULAR_CONCRETE_SQUARE_EDGE,
+        entrance_loss_coefficient=PIPE_LOSS_SQUARE_EDGE,
+    )
+    box = CulvertBarrel(
+        geometry=RectangularGeometry(span=1.2, rise=0.8),
+        length=30.0,
+        inlet_invert=101.0,
+        outlet_invert=99.5,
+        roughness=0.015,
+        material=CONCRETE,
+        inlet_coefficients=BOX_CONCRETE_FLARED_WINGWALLS_30_75,
+        entrance_loss_coefficient=BOX_LOSS_FLARED_30_75,
+    )
+    return CulvertCrossing(groups=(CulvertGroup(circular, 1), CulvertGroup(box, 2)))
+
+
 def _local_result(case: ComparisonCase) -> LocalComparisonResult:
     """Run the local solver with coefficient choices matched to HY-8."""
     if case.kind is CaseKind.CIRCULAR_CONCRETE:
@@ -517,10 +594,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--hy8", type=Path, help="Explicit HY864.exe path")
     parser.add_argument("--workspace", type=Path, help="Keep HY-8 projects and reports here")
     parser.add_argument("--output", type=Path, help="Write UTF-8 CSV here instead of stdout")
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
         "--discrepancy-sweep",
         action="store_true",
         help="Run nearby discharges for the retained Type 6 and crown-transition cases",
+    )
+    mode.add_argument(
+        "--heterogeneous-crossing",
+        action="store_true",
+        help="Run the mixed circular/box crossing and regime-transition rating fixture",
     )
     return parser.parse_args()
 
@@ -646,15 +729,128 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
         )
 
 
+def _write_heterogeneous_matrix(args: argparse.Namespace, output: TextIO) -> None:
+    """Execute the mixed-crossing comparison and retain allocation evidence."""
+    executable = Hy8Executable(args.hy8) if args.hy8 is not None else Hy8Executable()
+    local_crossing = _local_heterogeneous_crossing()
+    hy8_crossing = _hy8_heterogeneous_crossing()
+    writer = csv.writer(output, lineterminator="\n")
+    writer.writerow(
+        (
+            "case_id",
+            "discharge_m3s",
+            "tailwater_m",
+            "local_headwater_m",
+            "hy8_headwater_m",
+            "headwater_difference_m",
+            "local_circular_flow_m3s",
+            "hy8_circular_flow_m3s",
+            "circular_flow_difference_m3s",
+            "local_box_group_flow_m3s",
+            "hy8_box_group_flow_m3s",
+            "box_group_flow_difference_m3s",
+            "local_circular_velocity_ms",
+            "hy8_circular_velocity_ms",
+            "circular_velocity_difference_ms",
+            "local_box_velocity_ms",
+            "hy8_box_velocity_ms",
+            "box_velocity_difference_ms",
+            "local_circular_control",
+            "local_circular_regime",
+            "hy8_circular_flow_type",
+            "local_box_control",
+            "local_box_regime",
+            "hy8_box_flow_type",
+            "local_conservation_difference_m3s",
+            "hy8_conservation_difference_m3s",
+            "local_common_headwater_spread_m",
+            "hy8_roadway_discharge_m3s",
+        )
+    )
+    for discharge in HETEROGENEOUS_DISCHARGES:
+        local = solve_crossing_hydraulics(local_crossing, discharge, 99.0)
+        case_workspace = args.workspace / f"q-{discharge:.2f}" if args.workspace is not None else None
+        hy8_result = hy8_crossing.hw_from_q(
+            discharge,
+            hy8=executable,
+            workspace=case_workspace,
+            keep_files=case_workspace is not None,
+        )
+        if hy8_result.row is None:
+            msg = f"HY-8 returned no mixed-crossing result row at Q={discharge}."
+            raise RuntimeError(msg)
+        row = hy8_result.row
+        if abs(row.flow - discharge) > HY8_REPORT_TOLERANCE:
+            msg = f"HY-8 row flow {row.flow!r} does not match requested mixed-crossing flow {discharge!r}."
+            raise RuntimeError(msg)
+        if abs(row.roadway_discharge) > HY8_REPORT_TOLERANCE:
+            msg = f"HY-8 reported roadway flow in the mixed-crossing case at Q={discharge}."
+            raise RuntimeError(msg)
+        if len(row.culverts) != 2 or tuple(item.index for item in row.culverts) != (0, 1):
+            msg = f"HY-8 did not return the two ordered mixed-crossing culvert records at Q={discharge}."
+            raise RuntimeError(msg)
+        if not all(
+            math.isfinite(value)
+            for value in (
+                row.headwater_elevation,
+                row.culverts[0].discharge,
+                row.culverts[1].discharge,
+                row.culverts[0].outlet_velocity,
+                row.culverts[1].outlet_velocity,
+            )
+        ):
+            msg = f"HY-8 returned nonfinite mixed-crossing values at Q={discharge}."
+            raise RuntimeError(msg)
+
+        circular_local, box_local = local.group_results
+        circular_hy8, box_hy8 = row.culverts
+        local_conservation = circular_local.total_discharge + box_local.total_discharge - discharge
+        hy8_conservation = circular_hy8.discharge + box_hy8.discharge - row.flow
+        local_headwaters = tuple(item.barrel_result.headwater_elevation for item in local.group_results)
+        writer.writerow(
+            (
+                f"mixed-relief-q{discharge:.2f}",
+                discharge,
+                99.0,
+                local.headwater_elevation,
+                row.headwater_elevation,
+                local.headwater_elevation - row.headwater_elevation,
+                circular_local.total_discharge,
+                circular_hy8.discharge,
+                circular_local.total_discharge - circular_hy8.discharge,
+                box_local.total_discharge,
+                box_hy8.discharge,
+                box_local.total_discharge - box_hy8.discharge,
+                circular_local.barrel_result.velocity_outlet,
+                circular_hy8.outlet_velocity,
+                circular_local.barrel_result.velocity_outlet - circular_hy8.outlet_velocity,
+                box_local.barrel_result.velocity_outlet,
+                box_hy8.outlet_velocity,
+                box_local.barrel_result.velocity_outlet - box_hy8.outlet_velocity,
+                circular_local.barrel_result.control_type.value,
+                circular_local.barrel_result.regime.value,
+                circular_hy8.flow_type,
+                box_local.barrel_result.control_type.value,
+                box_local.barrel_result.regime.value,
+                box_hy8.flow_type,
+                local_conservation,
+                hy8_conservation,
+                max(local_headwaters) - min(local_headwaters),
+                row.roadway_discharge,
+            )
+        )
+
+
 def main() -> int:
     """Execute all cases and emit an ordinary UTF-8 CSV comparison matrix."""
     args = parse_args()
+    writer = _write_heterogeneous_matrix if args.heterogeneous_crossing else _write_matrix
     if args.output is None:
-        _write_matrix(args, sys.stdout)
+        writer(args, sys.stdout)
     else:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with args.output.open("w", encoding="utf-8", newline="") as output:
-            _write_matrix(args, output)
+            writer(args, output)
     return 0
 
 

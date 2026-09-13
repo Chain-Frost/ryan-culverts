@@ -57,7 +57,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-003 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen only if primary evidence supports a different digital transition or high-head extension. |
 | CS-004 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen only for a new supported profile family, geometry, or contrary primary evidence. |
 | CS-005 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Preserve machine-readable result status and applicability notices through downstream result structures. |
-| CS-006 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Reopen for a new supported method or stronger independent combined-system evidence. |
+| CS-006 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Maintain the version-pinned heterogeneous-crossing fixture; reopen for stronger independent combined-system evidence. |
 | CS-007 | Complete | Unassigned | 2026-09-08 | 2026-09-20 | Rebenchmark on target hardware or reopen for an evidenced algorithmic regression. |
 | CS-008 | Complete | Unassigned | 2026-09-09 | 2026-09-20 | Reopen only for contrary primary evidence or a version-pinned external comparison that changes a disposition. |
 | CS-010 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Use the constant-crest free-flow roadway model; CS-028 owns irregular crests and submergence. |

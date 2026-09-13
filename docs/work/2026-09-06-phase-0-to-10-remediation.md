@@ -430,6 +430,8 @@ committed, or pushed.
 
 ### CS-006 - Independent validation for Phases 1-10
 
+Status: Complete. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
+
 Scope: retain analytical unit tests, but add published geometry/hydraulic examples,
 profile cases, group/crossing conservation cases, and rating curves spanning regime
 changes. Separate equation transcription, numerical convergence, and method validity.
@@ -483,6 +485,25 @@ built, versioned, or published.
 Verification: `python -m pytest -q tests/test_crossing.py tests/test_rating_curve.py`
 passed 15 tests; `python -m pytest -q` passed all 272 tests. Repository-wide Ruff check and
 format, strict Pyright, Markdown lint with MD013 excluded, and `git diff --check` passed.
+
+Issue #8 follow-up (2026-09-13): a version-pinned six-point comparison against FHWA HY-8
+`8.0.1.2` now covers a heterogeneous circular/box crossing, raised-group activation,
+unequal flow allocation, differing active-group regimes, and a rating transition. The
+tracked CSV records headwater, group flow, outlet velocity, classification, and
+conservation evidence. Source-tree and installed-package reproductions were byte-identical;
+ordinary tests consume the fixture without executing HY-8.
+
+Maximum differences from HY-8 were `0.023668 m` common headwater, `0.017134 m3/s`
+per-group discharge, and `0.028003 m/s` per-barrel outlet velocity, all within the explicit
+quantity-specific tolerances documented in `docs/validation.md`. This remains external
+software-comparison evidence, not equation authority or field validation. Tailwater rating
+relationships, storage routing, irregular road crests, and submerged roadway overtopping
+remain outside this fixture.
+
+Verification: `python -m pytest -q` passed all 371 tests. Repository-wide Ruff check and
+format (`118 files already formatted`), strict Pyright, Markdown lint with MD013 excluded,
+strict MkDocs, and `git diff --check` passed. No hydraulic equation, public API, package
+version, or release artifact changed.
 
 ### CS-007 - Validate Phase 10 performance behaviour
 

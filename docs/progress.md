@@ -1,5 +1,25 @@
 # Development progress
 
+## 2026-09-13 - CS-006 heterogeneous crossing validation
+
+Added a version-pinned six-point comparison against FHWA HY-8 `8.0.1.2` for a
+heterogeneous crossing with one circular barrel and a raised two-barrel box group. The
+fixture spans relief-group activation, unequal flow allocation, differing active-group
+regimes, and a rating-curve transition. It checks common headwater, per-group flow,
+per-barrel outlet velocity, conservation, and the absence of roadway flow using explicit
+quantity-specific tolerances.
+
+The retained CSV was generated through `run-hy8 2026.9.8.1`; source-tree and installed-
+package reruns were byte-identical. Across the six points, maximum differences from HY-8
+were `0.023668 m` headwater, `0.017134 m3/s` group flow, and `0.028003 m/s` outlet
+velocity. HY-8 remains external comparison evidence rather than equation authority, and
+the tests do not execute HY-8 during ordinary CI.
+
+Verification: `python -m pytest -q` passed 371 tests; Ruff check and format (`118 files
+already formatted`), strict Pyright, Markdown lint with MD013 excluded, strict MkDocs, and
+`git diff --check` passed. No hydraulic equation, public API, package version, or release
+artifact changed.
+
 ## 2026-09-10 - Manning channel tailwater increment
 
 Integrated the supplied Manning-tailwater bundle into the current repository without

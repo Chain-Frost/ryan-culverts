@@ -205,9 +205,55 @@ combined culvert/roadway conservation to `1e-5 m³/s`. These are free-flow softw
 equation fixtures, not validation of the caller's coefficient selection or submerged flow.
 
 These fixtures validate identical-barrel conservation and fixed-boundary rating assembly.
-They do not validate unequal barrel flow division against an external worked example,
-tailwater rating relationships, storage routing, irregular road crests, or submerged
-roadway overtopping.
+The following external fixture adds unequal-barrel flow division; tailwater rating
+relationships, storage routing, irregular road crests, and submerged roadway overtopping
+remain outside this evidence.
+
+### Heterogeneous crossing and regime-transition rating fixture
+
+The CS-006 issue #8 increment compares a mixed crossing against FHWA HY-8 `8.0.1.2` through
+the installed `run-hy8 2026.9.8.1` wheel. That wheel records SHA-256
+`efacb82b13f0fc07fa239a9db91a3e329e87f6622e53e3c5d92525848ca70a1e` and source commit
+`d3f0dbd4f85fb4aa195ade478c9a407a0bb3c0c5`; the local solver commit was
+`dd6b0ca303bb769e9d419ab60042b37a47840c5e`. HY-8 is independent comparison evidence, not
+the equation authority.
+
+The SI crossing has constant tailwater elevation `99.0 m` and no roadway flow. Group 1 is
+one `1.0 m` circular concrete barrel, `40 m` long, with inlet/outlet inverts
+`100.0/99.0 m`, `n=0.013`, and a square-edge headwall. Group 2 is two `1.2 m x 0.8 m`
+concrete box barrels, `30 m` long, with raised inlet/outlet inverts `101.0/99.5 m`,
+`n=0.015`, and square edges with 30-to-75-degree wingwalls. Local inlet and entrance-loss
+records match those semantic HY-8 configurations. Both programs use their documented
+default profile option; the comparison does not tune equations or coefficients to the
+result.
+
+Six total flows, `Q=(0.5, 1, 2, 3, 5, 8) m3/s`, span an inactive raised box group, its
+activation, distinct group regimes, and finally both groups in their higher-flow state.
+The captured result is
+[`validation_data/hy8_8_0_1_2_heterogeneous_crossing.csv`](validation_data/hy8_8_0_1_2_heterogeneous_crossing.csv),
+SHA-256 `75bb43f9bf354fe12e8544b2ff61b80b989c6a3b641bbd90da0e0eb7ad35dd72`.
+
+| Quantity | Maximum absolute difference | Acceptance tolerance | Disposition |
+| --- | --- | --- | --- |
+| Common headwater | `0.023668 m` | `0.03 m` | Pass at all six flows |
+| Per-group discharge | `0.017134 m3/s` | `0.02 m3/s` | Pass for both groups at all flows |
+| Per-barrel outlet velocity | `0.028003 m/s` | `0.03 m/s` | Pass for both groups at all flows |
+| Local total-flow closure | `4.10e-10 m3/s` | `1e-5 m3/s` | Pass |
+| Local common-headwater spread | `1.61e-10 m` | `1e-6 m` | Pass |
+| HY-8 displayed-flow closure | `0.00 m3/s` | `0.011 m3/s` | Pass |
+
+HY-8 reports the raised box as `0-NF` at `0.5` and `1.0 m3/s`. At `2`, `3`, and
+`5 m3/s`, it reports the circular group as `5-S2n` and the box group as `1-S2n`; both are
+`5-S2n` at `8 m3/s`. The local rating result progresses from unsubmerged inlet control,
+through `mixed` while the two active groups differ, to submerged inlet control. The labels
+are method-specific and are not asserted as exact synonyms; the activation and differing-
+group-state progression agree.
+
+The acceptance tolerances account for HY-8's two-decimal report precision plus the known
+difference between direct HDS-5 relationships and HY-8 fitted inlet curves. They are
+software-comparison tolerances, not field or design tolerances. The source-tree run and a
+second run with `PYTHONPATH` cleared against the installed `ryan-culverts` distribution
+produced byte-identical CSVs.
 
 ## Later hydraulic and external gates
 

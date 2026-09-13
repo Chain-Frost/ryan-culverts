@@ -22,6 +22,9 @@ entry. User-visible package changes must be listed here before the next wheel is
 - Extended barrel, HW/D, group, and crossing inverse-capacity helpers to solve against the
   public `TailwaterInput` contract, including total-flow coupling for mixed crossings and
   supported roadway overtopping.
+- Added a version-pinned six-point HY-8 comparison for a heterogeneous circular/box
+  crossing, covering raised-group activation, unequal flow allocation, differing group
+  regimes, and a rating transition.
 
 ## 26.9.10.2 - 2026-09-10
 
