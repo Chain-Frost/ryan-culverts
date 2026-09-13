@@ -9,6 +9,27 @@ integration source. Where downstream submergence applies, the segment also retai
 `RoadwaySubmergenceCorrection` with the interpolated factor plus the governing FHWA source
 and the digital-ordinate source used by the implementation.
 
+## Longitudinal hydraulic profile convention
+
+`BarrelHydraulicResult.longitudinal_profile` is the downstream-consumable profile contract
+for plotting and reporting. Stations are SI metres measured along the barrel from the inlet
+(`0.0`) to the outlet (`barrel.length`). Invert and crown elevations use the same absolute
+datum as the barrel inverts and tailwater boundary.
+
+Each `HydraulicProfilePoint` explicitly identifies its `HydraulicProfileState`:
+
+- `free_surface`: `water_surface_elevation` is the physical water surface and is also the HGL;
+- `pressurised`: `water_surface_elevation` is `None`; `hydraulic_grade_elevation` is the
+  piezometric HGL and must not be presented as a physical free surface.
+
+`energy_grade_elevation` is HGL plus velocity head. `cumulative_friction_loss` accumulates
+barrel friction from the inlet station; entrance and exit losses are retained separately on
+`LongitudinalHydraulicProfile` so presentation code does not double count boundary losses.
+Supported mixed paths preserve inlet-to-outlet ordering and record their free/full transition
+station. The existing `ProfilePoint`, `WaterSurfaceProfile`, and `InletControlProfile` types
+remain the direct-step/free-surface calculation records and are not redefined as pressurised
+HGL points.
+
 ::: culvert_solver
     options:
       members:
@@ -30,6 +51,9 @@ and the digital-ordinate source used by the implementation.
         - WaterSurfaceProfile
         - InletControlProfile
         - ProfilePoint
+        - LongitudinalHydraulicProfile
+        - HydraulicProfilePoint
+        - HydraulicProfileState
         - HeadLossComponents
         - ConvergenceRecord
         - RootResult

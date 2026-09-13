@@ -207,6 +207,11 @@ from .profiles.direct_step import (
     compute_inlet_control_s2_profile,
     compute_steep_inlet_control_profile,
 )
+from .profiles.longitudinal import (
+    HydraulicProfilePoint,
+    HydraulicProfileState,
+    LongitudinalHydraulicProfile,
+)
 from .references.models import SourceReference
 from .roadway.overtopping import (
     RoadwayOvertoppingResult,
@@ -321,6 +326,8 @@ __all__: list[str] = [
     "GroupSummary",
     "HeadLossComponents",
     "HydraulicApplicabilityNotice",
+    "HydraulicProfilePoint",
+    "HydraulicProfileState",
     "HydraulicResultStatus",
     "HydraulicWarning",
     "HydraulicWarningCode",
@@ -332,6 +339,7 @@ __all__: list[str] = [
     "InletSelectionBasis",
     "InvalidInputError",
     "InventorySummary",
+    "LongitudinalHydraulicProfile",
     "ManningChannelTailwater",
     "ManningRoughnessSelection",
     "ModernBoxInlet",

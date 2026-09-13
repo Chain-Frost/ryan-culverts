@@ -5,14 +5,95 @@ from dataclasses import replace
 from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
+from ..hydraulics.primitives import cross_section_velocity
+from ..hydraulics.primitives import velocity_head as calculate_velocity_head
 from ..inlet_control.coefficients import InletCoefficients
 from ..models.barrel import CulvertBarrel
 from ..models.results import BarrelHydraulicResult
 from ..models.tailwater import TailwaterInput, TailwaterResolution, resolve_tailwater
 from ..outlet_control.losses import EntranceLossCoefficient
+from ..profiles.direct_step import InletControlProfile, WaterSurfaceProfile
+from ..profiles.longitudinal import (
+    LongitudinalHydraulicProfile,
+    build_free_surface_longitudinal_profile,
+    build_full_flow_longitudinal_profile,
+    build_mixed_longitudinal_profile,
+)
 from ..references.models import SourceReference
 from .config import SolverConfiguration
 from .regime import determine_governing_regime
+
+
+def _build_longitudinal_profile(
+    result: BarrelHydraulicResult,
+    *,
+    g: float,
+) -> LongitudinalHydraulicProfile | None:
+    """Build a plotting-ready profile from authoritative scalar/profile results."""
+    profile: WaterSurfaceProfile | InletControlProfile | None = result.profile
+    length_tolerance = max(1e-9, result.barrel.length * 1e-10)
+
+    full_barrel = profile is None and result.full_flow_length >= result.barrel.length - length_tolerance
+    upstream_full_length: float | None = None
+    if isinstance(profile, WaterSurfaceProfile) and profile.full_flow_length > length_tolerance:
+        upstream_full_length = profile.full_flow_length
+    upstream_full = upstream_full_length is not None
+    downstream_full = profile is not None and result.full_flow_length > length_tolerance and not upstream_full
+
+    if not (full_barrel or upstream_full or downstream_full):
+        if profile is None:
+            return None
+        return build_free_surface_longitudinal_profile(
+            profile,
+            entrance_loss=(None if result.outlet_control_losses is None else result.outlet_control_losses.entrance),
+        )
+
+    full_losses = result.full_flow_losses
+    if full_losses is None or full_losses.friction is None:
+        return None
+
+    full_velocity = cross_section_velocity(result.discharge, result.barrel.geometry.area_full)
+    full_velocity_head = calculate_velocity_head(full_velocity, g=g)
+
+    if full_barrel:
+        if result.full_flow_headwater_elevation is None or full_losses.entrance is None or full_losses.exit is None:
+            return None
+        return build_full_flow_longitudinal_profile(
+            result.barrel,
+            headwater_elevation=result.full_flow_headwater_elevation,
+            entrance_loss=full_losses.entrance,
+            friction_loss=full_losses.friction,
+            exit_loss=full_losses.exit,
+            velocity=full_velocity,
+            velocity_head=full_velocity_head,
+        )
+
+    if profile is None:
+        return None
+
+    entrance_loss = None if result.outlet_control_losses is None else result.outlet_control_losses.entrance
+
+    if upstream_full_length is not None:
+        return build_mixed_longitudinal_profile(
+            result.barrel,
+            profile,
+            friction_loss=full_losses.friction,
+            velocity=full_velocity,
+            velocity_head=full_velocity_head,
+            upstream_full_length=upstream_full_length,
+            entrance_loss=entrance_loss,
+        )
+
+    return build_mixed_longitudinal_profile(
+        result.barrel,
+        profile,
+        friction_loss=full_losses.friction,
+        velocity=full_velocity,
+        velocity_head=full_velocity_head,
+        downstream_full_length=result.full_flow_length,
+        entrance_loss=entrance_loss,
+        exit_loss=full_losses.exit,
+    )
 
 
 def solve_barrel_hydraulics(
@@ -50,7 +131,8 @@ def solve_barrel_hydraulics(
     Returns:
     -------
     BarrelHydraulicResult
-        Hydraulic result including the selected regime, headwater, and outlet velocity.
+        Hydraulic result including the selected regime, headwater, outlet velocity,
+        and a typed longitudinal HGL/EGL profile where the hydraulic path is resolved.
 
     Notes:
     -----
@@ -73,4 +155,9 @@ def solve_barrel_hydraulics(
         configuration=configuration,
         g=g,
     )
-    return replace(result, tailwater_resolution=tailwater_resolution)
+    longitudinal_profile = _build_longitudinal_profile(result, g=g)
+    return replace(
+        result,
+        longitudinal_profile=longitudinal_profile,
+        tailwater_resolution=tailwater_resolution,
+    )
