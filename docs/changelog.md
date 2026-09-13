@@ -19,6 +19,9 @@ entry. User-visible package changes must be listed here before the next wheel is
 - Added a typed, source-traceable user-supplied tailwater rating curve with monotonic point
   validation, exact or linear in-range resolution, fail-closed extrapolation, and forward
   barrel/group/crossing integration.
+- Extended barrel, HW/D, group, and crossing inverse-capacity helpers to solve against the
+  public `TailwaterInput` contract, including total-flow coupling for mixed crossings and
+  supported roadway overtopping.
 
 ## 26.9.10.2 - 2026-09-10
 

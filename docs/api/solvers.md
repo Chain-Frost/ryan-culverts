@@ -5,6 +5,10 @@ Use these functions for ordinary barrel, group, crossing, capacity, and rating-c
 Forward solvers accept the public `TailwaterInput` contract. Discharge-dependent boundaries
 are resolved using barrel discharge, total group discharge, or total crossing discharge as
 documented by each function; rating curves resolve the boundary again at every point.
+Inverse discharge-for-headwater helpers accept the same contract and solve the coupled
+`HW(Q, TW(Q))` problem by resolving tailwater again at every candidate discharge. A bounded
+tailwater rating curve also bounds the admissible inverse-flow search; the solver never
+clamps or extrapolates that boundary.
 
 ::: culvert_solver
     options:

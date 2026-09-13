@@ -223,6 +223,20 @@ tailwater resolution. The curve is resolved from barrel flow for a standalone ba
 total group flow for a standalone group, and total crossing flow before allocation for a
 crossing. Every generated rating point performs an independent boundary resolution.
 
+Inverse capacity with a discharge-dependent tailwater solves the coupled residual
+
+```text
+f(Q) = HWforward(Q, TW(Q)) - HWtarget
+```
+
+using the same forward barrel, group, or crossing solver that defines the corresponding
+rating calculation. `TW(Q)` is therefore recalculated for every bracket expansion and root
+evaluation using barrel discharge, total group discharge, or total crossing discharge as
+applicable. The crossing path retains mixed-group allocation and supported unsubmerged
+roadway flow inside each evaluation. Fixed-stage inputs retain the earlier direct inverse
+path. For a bounded user rating curve, the supplied discharge endpoints are hard root
+bounds; a target outside them fails rather than freezing, clamping, or extrapolating stage.
+
 For HDS-5 Section 3.5 steep-slope inlet-control cases, the solver routes an S2 profile
 downstream from immediately below critical depth toward normal depth. Tailwater no higher
 than normal depth directly implies a swept-out jump. For higher sub-crown tailwater, the

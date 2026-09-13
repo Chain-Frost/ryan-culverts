@@ -47,6 +47,15 @@ retained curve, project source, interpolation decision, requested flow, and elev
 These tests establish interpolation and integration behavior; the user-supplied curve
 itself remains project evidence whose validity is the caller's responsibility.
 
+Coupled inverse-tailwater regression tests perform forward/inverse round trips for a
+single barrel, the barrel HW/D convenience, an identical three-barrel group, and a mixed
+circular/rectangular crossing. They confirm that Manning stage is resolved from barrel,
+total group, or total crossing discharge as applicable. A separate mixed-crossing case
+keeps both culvert and unsubmerged roadway flow active. User-rating-curve tests recover an
+in-range flow and reject target headwaters that would require either extrapolation
+direction. These are consistency and boundary-contract tests, not independent hydraulic
+validation of the combined inverse method.
+
 ## Corrected modern-box fixture
 
 `tests/test_modern_box.py` checks the corrected FHWA-HRT-06-138 transcription and

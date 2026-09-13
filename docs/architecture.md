@@ -70,8 +70,9 @@ invert, normal depth, parameter sources, and root diagnostics are retained on re
 `method_source` identifies the hydraulic method; independent `roughness_source`,
 `slope_source`, `geometry_source`, and `channel_invert_source` fields prevent HDS-5 from
 being misreported as the source of project inputs. The ambiguous `source` field is not
-supported. Inverse discharge-for-headwater helpers still require fixed tailwater because
-accepting a flow-dependent boundary there would create a different nested solve.
+supported. Inverse discharge-for-headwater helpers solve the resulting nested problem by
+calling the authoritative forward barrel, group, or crossing solver at every candidate
+discharge and re-resolving the boundary using the applicable receiving-flow basis.
 
 The alternative `TailwaterRatingCurve` boundary stores typed discharge/elevation points
 and their project source. It accepts only strictly increasing discharge and nondecreasing
@@ -79,7 +80,9 @@ absolute water-surface elevation, uses exact tabulated elevations or linear inte
 and rejects requests outside its closed discharge range. Each `TailwaterResolution`
 retains the complete supplied curve, its source, the requested discharge, resolved
 elevation, and whether the result was exact or interpolated. It follows the same barrel,
-group, crossing, and per-rating-point receiving-flow rules as the Manning boundary.
+group, crossing, per-rating-point, and coupled-inverse receiving-flow rules as the Manning
+boundary. Its supplied minimum and maximum discharges bound an inverse solve; a target
+outside that supported range fails explicitly instead of extending the curve.
 
 The same crossing capacity function is public in the inverse direction: callers may obtain
 total culvert-plus-roadway discharge for an absolute target headwater. Group and barrel

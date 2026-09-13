@@ -68,7 +68,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-017 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Retain exactly one version-consistent wheel and keep current-version prose anchored to `pyproject.toml`. |
 | CS-019 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Python 3.14 is the supported baseline; keep the installed-wheel OS matrix green. |
 | CS-020 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Maintain top-level exports, version discovery, changelog entries, and project links together. |
-| CS-034 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Maintain public barrel, group, and crossing discharge-for-headwater helpers and their round-trip tests. |
+| CS-034 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Maintain coupled `TailwaterInput` inverse helpers and their barrel/group/mixed-crossing/roadway round trips. |
 
 ## Deferred work
 
@@ -109,10 +109,11 @@ issues rather than new CS identifiers:
 - [#10](https://github.com/Chain-Frost/ryan-culverts/issues/10) exposes
   representative-barrel/equal-flow applicability limits.
 
-Issues [#1](https://github.com/Chain-Frost/ryan-culverts/issues/1) through
-[#4](https://github.com/Chain-Frost/ryan-culverts/issues/4) continue to track
-discharge-dependent inverse tailwater, user-supplied tailwater rating curves, additional
-standard shapes/materials, and advanced roadway overtopping respectively.
+Issues [#1](https://github.com/Chain-Frost/ryan-culverts/issues/1) and
+[#2](https://github.com/Chain-Frost/ryan-culverts/issues/2) are implemented by the current
+CS-034 and CS-029 increments. Issues [#3](https://github.com/Chain-Frost/ryan-culverts/issues/3)
+and [#4](https://github.com/Chain-Frost/ryan-culverts/issues/4) continue to track additional
+standard shapes/materials and advanced roadway overtopping respectively.
 
 Agents must update the status, owner, date, next review, and next action when
 taking over or handing off a task. Do not mark a task complete solely because

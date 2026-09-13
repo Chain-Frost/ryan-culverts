@@ -1,6 +1,7 @@
 """Culvert crossing hydraulic solver aggregating multiple culvert groups."""
 
 import math
+from collections.abc import Callable
 from dataclasses import replace
 
 from .._validation import finite
@@ -21,6 +22,7 @@ from ..models.results import (
 from ..models.tailwater import (
     TailwaterCondition,
     TailwaterInput,
+    TailwaterRatingCurve,
     TailwaterResolution,
     resolve_tailwater,
 )
@@ -40,7 +42,7 @@ _DISCHARGE_ROOT_TOLERANCES = RootTolerances(x_abs=1e-5, x_rel=1e-7)
 def solve_barrel_discharge_for_headwater(
     barrel: CulvertBarrel,
     headwater_elevation: float,
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     inlet_coefficients: InletCoefficients | None = None,
     entrance_loss_coefficient: float | EntranceLossCoefficient | None = None,
@@ -51,7 +53,8 @@ def solve_barrel_discharge_for_headwater(
     """Solve for single-barrel discharge Q > 0 given a target upstream headwater elevation.
 
     The optional coefficient arguments and configuration follow the same precedence
-    contract as :func:`solve_barrel_hydraulics`.
+    contract as :func:`solve_barrel_hydraulics`. A ``TailwaterInput`` boundary is
+    re-resolved at every candidate barrel discharge.
 
     Returns 0.0 if headwater elevation is at or below the barrel inlet invert.
     """
@@ -71,7 +74,7 @@ def solve_barrel_discharge_for_headwater(
 def solve_barrel_discharge_for_headwater_ratio(
     barrel: CulvertBarrel,
     headwater_ratio: float,
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     inlet_coefficients: InletCoefficients | None = None,
     entrance_loss_coefficient: float | EntranceLossCoefficient | None = None,
@@ -79,7 +82,7 @@ def solve_barrel_discharge_for_headwater_ratio(
     configuration: SolverConfiguration | None = None,
     g: float = GRAVITATIONAL_ACCELERATION,
 ) -> float:
-    """Solve barrel discharge for ``HW/D`` measured above the inlet invert."""
+    """Solve barrel discharge for ``HW/D`` using the common ``TailwaterInput`` contract."""
     ratio: float = finite(headwater_ratio, "headwater_ratio")
     if ratio < 0.0:
         msg = "headwater_ratio must be nonnegative."
@@ -99,38 +102,82 @@ def solve_barrel_discharge_for_headwater_ratio(
 def solve_group_discharge_for_headwater(
     group: CulvertGroup,
     headwater_elevation: float,
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     configuration: SolverConfiguration | None = None,
     g: float = GRAVITATIONAL_ACCELERATION,
 ) -> float:
-    """Return total discharge through an identical parallel-barrel group at a given HW."""
+    """Return group discharge at a given HW using total flow for ``TailwaterInput`` resolution."""
     if not isinstance(group, CulvertGroup):  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = "group must be an instance of CulvertGroup."
         raise InvalidInputError(msg)
-    barrel_discharge: float = solve_barrel_discharge_for_headwater(
-        barrel=group.barrel,
-        headwater_elevation=headwater_elevation,
+    hw_elev: float = finite(headwater_elevation, "headwater_elevation")
+    if _is_fixed_tailwater(tailwater):
+        barrel_discharge: float = solve_barrel_discharge_for_headwater(
+            barrel=group.barrel,
+            headwater_elevation=hw_elev,
+            tailwater=tailwater,
+            configuration=configuration,
+            g=g,
+        )
+        return float(group.quantity) * barrel_discharge
+    if hw_elev <= group.barrel.inlet_invert:
+        return 0.0
+
+    def headwater_at_discharge(discharge: float) -> float:
+        return solve_group_hydraulics(
+            group,
+            total_discharge=discharge,
+            tailwater=tailwater,
+            configuration=configuration,
+            g=g,
+        ).barrel_result.headwater_elevation
+
+    q_scale: float = float(group.quantity) * _barrel_discharge_scale(group.barrel, hw_elev, g)
+    return _solve_coupled_discharge(
+        target_headwater=hw_elev,
         tailwater=tailwater,
-        configuration=configuration,
-        g=g,
-    )
-    return float(group.quantity) * barrel_discharge
+        initial_scale=q_scale,
+        headwater_at_discharge=headwater_at_discharge,
+    ).root
 
 
 def solve_crossing_discharge_for_headwater(
     crossing: CulvertCrossing,
     headwater_elevation: float,
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     configuration: SolverConfiguration | None = None,
     g: float = GRAVITATIONAL_ACCELERATION,
 ) -> float:
-    """Return combined culvert and roadway discharge at a target headwater elevation."""
+    """Return total crossing discharge while coupling flow to ``TailwaterInput`` stage."""
     if not isinstance(crossing, CulvertCrossing):  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = "crossing must be an instance of CulvertCrossing."
         raise InvalidInputError(msg)
     hw_elev: float = finite(headwater_elevation, "headwater_elevation")
+    if not _is_fixed_tailwater(tailwater):
+        if hw_elev <= crossing.min_headwater_reference_elevation:
+            return 0.0
+
+        def headwater_at_discharge(discharge: float) -> float:
+            return solve_crossing_hydraulics(
+                crossing,
+                total_discharge=discharge,
+                tailwater=tailwater,
+                configuration=configuration,
+                g=g,
+            ).headwater_elevation
+
+        q_scale: float = sum(
+            float(group.quantity) * _barrel_discharge_scale(group.barrel, hw_elev, g) for group in crossing.groups
+        )
+        return _solve_coupled_discharge(
+            target_headwater=hw_elev,
+            tailwater=tailwater,
+            initial_scale=q_scale,
+            headwater_at_discharge=headwater_at_discharge,
+        ).root
+
     tw_elev: float = (
         tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
     )
@@ -161,7 +208,7 @@ def solve_crossing_discharge_for_headwater(
 def _solve_barrel_discharge_for_headwater(
     barrel: CulvertBarrel,
     headwater_elevation: float,
-    tailwater: TailwaterCondition | float,
+    tailwater: TailwaterInput,
     *,
     inlet_coefficients: InletCoefficients | None = None,
     entrance_loss_coefficient: float | EntranceLossCoefficient | None = None,
@@ -170,21 +217,42 @@ def _solve_barrel_discharge_for_headwater(
     g: float = GRAVITATIONAL_ACCELERATION,
 ) -> tuple[float, RootResult | None]:
     """Return discharge and its root diagnostics for crossing aggregation."""
-    tw_elev: float
-    tw_elev = tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
-
     hw_elev: float = finite(headwater_elevation, "headwater_elevation")
-    if hw_elev <= barrel.inlet_invert or hw_elev <= tw_elev:
+    if hw_elev <= barrel.inlet_invert:
         return 0.0, None
 
     hw_depth: float = hw_elev - barrel.inlet_invert
     if hw_depth <= 1e-6:
         return 0.0, None
 
-    # Initial scaling for Q
-    a: float = barrel.geometry.area_full
-    d: float = barrel.geometry.rise
-    q_scale: float = max(0.01, a * math.sqrt(g * min(d, hw_depth)))
+    q_scale: float = _barrel_discharge_scale(barrel, hw_elev, g)
+
+    if not _is_fixed_tailwater(tailwater):
+
+        def headwater_at_discharge(discharge: float) -> float:
+            return solve_barrel_hydraulics(
+                barrel=barrel,
+                discharge=discharge,
+                tailwater=tailwater,
+                inlet_coefficients=inlet_coefficients,
+                entrance_loss_coefficient=entrance_loss_coefficient,
+                entrance_loss_source=entrance_loss_source,
+                configuration=configuration,
+                g=g,
+            ).headwater_elevation
+
+        root_result: RootResult = _solve_coupled_discharge(
+            target_headwater=hw_elev,
+            tailwater=tailwater,
+            initial_scale=q_scale,
+            headwater_at_discharge=headwater_at_discharge,
+        )
+        return root_result.root, root_result
+
+    tw_elev: float
+    tw_elev = tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
+    if hw_elev <= tw_elev:
+        return 0.0, None
 
     q_lo: float = min(1e-5, q_scale * 0.01)
     q_hi: float = max(q_scale, 0.01)
@@ -244,6 +312,77 @@ def _solve_barrel_discharge_for_headwater(
         tolerances=_DISCHARGE_ROOT_TOLERANCES,
     )
     return root_res.root, root_res
+
+
+def _is_fixed_tailwater(tailwater: TailwaterInput) -> bool:
+    return isinstance(tailwater, TailwaterCondition) or (
+        isinstance(tailwater, (float, int)) and not isinstance(tailwater, bool)
+    )
+
+
+def _barrel_discharge_scale(barrel: CulvertBarrel, headwater_elevation: float, g: float) -> float:
+    accel: float = finite(g, "g")
+    if accel <= 0.0:
+        msg = "g must be strictly positive."
+        raise InvalidInputError(msg)
+    hw_depth: float = max(0.0, headwater_elevation - barrel.inlet_invert)
+    return max(0.01, barrel.geometry.area_full * math.sqrt(accel * min(barrel.geometry.rise, hw_depth)))
+
+
+def _solve_coupled_discharge(
+    *,
+    target_headwater: float,
+    tailwater: TailwaterInput,
+    initial_scale: float,
+    headwater_at_discharge: Callable[[float], float],
+) -> RootResult:
+    """Solve ``HW(Q, TW(Q)) - target`` over the boundary's supported flow range."""
+    q_scale: float = max(0.01, finite(initial_scale, "initial_scale"))
+    q_lo: float = min(1e-5, q_scale * 0.01)
+    q_hi: float = max(q_scale, 0.01)
+    maximum: float | None = None
+    if isinstance(tailwater, TailwaterRatingCurve):
+        q_lo = max(q_lo, tailwater.min_discharge)
+        maximum = tailwater.max_discharge
+        q_hi = min(max(q_hi, q_lo * 2.0), maximum)
+
+    def residual(discharge: float) -> float:
+        return headwater_at_discharge(discharge) - target_headwater
+
+    residual_lo: float = residual(q_lo)
+    if residual_lo > 0.0:
+        if isinstance(tailwater, TailwaterRatingCurve):
+            msg = "Target headwater requires discharge below the tailwater rating-curve range."
+            raise InvalidInputError(msg)
+        for _ in range(40):
+            q_hi = q_lo
+            q_lo *= 0.1
+            residual_lo = residual(q_lo)
+            if residual_lo <= 0.0:
+                break
+        else:
+            msg = "Unable to bracket a coupled inverse solution at low discharge."
+            raise InvalidInputError(msg)
+
+    residual_hi: float = residual(q_hi)
+    for _ in range(40):
+        if residual_hi >= 0.0:
+            break
+        if maximum is not None and q_hi >= maximum:
+            msg = "Target headwater requires discharge above the tailwater rating-curve range."
+            raise InvalidInputError(msg)
+        q_hi = min(q_hi * 2.0, maximum) if maximum is not None else q_hi * 2.0
+        residual_hi = residual(q_hi)
+    else:
+        msg = "Unable to bracket a coupled inverse solution at high discharge."
+        raise InvalidInputError(msg)
+
+    return solve_brent(
+        function=residual,
+        lower=q_lo,
+        upper=q_hi,
+        tolerances=_DISCHARGE_ROOT_TOLERANCES,
+    )
 
 
 def solve_crossing_hydraulics(

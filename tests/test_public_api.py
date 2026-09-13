@@ -14,8 +14,12 @@ TAILWATER_INPUT_FUNCTIONS = (
     cs.generate_barrel_rating_curve,
     cs.generate_crossing_rating_curve,
     cs.resolve_tailwater,
+    cs.solve_barrel_discharge_for_headwater,
+    cs.solve_barrel_discharge_for_headwater_ratio,
     cs.solve_barrel_hydraulics,
+    cs.solve_crossing_discharge_for_headwater,
     cs.solve_crossing_hydraulics,
+    cs.solve_group_discharge_for_headwater,
     cs.solve_group_hydraulics,
 )
 PROJECT_ROOT = Path(__file__).resolve().parents[1]

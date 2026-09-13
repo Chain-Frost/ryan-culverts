@@ -275,6 +275,16 @@ class TailwaterRatingCurve:
             interpolation=interpolation,
         )
 
+    @property
+    def min_discharge(self) -> float:
+        """Lowest discharge supported without extrapolation."""
+        return self.points[0].discharge
+
+    @property
+    def max_discharge(self) -> float:
+        """Highest discharge supported without extrapolation."""
+        return self.points[-1].discharge
+
 
 @dataclass(frozen=True, slots=True)
 class ManningChannelTailwater:

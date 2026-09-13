@@ -891,12 +891,30 @@ be reviewed and validated without adopting the other.
 
 ### CS-034 - Inverse capacity helpers
 
-Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
 
 Expose discharge for a target absolute headwater for one barrel, an identical-barrel group,
 or a complete crossing including roadway flow. Provide HW/D only for a single barrel where
 the reference invert and rise are unambiguous. Preserve zero capacity below activation and
 round-trip the crossing result through the forward common-headwater solver.
+
+Maintenance handoff (2026-09-13): GitHub issue #1 is implemented locally. All four public
+inverse helpers now accept `TailwaterInput`. Fixed-stage inputs retain their established
+direct inverse path. A discharge-dependent boundary instead uses a coupled Brent solve whose
+residual calls the authoritative forward barrel, group, or crossing solver and resolves
+tailwater at every candidate discharge. Standalone groups use total group flow; mixed-group
+crossings use total crossing flow before allocation and preserve supported unsubmerged
+roadway overtopping. `TailwaterRatingCurve` exposes its closed discharge bounds to the
+inverse bracket, with explicit failures when a target would require clamping or
+extrapolation. Tests cover Manning forward/inverse round trips for a barrel, HW/D, a
+three-barrel group, a heterogeneous circular/rectangular crossing, and a combined
+culvert/roadway crossing, plus bounded rating-curve success and both range failures.
+
+Verification: `python -m pytest -q` passed 369 tests. `python -m ruff check .`,
+`python -m ruff format --check .` (117 files), strict Pyright (0 errors), Markdown lint with
+MD013 excluded, strict MkDocs build, and `git diff --check` passed. No new HY-8 comparison
+was required or run. The coupled inverse checks are consistency and boundary-contract
+tests, not independent combined-method hydraulic validation.
 
 ### CS-015 - Austroads worked-example clarification
 
