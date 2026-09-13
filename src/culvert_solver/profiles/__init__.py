@@ -8,14 +8,7 @@ from .direct_step import (
     compute_inlet_control_s2_profile,
     compute_steep_inlet_control_profile,
 )
-from .longitudinal import (
-    HydraulicProfilePoint,
-    HydraulicProfileState,
-    LongitudinalHydraulicProfile,
-    build_free_surface_longitudinal_profile,
-    build_full_flow_longitudinal_profile,
-    build_mixed_longitudinal_profile,
-)
+from .longitudinal import HydraulicProfilePoint, HydraulicProfileState, LongitudinalHydraulicProfile
 
 __all__ = [
     "HydraulicProfilePoint",
@@ -24,9 +17,6 @@ __all__ = [
     "LongitudinalHydraulicProfile",
     "ProfilePoint",
     "WaterSurfaceProfile",
-    "build_free_surface_longitudinal_profile",
-    "build_full_flow_longitudinal_profile",
-    "build_mixed_longitudinal_profile",
     "compute_backwater_profile",
     "compute_inlet_control_s2_profile",
     "compute_steep_inlet_control_profile",
