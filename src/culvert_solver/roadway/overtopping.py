@@ -23,6 +23,7 @@ _GAUSS_4: tuple[tuple[float, float], ...] = (
     (0.3399810435848563, 0.6521451548625461),
     (0.8611363115940526, 0.3478548451374538),
 )
+_SUBMERGENCE_RATIO_TOLERANCE = 1e-12
 
 # EPA SWMM identifies these digital ordinates as derived from FHWA/RD-86/108
 # Figure 10. A zero-ratio unity point records the no-reduction region explicitly.
@@ -101,6 +102,26 @@ class RoadwayOvertoppingResult:
     segment_results: tuple[RoadwayOvertoppingSegmentResult, ...] = ()
 
 
+def minimum_supported_roadway_headwater(
+    roadway: RoadwayOvertoppingInput,
+    tailwater_elevation: float,
+) -> float:
+    """Return the lowest headwater that keeps all submerged roadway segments supported."""
+    tailwater = finite(tailwater_elevation, "tailwater_elevation")
+    crest = roadway.minimum_crest_elevation
+    if tailwater <= crest:
+        return tailwater
+    if roadway.surface is None:
+        msg = (
+            "Submerged roadway overtopping requires roadway.surface to be "
+            "RoadwaySurface.PAVED or RoadwaySurface.GRAVEL."
+        )
+        raise InvalidInputError(msg)
+
+    maximum_supported_ratio = _SUBMERGENCE_FACTORS[roadway.surface][-1][0]
+    return crest + (tailwater - crest) / maximum_supported_ratio
+
+
 def _submergence_correction(
     surface: RoadwaySurface | None,
     upstream_head: float,
@@ -119,7 +140,7 @@ def _submergence_correction(
     ratio = downstream_head / upstream_head
     table = _SUBMERGENCE_FACTORS[surface]
     maximum_supported_ratio = table[-1][0]
-    if ratio < 0.0 or ratio > maximum_supported_ratio:
+    if ratio < 0.0 or ratio > maximum_supported_ratio + _SUBMERGENCE_RATIO_TOLERANCE:
         msg = (
             "Submerged roadway overtopping is outside the supported FHWA correction range: "
             f"downstream_head / upstream_head must be between 0.0 and "
@@ -127,6 +148,7 @@ def _submergence_correction(
             "because the digitised equal-stage ordinate would imply non-zero flow."
         )
         raise InvalidInputError(msg)
+    ratio = min(ratio, maximum_supported_ratio)
 
     factor = table[-1][1]
     for (x0, y0), (x1, y1) in zip(table, table[1:]):
