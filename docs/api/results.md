@@ -49,6 +49,7 @@ Return types retain adopted values, source provenance, warnings, and convergence
         - EntranceLossSelectionBasis
         - ExitLossSelectionBasis
         - TailwaterMethod
+        - TailwaterInterpolation
         - InvalidInputError
         - ConvergenceError
       show_root_heading: false

@@ -205,6 +205,24 @@ fields. Likewise, `TailwaterResolution.depth` is normal depth above the downstre
 invert. `RatingCurvePoint.tailwater_depth` retains the older culvert-relative reporting
 meaning: depth above the barrel outlet for a barrel curve or above the lowest outlet invert
 for a crossing curve. These values differ whenever the channel and culvert inverts differ.
+
+A user-supplied tailwater rating curve is a separate empirical boundary, not a Manning
+calculation. It contains at least two finite `(Q, WSE)` points, with nonnegative strictly
+increasing discharge and nondecreasing absolute water-surface elevation. At a supplied
+discharge the exact elevation is returned. Between adjacent points the implementation uses
+only linear interpolation:
+
+```text
+WSE(Q) = WSE1 + (Q - Q1) (WSE2 - WSE1) / (Q2 - Q1)
+```
+
+Discharge outside the supplied closed range fails explicitly; there is no implicit clamp
+or extrapolation. The caller's `rating_curve_source`, complete curve, requested discharge,
+resolved elevation, and exact-versus-linear interpolation decision are retained in the
+tailwater resolution. The curve is resolved from barrel flow for a standalone barrel,
+total group flow for a standalone group, and total crossing flow before allocation for a
+crossing. Every generated rating point performs an independent boundary resolution.
+
 For HDS-5 Section 3.5 steep-slope inlet-control cases, the solver routes an S2 profile
 downstream from immediately below critical depth toward normal depth. Tailwater no higher
 than normal depth directly implies a swept-out jump. For higher sub-crown tailwater, the

@@ -803,7 +803,7 @@ roughness). No NCHRP equation or coefficient was added while performing the spli
 
 ### CS-029 - Discharge-dependent tailwater boundaries
 
-Status: Partial. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
+Status: Partial. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
 
 Add a typed, monotonic discharge/elevation rating curve with defined interpolation and
 out-of-range policy, then consider supported rectangular/trapezoidal/irregular channel
@@ -822,10 +822,20 @@ documented separately from culvert-relative tailwater depth. Hand-calculated fix
 cover four section configurations and crossing/rating flow basis. A reusable
 `hydraulic_radius()` utility keeps `A/P` outside the minimal open-channel protocol.
 
-Remaining before completion: implement the planned user-supplied monotonic `(Q, WSE)`
-rating boundary with explicit interpolation and out-of-range policy, and record an
-independent external comparison for the Manning boundary. Irregular sections, compound
-roughness, and downstream gradually varied flow remain separately scoped future work.
+Handoff (2026-09-13): `TailwaterRatingPoint` and `TailwaterRatingCurve` provide the planned
+user-supplied boundary. Construction requires at least two finite points, nonnegative and
+strictly increasing discharge, nondecreasing absolute water-surface elevation, and an
+explicit project `rating_curve_source`. Resolution returns exact tabulated elevations or
+linear interpolation inside the closed range and rejects both extrapolation directions.
+`TailwaterResolution` retains the full curve, its source, requested discharge, resolved
+elevation, and an exact-point or linear interpolation classification. Public exports, API
+reference, computational basis, architecture, changelog, and validation evidence were
+updated. Tests cover all specified validation failures plus barrel, group, total-crossing,
+and independently recalculated crossing-rating flow bases.
+
+Remaining before completion: record an independent external comparison for the Manning
+boundary. Irregular sections, compound roughness, and downstream gradually varied flow
+remain separately scoped future work.
 
 Acceptance criteria for the rating boundary:
 
@@ -849,11 +859,10 @@ the external tool and version, complete SI inputs, expected and observed depths,
 differences, tolerances, and any modelling assumptions in `docs/validation.md`. This is
 external comparison evidence, not permission to tune the Manning equation to software.
 
-Verification: `python -m pytest -q` passed 333 tests. Repository-wide Ruff check and
-format, strict Pyright, Markdown lint with MD013 excluded, strict MkDocs build, and
-`git diff --check` passed. The repository was mechanically reformatted to match its
-active 120-character Ruff configuration. No new HY-8 executable comparison was required
-or run.
+Verification (2026-09-13): `python -m pytest -q` passed 358 tests. `python -m ruff check .`,
+`python -m ruff format --check .` (116 files), strict Pyright (0 errors), Markdown lint with
+MD013 excluded, strict MkDocs build, and `git diff --check` passed. No HY-8 executable
+comparison was required or run; the remaining external Manning comparison was not run.
 
 ### CS-030 - Slipline host/liner geometry and composite roughness
 

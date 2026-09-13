@@ -73,6 +73,14 @@ being misreported as the source of project inputs. The ambiguous `source` field 
 supported. Inverse discharge-for-headwater helpers still require fixed tailwater because
 accepting a flow-dependent boundary there would create a different nested solve.
 
+The alternative `TailwaterRatingCurve` boundary stores typed discharge/elevation points
+and their project source. It accepts only strictly increasing discharge and nondecreasing
+absolute water-surface elevation, uses exact tabulated elevations or linear interpolation,
+and rejects requests outside its closed discharge range. Each `TailwaterResolution`
+retains the complete supplied curve, its source, the requested discharge, resolved
+elevation, and whether the result was exact or interpolated. It follows the same barrel,
+group, crossing, and per-rating-point receiving-flow rules as the Manning boundary.
+
 The same crossing capacity function is public in the inverse direction: callers may obtain
 total culvert-plus-roadway discharge for an absolute target headwater. Group and barrel
 forms are also public. HW/D convenience is intentionally barrel-only because a mixed

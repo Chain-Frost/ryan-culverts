@@ -1,7 +1,9 @@
 """Fixed and discharge-dependent downstream tailwater boundaries."""
 
+from bisect import bisect_left
 from dataclasses import dataclass
 from enum import StrEnum
+from itertools import pairwise
 from typing import Protocol, runtime_checkable
 
 from .._validation import finite
@@ -33,6 +35,28 @@ class TailwaterMethod(StrEnum):
 
     FIXED_ELEVATION = "fixed_elevation"
     MANNING_NORMAL_DEPTH = "manning_normal_depth"
+    RATING_CURVE = "rating_curve"
+
+
+class TailwaterInterpolation(StrEnum):
+    """How a tailwater rating curve supplied its resolved elevation."""
+
+    EXACT_POINT = "exact_point"
+    LINEAR = "linear"
+
+
+@dataclass(frozen=True, slots=True)
+class TailwaterRatingPoint:
+    """One user-supplied discharge and absolute water-surface elevation pair."""
+
+    discharge: float
+    elevation: float
+
+    def __post_init__(self) -> None:
+        discharge: float = _nonnegative_discharge(self.discharge)
+        elevation: float = finite(self.elevation, "elevation")
+        object.__setattr__(self, "discharge", discharge)
+        object.__setattr__(self, "elevation", elevation)
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,6 +81,9 @@ class TailwaterResolution:
     slope_source: SourceReference | None = None
     geometry_source: SourceReference | None = None
     channel_invert_source: SourceReference | None = None
+    rating_curve: tuple[TailwaterRatingPoint, ...] | None = None
+    rating_curve_source: SourceReference | None = None
+    interpolation: TailwaterInterpolation | None = None
 
     def __post_init__(self) -> None:
         elevation: float = finite(self.elevation, "elevation")
@@ -78,6 +105,7 @@ class TailwaterResolution:
             "slope_source",
             "geometry_source",
             "channel_invert_source",
+            "rating_curve_source",
         ):
             value = getattr(self, name)
             if value is not None and not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
@@ -85,6 +113,11 @@ class TailwaterResolution:
             ):
                 msg = f"{name} must be a SourceReference when supplied."
                 raise InvalidInputError(msg)
+        if self.interpolation is not None and not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+            self.interpolation, TailwaterInterpolation
+        ):
+            msg = "interpolation must be a TailwaterInterpolation when supplied."
+            raise InvalidInputError(msg)
         if depth is not None and depth < 0.0:
             msg = "depth must be nonnegative."
             raise InvalidInputError(msg)
@@ -108,6 +141,13 @@ class TailwaterResolution:
             if self.method_source is None:
                 msg = "A Manning tailwater resolution requires a method_source."
                 raise InvalidInputError(msg)
+        if self.method is TailwaterMethod.RATING_CURVE and (
+            self.rating_curve is None or self.rating_curve_source is None or self.interpolation is None
+        ):
+            msg = (
+                "A rating-curve tailwater resolution requires the rating curve, rating_curve_source, and interpolation."
+            )
+            raise InvalidInputError(msg)
         object.__setattr__(self, "elevation", elevation)
         object.__setattr__(self, "discharge", discharge)
         object.__setattr__(self, "channel_invert_elevation", invert)
@@ -156,6 +196,83 @@ class TailwaterCondition:
             elevation=self.elevation,
             method=TailwaterMethod.FIXED_ELEVATION,
             discharge=q,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class TailwaterRatingCurve:
+    """User-supplied monotonic discharge/elevation tailwater boundary.
+
+    The curve uses exact elevations at supplied points and linear interpolation
+    between them. Discharges outside its closed range are rejected; the boundary
+    never clamps or extrapolates.
+    """
+
+    points: tuple[TailwaterRatingPoint, ...]
+    rating_curve_source: SourceReference
+
+    def __post_init__(self) -> None:
+        try:
+            points: tuple[TailwaterRatingPoint, ...] = tuple(self.points)
+        except TypeError as exc:
+            msg = "points must be an iterable of TailwaterRatingPoint values."
+            raise InvalidInputError(msg) from exc
+        if len(points) < 2:
+            msg = "points must contain at least two rating-curve points."
+            raise InvalidInputError(msg)
+        if any(
+            not isinstance(point, TailwaterRatingPoint)  # pyright: ignore[reportUnnecessaryIsInstance]
+            for point in points
+        ):
+            msg = "points must contain only TailwaterRatingPoint values."
+            raise InvalidInputError(msg)
+        for lower, upper in pairwise(points):
+            if upper.discharge <= lower.discharge:
+                msg = "Rating-curve discharges must be strictly increasing."
+                raise InvalidInputError(msg)
+            if upper.elevation < lower.elevation:
+                msg = "Rating-curve elevations must be nondecreasing."
+                raise InvalidInputError(msg)
+        if not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+            self.rating_curve_source, SourceReference
+        ):
+            msg = "rating_curve_source must be a SourceReference."
+            raise InvalidInputError(msg)
+        object.__setattr__(self, "points", points)
+
+    def resolve(
+        self,
+        discharge: float,
+        *,
+        g: float = GRAVITATIONAL_ACCELERATION,
+    ) -> TailwaterResolution:
+        """Resolve an in-range stage without clamping or extrapolation."""
+        q: float = _nonnegative_discharge(discharge)
+        _positive_gravity(g)
+        minimum: float = self.points[0].discharge
+        maximum: float = self.points[-1].discharge
+        if q < minimum or q > maximum:
+            msg = f"discharge {q} is outside the tailwater rating-curve range [{minimum}, {maximum}]."
+            raise InvalidInputError(msg)
+
+        index: int = bisect_left(a=self.points, x=q, key=lambda point: point.discharge)
+        if index < len(self.points) and self.points[index].discharge == q:
+            elevation: float = self.points[index].elevation
+            interpolation: TailwaterInterpolation = TailwaterInterpolation.EXACT_POINT
+        else:
+            lower: TailwaterRatingPoint = self.points[index - 1]
+            upper: TailwaterRatingPoint = self.points[index]
+            fraction: float = (q - lower.discharge) / (upper.discharge - lower.discharge)
+            elevation = lower.elevation + fraction * (upper.elevation - lower.elevation)
+            interpolation = TailwaterInterpolation.LINEAR
+
+        return TailwaterResolution(
+            elevation=elevation,
+            method=TailwaterMethod.RATING_CURVE,
+            discharge=q,
+            rating_curve=self.points,
+            rating_curve_source=self.rating_curve_source,
+            interpolation=interpolation,
         )
 
 

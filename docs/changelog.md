@@ -16,6 +16,9 @@ entry. User-visible package changes must be listed here before the next wheel is
   multi-barrel group and crossing results and propagated it through inventory summaries.
 - Added machine-readable hydraulic result status with conservative group/crossing
   aggregation and propagation into rating-curve points and inventory summaries.
+- Added a typed, source-traceable user-supplied tailwater rating curve with monotonic point
+  validation, exact or linear in-range resolution, fail-closed extrapolation, and forward
+  barrel/group/crossing integration.
 
 ## 26.9.10.2 - 2026-09-10
 

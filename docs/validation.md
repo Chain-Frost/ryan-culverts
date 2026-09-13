@@ -37,6 +37,16 @@ intentionally rejected in favour of explicit provenance names. Channel normal de
 culvert-outlet-relative tailwater depth remain separate, explicitly documented result
 quantities.
 
+The user-supplied rating-curve boundary has contract tests for exact points, linear
+interpolation including a flat-stage segment, nonfinite point values, insufficient points,
+negative, duplicate, and decreasing discharge, decreasing elevation, and requests below
+or above the supplied range. Forward integration tests exercise barrel flow, total group
+flow, and total crossing flow before unequal-group allocation. A crossing rating test
+independently resolves the boundary at every requested total discharge and checks the
+retained curve, project source, interpolation decision, requested flow, and elevation.
+These tests establish interpolation and integration behavior; the user-supplied curve
+itself remains project evidence whose validity is the caller's responsibility.
+
 ## Corrected modern-box fixture
 
 `tests/test_modern_box.py` checks the corrected FHWA-HRT-06-138 transcription and
