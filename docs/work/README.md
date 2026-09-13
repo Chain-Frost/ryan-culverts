@@ -84,7 +84,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-025 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Prioritise and add supported shapes and materials independently of design automation. |
 | CS-026 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Research and model debris and blockage scenarios with explicit applicability limits. |
 | CS-027 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add uncertainty and sensitivity analysis over explicit input distributions. |
-| CS-028 | In progress | GPT-5.6 Sol | 2026-09-13 | 2026-09-20 | Implement issue #4: typed irregular roadway segments and source-bounded paved/gravel submergence correction. |
+| CS-028 | Partial | Unassigned | 2026-09-13 | 2026-09-20 | Review PR for issue #4; run focused/full tests, Ruff, Pyright, docs checks and any desired HY-8 comparison before deciding completion. |
 | CS-029 | Partial | Unassigned | 2026-09-13 | 2026-09-20 | Record independent external Manning normal-depth comparisons; the typed rating boundary is implemented. |
 | CS-030 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Model host and liner geometry plus sourced composite roughness for slip-lined culverts. |
 | CS-031 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Model downstream receiving-section area before adding Borda-Carnot exit loss. |
