@@ -1,5 +1,27 @@
 # Development progress
 
+## 2026-09-13 - CS-029 HEC-RAS normal-depth validation
+
+Completed the remaining CS-029 external comparison with HEC-RAS 7.0.1. A Windows-only
+adapter clones the official `Mixed Flow Regime Channel` example into ignored workspaces,
+constructs four matched prismatic geometries, runs two flow scales for each through the
+version-pinned COM controller, and retains a portable CSV for ordinary tests. The source
+download remains unmodified and is not required by CI.
+
+All eight local depths agreed with HEC-RAS within `0.0002 m`; the largest absolute
+difference was `0.00014520 m`. Retained HEC-RAS area, wetted-perimeter, and top-width
+outputs independently check the translated geometry within `0.00002` in the corresponding
+SI quantities. This is bounded uniform-flow software evidence, not field validation or a
+general downstream backwater model. The automated run was not manually reviewed in the
+HEC-RAS GUI.
+
+Verification: two fresh HEC-RAS executions produced byte-identical CSVs with SHA-256
+`bd5dd2b6da1e965b9ab46ed18d2c03436154ee165c5bed48f81ba759d6bfed97`.
+The focused Manning/external tests passed 16 tests and the full suite passed all 380 tests.
+Repository-wide Ruff check passed, Ruff format checked all 122 files, strict Pyright
+reported 0 errors, Markdown lint with MD013 excluded passed, `git diff --check` passed, and
+strict MkDocs passed. No package, release artifact, commit, or publication was created.
+
 ## 2026-09-13 - CS-020 vendored package version provenance
 
 Replaced runtime `ryan-culverts` distribution lookup with a package-local version marker.

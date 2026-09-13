@@ -773,6 +773,9 @@ was verified unchanged; nothing was published.
 
 ### CS-009 - Versioned JSON/configuration boundary
 
+Tracked by [`ryan-tools` #81](https://github.com/Chain-Frost/ryan-tools/issues/81). Any
+future core-only serialization requires a proven hydraulic-object interchange consumer.
+
 Add only for a concrete CLI, service, or project-file consumer. Define schema version,
 SI units, enum representation, user-default overrides, source provenance, unknown-field
 policy, migration behaviour, and round-trip tests. Keep JSON parsing out of the
@@ -822,9 +825,15 @@ geometry and composite roughness), CS-031 (receiving section and Borda-Carnot ex
 CS-032 (buried-invert geometry and coefficient disposition), and CS-033 (depth-dependent
 roughness). No NCHRP equation or coefficient was added while performing the split.
 
+Tracked by GitHub issues [#20](https://github.com/Chain-Frost/ryan-culverts/issues/20),
+[#21](https://github.com/Chain-Frost/ryan-culverts/issues/21),
+[#22](https://github.com/Chain-Frost/ryan-culverts/issues/22), and
+[#23](https://github.com/Chain-Frost/ryan-culverts/issues/23). CS-014 itself is not an
+implementable issue.
+
 ### CS-029 - Discharge-dependent tailwater boundaries
 
-Status: Partial. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
 
 Add a typed, monotonic discharge/elevation rating curve with defined interpolation and
 out-of-range policy, then consider supported rectangular/trapezoidal/irregular channel
@@ -854,8 +863,22 @@ reference, computational basis, architecture, changelog, and validation evidence
 updated. Tests cover all specified validation failures plus barrel, group, total-crossing,
 and independently recalculated crossing-rating flow bases.
 
-Remaining before completion: record an independent external comparison for the Manning
-boundary. Irregular sections, compound roughness, and downstream gradually varied flow
+Completion handoff (2026-09-13): a Windows-only adapter clones the official HEC-RAS 7.0
+`Mixed Flow Regime Channel` example into an ignored workspace and executes it through the
+version-pinned HEC-RAS 7.0.1 COM controller. Eight retained rows span rectangular,
+symmetric/asymmetric trapezoidal, and triangular sections at two flow scales each. The
+largest normal-depth difference was `0.00014520 m`, within the explicit `0.0002 m`
+software-comparison tolerance. HEC-RAS area, wetted perimeter, and top-width outputs also
+match the intended sections within `0.00002` in the corresponding SI quantities. Two fresh
+runs and the tracked CSV were byte-identical with SHA-256
+`bd5dd2b6da1e965b9ab46ed18d2c03436154ee165c5bed48f81ba759d6bfed97`.
+
+The downloaded project is not tracked and was not modified by the adapter. Generated HDF
+and result files remain ignored. `docs/validation.md` records the executable and source
+hashes, complete SI inputs, transformations, precision, differences, tolerances, and model
+limits. The comparison was automated and not manually reviewed in the HEC-RAS GUI. It is
+bounded external uniform-flow evidence, not equation authority or validation of downstream
+backwater. Irregular sections, compound roughness, and downstream gradually varied flow
 remain separately scoped future work.
 
 Acceptance criteria for the rating boundary:
@@ -885,7 +908,16 @@ Verification (2026-09-13): `python -m pytest -q` passed 358 tests. `python -m ru
 MD013 excluded, strict MkDocs build, and `git diff --check` passed. No HY-8 executable
 comparison was required or run; the remaining external Manning comparison was not run.
 
+Completion verification (2026-09-13): the focused Manning and external-fixture run passed
+16 tests, and `python -m pytest -q` passed all 380 tests. Repository-wide Ruff check passed,
+Ruff format checked all 122 files, strict Pyright reported 0 errors, Markdown lint with
+MD013 excluded passed, `git diff --check` passed, and strict MkDocs passed. The
+HEC-RAS comparison itself completed twice and produced byte-identical CSVs. No manual GUI
+review, package build, version bump, release artifact, commit, or publication was performed.
+
 ### CS-030 - Slipline host/liner geometry and composite roughness
+
+Tracked by [GitHub issue #20](https://github.com/Chain-Frost/ryan-culverts/issues/20).
 
 Represent the host barrel, liner opening, annulus/placement context, and the source and
 applicability of any composite roughness relationship. Do not infer one composite Manning
@@ -893,11 +925,15 @@ value from two material labels.
 
 ### CS-031 - Receiving section and Borda-Carnot exit loss
 
+Tracked by [GitHub issue #21](https://github.com/Chain-Frost/ryan-culverts/issues/21).
+
 Represent downstream flow area and the sudden-expansion context before implementing the
 NCHRP Borda-Carnot refinement. Preserve the current explicit HDS-5 reservoir/pool
 `Ko = 1.0` method as a separate option.
 
 ### CS-032 - Buried-invert geometry and evidence disposition
+
+Tracked by [GitHub issue #22](https://github.com/Chain-Frost/ryan-culverts/issues/22).
 
 Represent the reduced opening, natural bottom, embedment depth, and wetted geometry.
 Do not implement NCHRP's original embedded coefficients; the documented dimensionless-flow
@@ -905,6 +941,8 @@ error and false 50-percent embedded beveled data remain disqualifying. Treat the
 synthetic high-flow extension only as implementation-comparison evidence.
 
 ### CS-033 - Depth-dependent roughness
+
+Tracked by [GitHub issue #23](https://github.com/Chain-Frost/ryan-culverts/issues/23).
 
 Define the vertical/material zones, conveyance combination method, and supported hydraulic
 states before adding variable roughness. Keep it independent of CS-030 so either method can
@@ -938,6 +976,8 @@ was required or run. The coupled inverse checks are consistency and boundary-con
 tests, not independent combined-method hydraulic validation.
 
 ### CS-015 - Austroads worked-example clarification
+
+Tracked by [GitHub issue #15](https://github.com/Chain-Frost/ryan-culverts/issues/15).
 
 Resolve AGRD05B-23 edition 1.2 Section 3.15.1's full-flow velocity inconsistency before
 using it as a numerical fixture: printed page 105 states `2.5 m/s`, then tabulates `2.75
@@ -1047,7 +1087,16 @@ was bumped and the retained release artifact was not replaced.
 
 ## CS-021 - Repository maintenance guidance
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-12. Next review: 2026-09-20.
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-14. Next review: 2026-09-20.
+
+Tracked by [GitHub issue #16](https://github.com/Chain-Frost/ryan-culverts/issues/16).
+
+Issue-tracking handoff (2026-09-14): all non-complete CS entries now link to an actionable
+GitHub issue or an intentional downstream issue. New issues #15 through #23 cover CS-015,
+CS-021, CS-022, CS-026, CS-027, and CS-030 through CS-033. Existing issues #3 and #4
+continue to own CS-025 and CS-028. CS-009, CS-023, and CS-024 remain mapped to
+`ryan-tools` #81, #82, and #84; CS-014 remains a non-implementable umbrella split across
+issues #20 through #23. No task scope or hydraulic method changed during the conversion.
 
 Boundary: add concise contribution and security-reporting guidance, dependency-update
 configuration, and documented branch-protection expectations appropriate to a small
@@ -1118,7 +1167,9 @@ pytest -q` passed 333 tests; `python -m ruff check .` passed; `python -m ruff fo
 
 ## CS-022 - Optional GitHub Release distribution
 
-Status: Optional. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-12-01.
+Status: Optional. Owner: Unassigned. Updated: 2026-09-14. Next review: 2026-12-01.
+
+Tracked by [GitHub issue #17](https://github.com/Chain-Frost/ryan-culverts/issues/17).
 
 Boundary: reconsider tag-driven GitHub Releases only if the Git-pulled office network
 checkout becomes insufficient for remote users, traceability, or rollback. CI artifacts
@@ -1131,7 +1182,9 @@ second different build, update the office checkout, or require office-network cr
 
 ## CS-023 - Design-option and minimum-size search
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Moved downstream. Owner: Unassigned. Updated: 2026-09-14. Next review: 2026-09-20.
+
+Tracked by [`ryan-tools` issue #82](https://github.com/Chain-Frost/ryan-tools/issues/82).
 
 Boundary: enumerate explicit candidate configurations and select feasible options against
 typed hydraulic constraints. Keep optimisation policy outside the hydraulic equations and
@@ -1139,7 +1192,11 @@ retain every rejected option with its governing constraint.
 
 ## CS-024 - Optional plotting
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Moved downstream. Owner: Unassigned. Updated: 2026-09-14. Next review: 2026-09-20.
+
+Tracked by [`ryan-tools` issue #84](https://github.com/Chain-Frost/ryan-tools/issues/84),
+with required core longitudinal profile data tracked here by
+[issue #9](https://github.com/Chain-Frost/ryan-culverts/issues/9).
 
 Boundary: add HGL/EGL, profile, rating-curve, and alternative-comparison plots as an optional
 presentation layer over existing result objects. Do not add plotting dependencies to the
@@ -1147,7 +1204,9 @@ computational core.
 
 ## CS-025 - Additional shapes and materials
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-14. Next review: 2026-09-20.
+
+Tracked by [GitHub issue #3](https://github.com/Chain-Frost/ryan-culverts/issues/3).
 
 Boundary: prioritise additional standard shapes and material records from actual project
 needs, with geometry identities, coefficient applicability, source provenance, and
@@ -1155,21 +1214,27 @@ analytical tests completed independently of design automation.
 
 ## CS-026 - Debris and blockage scenarios
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-14. Next review: 2026-09-20.
+
+Tracked by [GitHub issue #18](https://github.com/Chain-Frost/ryan-culverts/issues/18).
 
 Boundary: research supported blockage representations before altering effective opening
 geometry or losses. Scenario assumptions must remain explicit in inputs and results.
 
 ## CS-027 - Uncertainty and sensitivity analysis
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-14. Next review: 2026-09-20.
+
+Tracked by [GitHub issue #19](https://github.com/Chain-Frost/ryan-culverts/issues/19).
 
 Boundary: evaluate the deterministic solver over explicit parameter distributions or
 bounded scenarios. Do not hide empirical uncertainty inside solver tolerances.
 
 ## CS-028 - Advanced roadway overtopping
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-09. Next review: 2026-09-20.
+Status: Deferred. Owner: Unassigned. Updated: 2026-09-14. Next review: 2026-09-20.
+
+Tracked by [GitHub issue #4](https://github.com/Chain-Frost/ryan-culverts/issues/4).
 
 Boundary: extend CS-010 with segmented irregular/sag crest profiles and an evidenced
 downstream-submergence correction. Preserve segment-level flow and correction provenance;

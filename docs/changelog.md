@@ -28,6 +28,9 @@ entry. User-visible package changes must be listed here before the next wheel is
 - Made `culvert_solver.__version__` package-local so vendored copies cannot report an
   unrelated standalone distribution's version, with synchronized transactional packaging
   and standalone/vendored wheel smoke coverage.
+- Added a reproducible, version-pinned HEC-RAS 7.0.1 comparison for eight Manning
+  normal-depth cases across rectangular, symmetric/asymmetric trapezoidal, and triangular
+  channels, including independent geometry-parity checks.
 
 ## 26.9.10.2 - 2026-09-10
 

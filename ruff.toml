@@ -99,6 +99,11 @@ convention = "google"
     "S603",   # Runs fixed interpreter/build commands assembled by this repository.
     "TRY004", # Invalid TOML content is reported consistently as ValueError.
 ]
+"scripts/compare_hecras_normal_depth.py" = [
+    "FBT001", # HEC-RAS COM exposes a positional Boolean in its fixed interface.
+    "FBT003", # HEC-RAS COM requires the blocking Boolean positionally.
+    "N802",   # Protocol method names must match the external HEC-RAS COM API.
+]
 "scripts/install_latest_wheel.py" = [
     "S603",   # Runs a fixed pip command with a locally selected wheel path.
 ]
