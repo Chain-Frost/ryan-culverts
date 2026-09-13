@@ -21,4 +21,8 @@ The reference is grouped by how callers use the library:
 - [Built-ins and references](api/builtins.md) covers standard materials, coefficients,
   physical constants, and source records.
 
-The installed package version is available as `culvert_solver.__version__`.
+The package code version is available as `culvert_solver.__version__`. It comes from a
+package-local marker synchronized from authoritative `pyproject.toml`, so a source checkout,
+standalone wheel, and copy vendored inside another distribution report the same
+`culvert_solver` version. A vendoring distribution should separately retain its upstream
+Git commit; `__version__` identifies the bundled solver code, not the host distribution.

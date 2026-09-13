@@ -23,6 +23,14 @@ SECTION_HEADER: re.Pattern[str] = re.compile(r"(?m)^\[(?P<name>[^]]+)]\s*$")
 VERSION_LINE: re.Pattern[str] = re.compile(
     r'(?m)^(?P<prefix>version[\t ]*=[\t ]*")(?P<version>[^"]+)(?P<suffix>")[\t ]*$'
 )
+PACKAGE_VERSION_LINE: re.Pattern[str] = re.compile(
+    r'(?m)^(?P<prefix>__version__[\t ]*=[\t ]*")(?P<version>[^"]+)(?P<suffix>")[\t ]*$'
+)
+
+
+def _package_version_path() -> Path:
+    """Return the package-local version marker below the current project root."""
+    return PROJECT_ROOT / "src" / "culvert_solver" / "_version.py"
 
 
 def _project_version() -> str:
@@ -39,6 +47,22 @@ def _project_version() -> str:
         msg = "pyproject.toml has no nonempty project version."
         raise ValueError(msg)
     return version
+
+
+def _package_version(version_path: Path) -> str:
+    """Read the package-local version marker or fail explicitly."""
+    match = PACKAGE_VERSION_LINE.search(version_path.read_text(encoding="utf-8"))
+    if match is None:
+        msg = f"{version_path} has no package-local __version__ assignment"
+        raise ValueError(msg)
+    return match.group("version")
+
+
+def _validate_version_sources(project_version: str, package_version: str) -> None:
+    """Require the generated package marker to match authoritative metadata."""
+    if package_version != project_version:
+        msg = f"Package-local version {package_version!r} does not match pyproject.toml version {project_version!r}"
+        raise ValueError(msg)
 
 
 def parse_calendar_version(version: str) -> tuple[dt.date, int]:
@@ -106,6 +130,33 @@ def replace_project_version(project_path: Path, new_version: str) -> str:
     raise ValueError(msg)
 
 
+def replace_package_version(version_path: Path, new_version: str) -> str:
+    """Replace the sole package-local version assignment."""
+    content = version_path.read_text(encoding="utf-8")
+    matches = tuple(PACKAGE_VERSION_LINE.finditer(content))
+    if len(matches) != 1:
+        msg = f"{version_path} must contain exactly one package-local __version__ assignment"
+        raise ValueError(msg)
+    match = matches[0]
+    version_path.write_text(
+        PACKAGE_VERSION_LINE.sub(rf"\g<prefix>{new_version}\g<suffix>", content, count=1),
+        encoding="utf-8",
+        newline="\n",
+    )
+    return match.group("version")
+
+
+def _restore_version_sources(
+    project_path: Path,
+    project_content: str,
+    version_path: Path,
+    version_content: str,
+) -> None:
+    """Restore both authoritative and generated version sources after failure."""
+    project_path.write_text(project_content, encoding="utf-8", newline="\n")
+    version_path.write_text(version_content, encoding="utf-8", newline="\n")
+
+
 def _run_build(output_dir: Path) -> int:
     """Build a wheel into temporary storage and return the frontend exit status."""
     command = [sys.executable, "-m", "build", "--wheel", "--outdir", str(output_dir)]
@@ -152,8 +203,12 @@ def main(argv: list[str] | None = None, *, today: dt.date | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    current_version = _project_version()
+    project_path = PROJECT_ROOT / "pyproject.toml"
+    package_version_path = _package_version_path()
     try:
+        current_version = _project_version()
+        package_version = _package_version(package_version_path)
+        _validate_version_sources(current_version, package_version)
         if args.no_bump:
             parse_calendar_version(current_version)
             version = current_version
@@ -165,8 +220,8 @@ def main(argv: list[str] | None = None, *, today: dt.date | None = None) -> int:
         print(f"ERROR: {error}", file=sys.stderr)
         return 2
 
-    project_path = PROJECT_ROOT / "pyproject.toml"
     previous_content = project_path.read_text(encoding="utf-8")
+    previous_package_version_content = package_version_path.read_text(encoding="utf-8")
     print(f"Using Python: {sys.executable}")
     print(f"Current version: {current_version}")
     print(f"Building version: {version}")
@@ -174,24 +229,45 @@ def main(argv: list[str] | None = None, *, today: dt.date | None = None) -> int:
     try:
         if version != current_version:
             replace_project_version(project_path, version)
+            replace_package_version(package_version_path, version)
         with tempfile.TemporaryDirectory(prefix="ryan-culverts-build-") as build_directory:
             build_dir = Path(build_directory)
             build_status = _run_build(build_dir)
             if build_status != 0:
-                project_path.write_text(previous_content, encoding="utf-8", newline="\n")
+                _restore_version_sources(
+                    project_path,
+                    project_content=previous_content,
+                    version_path=package_version_path,
+                    version_content=previous_package_version_content,
+                )
                 return build_status
             expected = build_dir / f"{DISTRIBUTION_PREFIX}{version}-py3-none-any.whl"
             if not expected.is_file():
-                project_path.write_text(previous_content, encoding="utf-8", newline="\n")
+                _restore_version_sources(
+                    project_path,
+                    project_content=previous_content,
+                    version_path=package_version_path,
+                    version_content=previous_package_version_content,
+                )
                 print(f"ERROR: expected wheel is missing: {expected.name}", file=sys.stderr)
                 return 1
             verification_status = _run_verification(expected)
             if verification_status != 0:
-                project_path.write_text(previous_content, encoding="utf-8", newline="\n")
+                _restore_version_sources(
+                    project_path,
+                    project_content=previous_content,
+                    version_path=package_version_path,
+                    version_content=previous_package_version_content,
+                )
                 return verification_status
             promoted = promote_wheel(expected)
     except Exception:
-        project_path.write_text(previous_content, encoding="utf-8", newline="\n")
+        _restore_version_sources(
+            project_path,
+            project_content=previous_content,
+            version_path=package_version_path,
+            version_content=previous_package_version_content,
+        )
         raise
 
     print(f"Built and verified: {promoted}")

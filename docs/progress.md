@@ -1,5 +1,27 @@
 # Development progress
 
+## 2026-09-13 - CS-020 vendored package version provenance
+
+Replaced runtime `ryan-culverts` distribution lookup with a package-local version marker.
+Source, standalone-wheel, and parent-wheel imports now identify the bundled
+`culvert_solver` code even when unrelated standalone metadata is installed. The host
+distribution retains its own version, while its submodule/source record supplies exact
+vendoring provenance.
+
+The transactional package builder keeps authoritative `pyproject.toml` and the local marker
+synchronized, fails closed on pre-existing drift, and restores both after build or
+verification failure. Portable CI now installs a real synthetic parent wheel alongside
+stale `ryan-culverts 1.2.3` metadata on Windows, Linux, and macOS. The local parent-wheel
+smoke reproduced that scenario successfully. A separately built standalone
+`26.9.10.2` wheel passed archive verification, isolated installation, version discovery,
+and the public geometry smoke calculation.
+
+Verification: `python -m pytest -q` passed 375 tests; Ruff check and format (`120 files
+already formatted`), strict Pyright, Markdown lint with MD013 excluded, strict MkDocs, and
+`git diff --check` passed. The temporary standalone wheel was 98,682 bytes with SHA-256
+`54f7de70bf2894727c8fd7c349ded91c52918201336268d5ccf729ab0b2e81af`. The package version
+was not bumped and the retained release artifact was not replaced.
+
 ## 2026-09-13 - CS-006 heterogeneous crossing validation
 
 Added a version-pinned six-point comparison against FHWA HY-8 `8.0.1.2` for a

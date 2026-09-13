@@ -1011,7 +1011,7 @@ and runs a public geometry calculation outside the source tree without publishin
 
 ## CS-020 - Public API and package presentation
 
-Status: Complete. Owner: Unassigned. Updated: 2026-09-10. Next review: 2026-09-20.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
 
 Boundary: define stable public imports, package-version discovery, compatibility and
 deprecation policy, a concise changelog, and well-known documentation/release-note project
@@ -1019,9 +1019,31 @@ URLs that do not require GitHub Releases. Do not broaden hydraulic support or pr
 provisional calculations as stable.
 
 Acceptance evidence: `culvert_solver.__all__` defines the supported import surface,
-`culvert_solver.__version__` reads installed metadata, public API tests and the portable
-wheel smoke test cover both, the alpha compatibility policy and changelog are navigable,
-and package metadata links documentation and the changelog.
+`culvert_solver.__version__` reads a package-local marker synchronized from authoritative
+project metadata, public API tests and portable wheel smoke tests cover standalone and
+vendored layouts, the alpha compatibility policy and changelog are navigable, and package
+metadata links documentation and the changelog.
+
+Issue #11 follow-up (2026-09-13): version reporting now imports a package-local marker
+rather than querying `ryan-culverts` distribution metadata at runtime. The marker is
+synchronized from authoritative `pyproject.toml`; packaging fails closed on pre-existing
+drift, updates both files for a version bump, and restores both after build or verification
+failure. A vendored copy therefore reports the bundled solver version even when unrelated,
+stale standalone distribution metadata is visible. The host distribution version remains
+separate, and a vendoring submodule or source record retains commit-level provenance.
+
+Portable installed-wheel CI retains the standalone metadata/version smoke test and adds a
+real synthetic parent wheel on Windows, Linux, and macOS. That test installs the copied
+package outside the checkout, exposes stale `ryan-culverts 1.2.3` metadata, proves the
+vendored import location and local version, and runs a public geometry calculation.
+
+Verification: `python -m pytest -q` passed all 375 tests. Repository-wide Ruff check and
+format (`120 files already formatted`), strict Pyright, Markdown lint with MD013 excluded,
+strict MkDocs, and `git diff --check` passed. A temporary standalone wheel passed archive
+verification and isolated installed-wheel smoke testing; it was 98,682 bytes with SHA-256
+`54f7de70bf2894727c8fd7c349ded91c52918201336268d5ccf729ab0b2e81af`. The local installed
+parent-wheel smoke also passed with stale standalone metadata visible. No package version
+was bumped and the retained release artifact was not replaced.
 
 ## CS-021 - Repository maintenance guidance
 

@@ -67,7 +67,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-016 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Keep all exported names covered once and preserve the documented public `TailwaterInput` contract. |
 | CS-017 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Retain exactly one version-consistent wheel and keep current-version prose anchored to `pyproject.toml`. |
 | CS-019 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Python 3.14 is the supported baseline; keep the installed-wheel OS matrix green. |
-| CS-020 | Complete | Unassigned | 2026-09-10 | 2026-09-20 | Maintain top-level exports, version discovery, changelog entries, and project links together. |
+| CS-020 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Keep `pyproject.toml` and the package-local version marker synchronized; retain standalone and vendored wheel smoke coverage. |
 | CS-034 | Complete | Unassigned | 2026-09-13 | 2026-09-20 | Maintain coupled `TailwaterInput` inverse helpers and their barrel/group/mixed-crossing/roadway round trips. |
 
 ## Deferred work
@@ -107,7 +107,9 @@ issues rather than new CS identifiers:
 - [#9](https://github.com/Chain-Frost/ryan-culverts/issues/9) adds longitudinal HGL/EGL data
   for full and pressurised reaches; and
 - [#10](https://github.com/Chain-Frost/ryan-culverts/issues/10) exposes
-  representative-barrel/equal-flow applicability limits.
+  representative-barrel/equal-flow applicability limits; and
+- [#11](https://github.com/Chain-Frost/ryan-culverts/issues/11) makes package version
+  reporting truthful when `culvert_solver` is vendored by another distribution.
 
 Issues [#1](https://github.com/Chain-Frost/ryan-culverts/issues/1) and
 [#2](https://github.com/Chain-Frost/ryan-culverts/issues/2) are implemented by the current

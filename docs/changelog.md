@@ -25,6 +25,9 @@ entry. User-visible package changes must be listed here before the next wheel is
 - Added a version-pinned six-point HY-8 comparison for a heterogeneous circular/box
   crossing, covering raised-group activation, unequal flow allocation, differing group
   regimes, and a rating transition.
+- Made `culvert_solver.__version__` package-local so vendored copies cannot report an
+  unrelated standalone distribution's version, with synchronized transactional packaging
+  and standalone/vendored wheel smoke coverage.
 
 ## 26.9.10.2 - 2026-09-10
 

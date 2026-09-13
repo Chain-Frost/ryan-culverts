@@ -2,7 +2,10 @@
 
 import inspect
 import re
-from importlib.metadata import version
+import shutil
+import subprocess
+import sys
+import tomllib
 from pathlib import Path
 from typing import get_type_hints
 
@@ -26,8 +29,38 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 API_MEMBER = re.compile(r"^\s+- ([A-Za-z_][A-Za-z0-9_]*)$", re.MULTILINE)
 
 
-def test_public_version_matches_installed_distribution() -> None:
-    assert cs.__version__ == version("ryan-culverts")
+def test_public_version_matches_project_metadata() -> None:
+    with (PROJECT_ROOT / "pyproject.toml").open("rb") as stream:
+        project = tomllib.load(stream)["project"]
+
+    assert cs.__version__ == project["version"]
+
+
+def test_vendored_version_ignores_unrelated_distribution_metadata(tmp_path: Path) -> None:
+    package_root = tmp_path / "installed"
+    shutil.copytree(
+        PROJECT_ROOT / "src" / "culvert_solver",
+        package_root / "culvert_solver",
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
+    stale_metadata = package_root / "ryan_culverts-1.2.3.dist-info"
+    stale_metadata.mkdir()
+    (stale_metadata / "METADATA").write_text(
+        "Metadata-Version: 2.4\nName: ryan-culverts\nVersion: 1.2.3\n",
+        encoding="utf-8",
+    )
+    code = (
+        "import importlib.metadata, pathlib, sys; "
+        f"sys.path.insert(0, {str(package_root)!r}); "
+        "import culvert_solver; "
+        f"assert pathlib.Path(culvert_solver.__file__).is_relative_to(pathlib.Path({str(package_root)!r})); "
+        "assert importlib.metadata.version('ryan-culverts') == '1.2.3'; "
+        f"assert culvert_solver.__version__ == {cs.__version__!r}"
+    )
+
+    subprocess.run(  # noqa: S603 - fixed interpreter and locally constructed smoke code.
+        [sys.executable, "-I", "-B", "-c", code], check=True, cwd=tmp_path
+    )
 
 
 def test_all_names_are_available() -> None:

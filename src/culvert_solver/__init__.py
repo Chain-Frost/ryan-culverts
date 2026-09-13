@@ -4,8 +4,7 @@ The package exposes internally tested geometry and hydraulic components through
 provisional combined solvers. External engineering validation is not yet complete.
 """
 
-from importlib.metadata import PackageNotFoundError, version
-
+from ._version import __version__
 from .channel.geometry import (
     OpenChannelSection,
     RectangularChannel,
@@ -224,12 +223,6 @@ from .solver.resolvers import (
     resolve_inlet_coefficients,
 )
 from .units.conversion import dimension_mm_to_m
-
-try:
-    __version__ = version("ryan-culverts")
-except PackageNotFoundError:
-    # A source-tree import can occur before installation during development.
-    __version__ = "0+unknown"
 
 __all__: list[str] = [
     "BOX_CONCRETE_BEVEL_45_HEADWALL",

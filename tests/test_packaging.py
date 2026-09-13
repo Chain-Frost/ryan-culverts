@@ -8,6 +8,16 @@ import pytest
 from scripts import build_package, verify_wheel
 
 
+def _write_package_version(project_root: Path, version: str) -> Path:
+    version_path = project_root / "src" / "culvert_solver" / "_version.py"
+    version_path.parent.mkdir(parents=True)
+    version_path.write_text(
+        f'"""Test package version."""\n\n__version__ = "{version}"\n',
+        encoding="utf-8",
+    )
+    return version_path
+
+
 def test_calendar_version_increments_same_day() -> None:
     assert build_package.next_calendar_version("26.9.9.1", dt.date(2026, 9, 9)) == "26.9.9.2"
 
@@ -47,10 +57,21 @@ def test_replace_project_version_changes_only_project_section(tmp_path: Path) ->
     assert 'version = "keep"' in project.read_text(encoding="utf-8")
 
 
+def test_replace_package_version_changes_only_version_assignment(tmp_path: Path) -> None:
+    version_path = _write_package_version(tmp_path, "26.9.9.1")
+
+    previous = build_package.replace_package_version(version_path, "26.9.9.2")
+
+    assert previous == "26.9.9.1"
+    assert '__version__ = "26.9.9.2"' in version_path.read_text(encoding="utf-8")
+
+
 def test_failed_build_restores_version_and_retains_wheel(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     project = tmp_path / "pyproject.toml"
     original = '[project]\nname = "ryan-culverts"\nversion = "26.9.9.1"\n'
     project.write_text(original, encoding="utf-8")
+    version_path = _write_package_version(tmp_path, "26.9.9.1")
+    original_version_content = version_path.read_text(encoding="utf-8")
     dist_dir = tmp_path / "dist"
     dist_dir.mkdir()
     previous_wheel = dist_dir / "ryan_culverts-26.9.9.1-py3-none-any.whl"
@@ -67,6 +88,7 @@ def test_failed_build_restores_version_and_retains_wheel(tmp_path: Path, monkeyp
 
     assert status == 17
     assert project.read_text(encoding="utf-8") == original
+    assert version_path.read_text(encoding="utf-8") == original_version_content
     assert previous_wheel.read_bytes() == b"previous wheel"
 
 
@@ -74,6 +96,7 @@ def test_non_increasing_cli_version_fails_without_changes(tmp_path: Path, monkey
     project = tmp_path / "pyproject.toml"
     original = '[project]\nname = "ryan-culverts"\nversion = "26.9.9.2"\n'
     project.write_text(original, encoding="utf-8")
+    _write_package_version(tmp_path, "26.9.9.2")
     monkeypatch.setattr(build_package, "PROJECT_ROOT", tmp_path)
 
     status = build_package.main(["--version", "26.9.9.2"])
@@ -88,6 +111,8 @@ def test_failed_verification_restores_version_and_retains_wheel(
     project = tmp_path / "pyproject.toml"
     original = '[project]\nname = "ryan-culverts"\nversion = "26.9.9.1"\n'
     project.write_text(original, encoding="utf-8")
+    version_path = _write_package_version(tmp_path, "26.9.9.1")
+    original_version_content = version_path.read_text(encoding="utf-8")
     dist_dir = tmp_path / "dist"
     dist_dir.mkdir()
     previous_wheel = dist_dir / "ryan_culverts-26.9.9.1-py3-none-any.whl"
@@ -109,8 +134,52 @@ def test_failed_verification_restores_version_and_retains_wheel(
 
     assert status == 19
     assert project.read_text(encoding="utf-8") == original
+    assert version_path.read_text(encoding="utf-8") == original_version_content
     assert previous_wheel.read_bytes() == b"previous wheel"
     assert list(dist_dir.glob("ryan_culverts-26.9.9.2-*.whl")) == []
+
+
+def test_successful_build_updates_both_version_sources(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    project = tmp_path / "pyproject.toml"
+    project.write_text(
+        '[project]\nname = "ryan-culverts"\nversion = "26.9.9.1"\n',
+        encoding="utf-8",
+    )
+    version_path = _write_package_version(tmp_path, "26.9.9.1")
+    dist_dir = tmp_path / "dist"
+    monkeypatch.setattr(build_package, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(build_package, "DIST_DIR", dist_dir)
+
+    def successful_build(output_dir: Path) -> int:
+        (output_dir / "ryan_culverts-26.9.9.2-py3-none-any.whl").write_bytes(b"candidate")
+        return 0
+
+    def successful_verification(_wheel: Path) -> int:
+        return 0
+
+    monkeypatch.setattr(build_package, "_run_build", successful_build)
+    monkeypatch.setattr(build_package, "_run_verification", successful_verification)
+
+    status = build_package.main([], today=dt.date(2026, 9, 9))
+
+    assert status == 0
+    assert 'version = "26.9.9.2"' in project.read_text(encoding="utf-8")
+    assert '__version__ = "26.9.9.2"' in version_path.read_text(encoding="utf-8")
+    assert (dist_dir / "ryan_culverts-26.9.9.2-py3-none-any.whl").read_bytes() == b"candidate"
+
+
+def test_mismatched_package_version_fails_before_build(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    project = tmp_path / "pyproject.toml"
+    original = '[project]\nname = "ryan-culverts"\nversion = "26.9.9.2"\n'
+    project.write_text(original, encoding="utf-8")
+    version_path = _write_package_version(tmp_path, "26.9.9.1")
+    monkeypatch.setattr(build_package, "PROJECT_ROOT", tmp_path)
+
+    status = build_package.main(["--no-bump"])
+
+    assert status == 2
+    assert project.read_text(encoding="utf-8") == original
+    assert '__version__ = "26.9.9.1"' in version_path.read_text(encoding="utf-8")
 
 
 def test_promote_wheel_keeps_only_new_project_distribution(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

@@ -13,8 +13,11 @@ configuration or Hatch environment is required.
 | `[tool.hatch.build.targets.wheel]` | Universal-wheel package contents |
 
 The distribution name is `ryan-culverts`; the Python import is `culvert_solver`.
-`pyproject.toml` is the version authority, and the sole retained project wheel under
-`dist/` is the packaged alpha release. Releases use the PEP 440-normalized calendar scheme
+`pyproject.toml` is the version authority. The package-local `culvert_solver/_version.py`
+marker is synchronized transactionally by the packaging workflow and makes version
+reporting independent of whichever distribution contains the package. The sole retained
+project wheel under `dist/` is the packaged alpha release. Releases use the PEP
+440-normalized calendar scheme
 `yy.m.d.vv`, where `vv` starts at `1` and increments for each release made on the same local
 date. The package is intended for integration and packaging tests, not engineering design
 acceptance.
@@ -70,12 +73,13 @@ The Windows convenience workflow follows the established `ryan-tools` pattern:
 .\package_and_force_install.bat --dry-run
 ```
 
-`package.bat` advances `yy.m.d.vv`, updates `pyproject.toml`, and builds into temporary
-storage. It verifies version and licence metadata, exact packaged licence text, `py.typed`,
-and exclusion of development/reference inputs before promoting the new wheel. Only after
-successful verification does it remove older top-level `ryan_culverts-*` distributions
-from `dist/`. A failed build or verification restores `pyproject.toml` and retains the
-previous wheel.
+`package.bat` advances `yy.m.d.vv`, updates `pyproject.toml` and the package-local version
+marker together, and builds into temporary storage. It fails before building if those two
+versions already differ. It verifies version and licence metadata, exact packaged licence
+text, `py.typed`, and exclusion of development/reference inputs before promoting the new
+wheel. Only after successful verification does it remove older top-level
+`ryan_culverts-*` distributions from `dist/`. A failed build or verification restores both
+version files and retains the previous wheel.
 
 `verify-package.bat` requires exactly one retained project wheel and checks its filename
 and embedded metadata against `pyproject.toml`. This makes a stale or ambiguous retained
@@ -131,6 +135,13 @@ copy anything. The office network distribution folder is a Git checkout of this 
 and its tracked `dist/` directory is the installation source. After a release is committed
 and pushed, update that clean checkout with `git pull`; do not maintain or copy the wheel to
 a second distribution folder.
+
+`culvert_solver.__version__` is deliberately package-local rather than resolved with
+`importlib.metadata.version("ryan-culverts")`. This prevents vendored code from reporting
+the version of an unrelated standalone installation. A host wheel such as `ryan_functions`
+has its own distribution version; its vendoring record or submodule commit supplies the
+more precise upstream provenance. CI smoke-tests both the standalone wheel and a synthetic
+parent wheel while stale standalone metadata is visible.
 
 ## Windows and concurrent work
 
