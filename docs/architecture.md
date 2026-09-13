@@ -1,6 +1,6 @@
 # Architecture and decisions
 
-Status: implementation snapshot under review, 2026-09-06.
+Status: implementation snapshot under review, 2026-09-14.
 
 ## Implemented package boundary
 
@@ -27,7 +27,7 @@ There is no compatibility layer for the retired `culvertflow` package.
 | `models.group` | Parallel identical culvert barrels with quantity scaling |
 | `models.tailwater` | Fixed and discharge-dependent tailwater boundaries and provenance |
 | `models.crossing` | Multi-group culvert crossing aggregation |
-| `models.roadway` | Constant-elevation roadway crest and coefficient provenance |
+| `models.roadway` | Constant/irregular roadway crests, surface type, coefficient and source provenance |
 | `models.results` | Results, adopted parameter selections, and flow classifications |
 | `models.collection` | Road inventory, normalized summaries, and parameter catalogues |
 | `inlet_control.coefficients` | Empirical regression constants and source records from HDS-5 Table A.1 |
@@ -38,7 +38,7 @@ There is no compatibility layer for the retired `culvertflow` package.
 | `outlet_control.full_flow` | Full-flow energy balance, effective tailwater depth, and headwater solver |
 | `outlet_control.partial_flow` | Partially full outlet-control headwater solver using backwater profiles |
 | `profiles.direct_step` | Direct-step free-surface water profile solver for prismatic culverts |
-| `roadway.overtopping` | Unsubmerged HDS-5 broad-crested roadway-weir flow |
+| `roadway.overtopping` | HDS-5 roadway-weir flow, irregular profile integration, and bounded submergence |
 | `solver.regime` | Hydraulic regime selection comparing inlet and outlet control headwaters |
 | `solver.barrel` | Single-barrel culvert hydraulic solver generating BarrelHydraulicResult |
 | `solver.group` | Culvert group hydraulic solver scaling identical parallel barrels |
@@ -54,12 +54,18 @@ Public names are exported once from `culvert_solver`. No environment flags or
 mutable global runner registration affect calculations. Immutable default
 tolerances may safely be shared across concurrent calls.
 
-`CulvertCrossing` may carry one optional `RoadwayWeir`. The common-headwater solver
+`CulvertCrossing` may carry one optional roadway input: either a constant-elevation
+`RoadwayWeir` or a piecewise-linear `RoadwayProfileWeir`. The common-headwater solver
 evaluates culvert capacity and roadway capacity independently at each trial elevation, then
 solves their sum against the specified crossing discharge. Results preserve culvert and
-roadway flow separately. The initial roadway boundary is intentionally narrow: one
-constant-elevation crest, an explicit user-selected SI coefficient, and tailwater no higher
-than the crest. Irregular sag segmentation and submerged-weir correction belong to CS-028.
+roadway flow separately. The caller supplies the SI roadway discharge coefficient. Irregular
+profiles are integrated horizontally with the sourced four-point Gaussian procedure and
+retain their weighted segment contributions. Where downstream water is above a local crest,
+paved or gravel roadway submergence uses the source-traceable digital ordinates only through
+a downstream/upstream local head ratio of 0.99. Ratios between 0.99 and equal stage fail
+closed rather than extrapolating or using the digitised equal-stage ordinate; exactly equal
+upstream and downstream water levels resolve to zero roadway flow. Reverse roadway flow is
+not implemented.
 
 Open-channel sections deliberately use a separate `OpenChannelSection` protocol rather
 than pretending to be closed culvert geometry. A Manning channel boundary resolves stage
@@ -128,8 +134,9 @@ remain mandatory. File, JSON, spreadsheet, GIS, and presentation
 adapters remain outside the core until a downstream interface is chosen. See
 CS-005 and CS-011 in the work plan.
 
-Crossing summaries retain configured roadway crest elevation and calculated roadway flow,
-and roadway coefficient provenance participates in the inventory source register.
+Crossing summaries retain the configured roadway reference crest elevation (the minimum
+crest for an irregular profile) and calculated roadway flow, and roadway coefficient
+provenance participates in the inventory source register.
 
 For a group containing more than one hydraulically identical barrel,
 `GroupHydraulicResult.applicability_notices` records the representative-barrel/equal-flow
