@@ -824,7 +824,7 @@ roughness). No NCHRP equation or coefficient was added while performing the spli
 
 ### CS-029 - Discharge-dependent tailwater boundaries
 
-Status: Partial. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
+Status: Complete. Owner: Unassigned. Updated: 2026-09-13. Next review: 2026-09-20.
 
 Add a typed, monotonic discharge/elevation rating curve with defined interpolation and
 out-of-range policy, then consider supported rectangular/trapezoidal/irregular channel
@@ -854,8 +854,22 @@ reference, computational basis, architecture, changelog, and validation evidence
 updated. Tests cover all specified validation failures plus barrel, group, total-crossing,
 and independently recalculated crossing-rating flow bases.
 
-Remaining before completion: record an independent external comparison for the Manning
-boundary. Irregular sections, compound roughness, and downstream gradually varied flow
+Completion handoff (2026-09-13): a Windows-only adapter clones the official HEC-RAS 7.0
+`Mixed Flow Regime Channel` example into an ignored workspace and executes it through the
+version-pinned HEC-RAS 7.0.1 COM controller. Eight retained rows span rectangular,
+symmetric/asymmetric trapezoidal, and triangular sections at two flow scales each. The
+largest normal-depth difference was `0.00014520 m`, within the explicit `0.0002 m`
+software-comparison tolerance. HEC-RAS area, wetted perimeter, and top-width outputs also
+match the intended sections within `0.00002` in the corresponding SI quantities. Two fresh
+runs and the tracked CSV were byte-identical with SHA-256
+`bd5dd2b6da1e965b9ab46ed18d2c03436154ee165c5bed48f81ba759d6bfed97`.
+
+The downloaded project is not tracked and was not modified by the adapter. Generated HDF
+and result files remain ignored. `docs/validation.md` records the executable and source
+hashes, complete SI inputs, transformations, precision, differences, tolerances, and model
+limits. The comparison was automated and not manually reviewed in the HEC-RAS GUI. It is
+bounded external uniform-flow evidence, not equation authority or validation of downstream
+backwater. Irregular sections, compound roughness, and downstream gradually varied flow
 remain separately scoped future work.
 
 Acceptance criteria for the rating boundary:
@@ -884,6 +898,13 @@ Verification (2026-09-13): `python -m pytest -q` passed 358 tests. `python -m ru
 `python -m ruff format --check .` (116 files), strict Pyright (0 errors), Markdown lint with
 MD013 excluded, strict MkDocs build, and `git diff --check` passed. No HY-8 executable
 comparison was required or run; the remaining external Manning comparison was not run.
+
+Completion verification (2026-09-13): the focused Manning and external-fixture run passed
+16 tests, and `python -m pytest -q` passed all 380 tests. Repository-wide Ruff check passed,
+Ruff format checked all 122 files, strict Pyright reported 0 errors, Markdown lint with
+MD013 excluded passed, `git diff --check` passed, and strict MkDocs passed. The
+HEC-RAS comparison itself completed twice and produced byte-identical CSVs. No manual GUI
+review, package build, version bump, release artifact, commit, or publication was performed.
 
 ### CS-030 - Slipline host/liner geometry and composite roughness
 
