@@ -64,10 +64,12 @@ def test_flat_profile_matches_constant_crest_and_preserves_segment_sum() -> None
     profile_result = calculate_roadway_overtopping(profile, 12.5, 11.8)
 
     assert profile_result.discharge == pytest.approx(constant_result.discharge)
-    assert sum(segment.discharge for segment in profile_result.segment_results) == pytest.approx(
-        profile_result.discharge
-    )
-    assert sum(segment.effective_length for segment in profile_result.segment_results) == pytest.approx(25.0)
+    assert sum(
+        segment.discharge for segment in profile_result.segment_results
+    ) == pytest.approx(profile_result.discharge)
+    assert sum(
+        segment.effective_length for segment in profile_result.segment_results
+    ) == pytest.approx(25.0)
 
 
 def test_sag_profile_retains_local_geometry_and_flow_contributions() -> None:
@@ -86,7 +88,9 @@ def test_sag_profile_retains_local_geometry_and_flow_contributions() -> None:
 
     assert result.discharge > 0.0
     assert result.upstream_head == pytest.approx(0.5)
-    assert sum(segment.discharge for segment in result.segment_results) == pytest.approx(result.discharge)
+    assert sum(segment.discharge for segment in result.segment_results) == pytest.approx(
+        result.discharge
+    )
     assert {segment.source_interval_index for segment in result.segment_results} == {0, 1}
     assert min(segment.crest_elevation for segment in result.segment_results) < max(
         segment.crest_elevation for segment in result.segment_results
@@ -108,6 +112,34 @@ def test_paved_submergence_uses_digitised_fhwa_factor() -> None:
     assert segment.submergence_correction.ratio == pytest.approx(0.9)
     assert segment.submergence_correction.factor == pytest.approx(0.92)
     assert result.discharge == pytest.approx(1.6 * 25.0 * 0.5**1.5 * 0.92)
+
+
+def test_equal_water_levels_return_zero_roadway_flow() -> None:
+    roadway = RoadwayWeir(
+        crest_elevation=11.0,
+        crest_length=20.0,
+        discharge_coefficient=1.6,
+    )
+
+    result = calculate_roadway_overtopping(roadway, 12.0, 12.0)
+    segment = result.segment_results[0]
+
+    assert result.discharge == 0.0
+    assert segment.discharge == 0.0
+    assert segment.effective_discharge_coefficient == 0.0
+    assert segment.submergence_correction is None
+
+
+def test_submergence_above_supported_ratio_fails_closed() -> None:
+    roadway = RoadwayWeir(
+        crest_elevation=12.0,
+        crest_length=25.0,
+        discharge_coefficient=1.6,
+        surface=RoadwaySurface.PAVED,
+    )
+
+    with pytest.raises(InvalidInputError, match="0.99"):
+        calculate_roadway_overtopping(roadway, 12.5, 12.4975)
 
 
 def test_submerged_roadway_without_surface_fails_closed() -> None:
