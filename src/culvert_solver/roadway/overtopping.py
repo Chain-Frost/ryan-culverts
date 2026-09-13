@@ -1,6 +1,7 @@
 """FHWA roadway-overtopping calculations for constant and irregular crests."""
 
 from dataclasses import dataclass
+from enum import StrEnum
 from itertools import pairwise
 
 from .._validation import finite
@@ -72,9 +73,23 @@ class RoadwaySubmergenceCorrection:
     digitisation_source: SourceReference = EPA_SWMM_ROADWAY_SUBMERGENCE_DIGITISATION
 
 
+class RoadwayFlowState(StrEnum):
+    """Machine-readable hydraulic state for one roadway integration result."""
+
+    INACTIVE = "inactive"
+    FREE_UNSUBMERGED = "free_unsubmerged"
+    SUPPORTED_SUBMERGED = "supported_submerged"
+
+
 @dataclass(frozen=True, slots=True)
 class RoadwayOvertoppingSegmentResult:
-    """Flow contribution from one weighted horizontal roadway integration segment."""
+    """Flow contribution from one weighted horizontal roadway integration segment.
+
+    ``interval_start_station`` and ``interval_end_station`` bound the physical
+    roadway interval represented by the integration point. ``effective_length``
+    is the Gaussian quadrature weight multiplied by that physical interval and
+    must not be interpreted as a physical floodway design-zone length.
+    """
 
     source_interval_index: int
     interval_start_station: float
@@ -88,6 +103,42 @@ class RoadwayOvertoppingSegmentResult:
     effective_discharge_coefficient: float
     integration_source: SourceReference
     submergence_correction: RoadwaySubmergenceCorrection | None = None
+
+    @property
+    def physical_interval_length(self) -> float:
+        """Physical horizontal interval represented by this integration result, in metres."""
+        return self.interval_end_station - self.interval_start_station
+
+    @property
+    def unit_discharge(self) -> float:
+        """Local roadway unit discharge at the integration station, in m²/s."""
+        if self.effective_length <= 0.0:
+            msg = "effective_length must be positive to calculate roadway unit discharge."
+            raise InvalidInputError(msg)
+        return self.discharge / self.effective_length
+
+    @property
+    def flow_state(self) -> RoadwayFlowState:
+        """Return the explicit local roadway flow/submergence state."""
+        if self.discharge <= 0.0:
+            return RoadwayFlowState.INACTIVE
+        if self.submergence_correction is None:
+            return RoadwayFlowState.FREE_UNSUBMERGED
+        return RoadwayFlowState.SUPPORTED_SUBMERGED
+
+    @property
+    def submergence_ratio(self) -> float | None:
+        """Return downstream/upstream local head ratio when a correction applies."""
+        if self.submergence_correction is None:
+            return None
+        return self.submergence_correction.ratio
+
+    @property
+    def submergence_factor(self) -> float | None:
+        """Return the applied sourced submergence factor when a correction applies."""
+        if self.submergence_correction is None:
+            return None
+        return self.submergence_correction.factor
 
 
 @dataclass(frozen=True, slots=True)
