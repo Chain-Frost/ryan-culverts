@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
+from itertools import pairwise
 
 from .._validation import finite
 from ..exceptions import InvalidInputError
@@ -105,7 +106,7 @@ class RoadwayCrestProfile:
         ):
             msg = "points must contain only RoadwayCrestPoint values."
             raise InvalidInputError(msg)
-        for left, right in zip(processed_points, processed_points[1:], strict=False):
+        for left, right in pairwise(processed_points):
             if right.station <= left.station:
                 msg = "Roadway crest stations must be strictly increasing."
                 raise InvalidInputError(msg)
