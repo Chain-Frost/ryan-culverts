@@ -25,8 +25,12 @@ _GAUSS_4: tuple[tuple[float, float], ...] = (
 )
 
 # EPA SWMM identifies these digital ordinates as derived from FHWA/RD-86/108
-# Figure 10. A zero-ratio unity point records the no-reduction region explicitly;
-# values above ratio 1.0 are rejected rather than extrapolated or clamped.
+# Figure 10. A zero-ratio unity point records the no-reduction region explicitly.
+# The source digitisation also contains ratio=1.00 ordinates (0.40 paved and
+# 0.24 gravel). They are intentionally excluded from the supported interpolation
+# range because applying them in this static capacity solver would imply positive
+# discharge at equal upstream and downstream water levels. Ratios above the last
+# retained ordinate fail closed instead of inventing a limiting relationship.
 _SUBMERGENCE_FACTORS: dict[RoadwaySurface, tuple[tuple[float, float], ...]] = {
     RoadwaySurface.PAVED: (
         (0.0, 1.0),
@@ -38,11 +42,10 @@ _SUBMERGENCE_FACTORS: dict[RoadwaySurface, tuple[tuple[float, float], ...]] = {
         (0.97, 0.70),
         (0.98, 0.60),
         (0.99, 0.50),
-        (1.00, 0.40),
     ),
     RoadwaySurface.GRAVEL: (
         (0.0, 1.0),
-        (0.75, 1.0),
+        (0.75, 1.00),
         (0.80, 0.985),
         (0.83, 0.97),
         (0.86, 0.93),
@@ -53,7 +56,6 @@ _SUBMERGENCE_FACTORS: dict[RoadwaySurface, tuple[tuple[float, float], ...]] = {
         (0.96, 0.60),
         (0.98, 0.50),
         (0.99, 0.40),
-        (1.00, 0.24),
     ),
 }
 
@@ -115,14 +117,17 @@ def _submergence_correction(
         raise InvalidInputError(msg)
 
     ratio = downstream_head / upstream_head
-    if ratio < 0.0 or ratio > 1.0:
+    table = _SUBMERGENCE_FACTORS[surface]
+    maximum_supported_ratio = table[-1][0]
+    if ratio < 0.0 or ratio > maximum_supported_ratio:
         msg = (
             "Submerged roadway overtopping is outside the supported FHWA correction range: "
-            "downstream_head / upstream_head must be between 0.0 and 1.0."
+            f"downstream_head / upstream_head must be between 0.0 and "
+            f"{maximum_supported_ratio:.2f}. Ratios closer to equal stage fail closed "
+            "because the digitised equal-stage ordinate would imply non-zero flow."
         )
         raise InvalidInputError(msg)
 
-    table = _SUBMERGENCE_FACTORS[surface]
     factor = table[-1][1]
     for (x0, y0), (x1, y1) in zip(table, table[1:]):
         if ratio <= x1:
@@ -152,14 +157,21 @@ def _segment_result(
 ) -> RoadwayOvertoppingSegmentResult:
     upstream_head = max(0.0, headwater_elevation - crest_elevation)
     downstream_head = max(0.0, tailwater_elevation - crest_elevation)
-    correction = _submergence_correction(
-        roadway.surface,
-        upstream_head,
-        downstream_head,
-    )
-    submergence_factor = 1.0 if correction is None else correction.factor
-    effective_coefficient = roadway.discharge_coefficient * submergence_factor
-    discharge = effective_coefficient * effective_length * upstream_head**1.5
+
+    if headwater_elevation == tailwater_elevation:
+        correction = None
+        effective_coefficient = 0.0
+        discharge = 0.0
+    else:
+        correction = _submergence_correction(
+            roadway.surface,
+            upstream_head,
+            downstream_head,
+        )
+        submergence_factor = 1.0 if correction is None else correction.factor
+        effective_coefficient = roadway.discharge_coefficient * submergence_factor
+        discharge = effective_coefficient * effective_length * upstream_head**1.5
+
     return RoadwayOvertoppingSegmentResult(
         source_interval_index=source_interval_index,
         interval_start_station=interval_start_station,
@@ -247,8 +259,11 @@ def calculate_roadway_overtopping(
     four-point Gaussian procedure documented for FHWA HY8.
 
     When tailwater is above a local crest, the paved or gravel submergence
-    factor is linearly interpolated from the source-traceable digital ordinates.
-    Ratios above the supported endpoint are rejected rather than extrapolated.
+    factor is linearly interpolated from the source-traceable digital ordinates
+    through a downstream/upstream head ratio of 0.99. Ratios closer to equal
+    stage fail closed because the digitised equal-stage ordinate would imply
+    non-zero flow in this static capacity solver. Exactly equal upstream and
+    downstream water levels return zero roadway flow.
     """
     if not isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
         roadway,
@@ -259,7 +274,10 @@ def calculate_roadway_overtopping(
     headwater = finite(headwater_elevation, "headwater_elevation")
     tailwater = finite(tailwater_elevation, "tailwater_elevation")
     if tailwater > headwater:
-        msg = "Reverse roadway flow is not supported: tailwater_elevation must not exceed headwater_elevation."
+        msg = (
+            "Reverse roadway flow is not supported: tailwater_elevation must not "
+            "exceed headwater_elevation."
+        )
         raise InvalidInputError(msg)
 
     if isinstance(roadway, RoadwayWeir):
