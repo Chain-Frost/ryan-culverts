@@ -134,7 +134,18 @@ from .models.results import (
     HydraulicApplicabilityNotice,
     HydraulicWarning,
 )
-from .models.roadway import FHWA_HDS5_ROADWAY_OVERTOPPING, RoadwayWeir
+from .models.roadway import (
+    EPA_SWMM_ROADWAY_SUBMERGENCE_DIGITISATION,
+    FHWA_BRIDGE_WATERWAYS_ROADWAY_SUBMERGENCE,
+    FHWA_HDS5_ROADWAY_OVERTOPPING,
+    FHWA_HY8_ROADWAY_PROFILE_INTEGRATION,
+    RoadwayCrestPoint,
+    RoadwayCrestProfile,
+    RoadwayOvertoppingInput,
+    RoadwayProfileWeir,
+    RoadwaySurface,
+    RoadwayWeir,
+)
 from .models.tailwater import (
     FHWA_HDS5_NORMAL_DEPTH_TAILWATER,
     ManningChannelTailwater,
@@ -197,7 +208,12 @@ from .profiles.direct_step import (
     compute_steep_inlet_control_profile,
 )
 from .references.models import SourceReference
-from .roadway.overtopping import RoadwayOvertoppingResult, calculate_roadway_overtopping
+from .roadway.overtopping import (
+    RoadwayOvertoppingResult,
+    RoadwayOvertoppingSegmentResult,
+    RoadwaySubmergenceCorrection,
+    calculate_roadway_overtopping,
+)
 from .solver.barrel import solve_barrel_hydraulics
 from .solver.config import DEFAULT_SOLVER_CONFIGURATION, SolverConfiguration
 from .solver.crossing import (
@@ -241,10 +257,13 @@ __all__: list[str] = [
     "CONCRETE_PIPE",
     "CORRUGATED_STEEL",
     "DEFAULT_SOLVER_CONFIGURATION",
+    "EPA_SWMM_ROADWAY_SUBMERGENCE_DIGITISATION",
     "EXTREME_HEADWATER_RATIO",
+    "FHWA_BRIDGE_WATERWAYS_ROADWAY_SUBMERGENCE",
     "FHWA_HDS5_NORMAL_DEPTH_TAILWATER",
     "FHWA_HDS5_ROADWAY_OVERTOPPING",
     "FHWA_HRT_06_138_REFERENCE",
+    "FHWA_HY8_ROADWAY_PROFILE_INTEGRATION",
     "FHWA_MODERN_BOX_HW_D_MAX",
     "FHWA_MODERN_BOX_HW_D_MIN",
     "GRAVITATIONAL_ACCELERATION",
@@ -327,7 +346,14 @@ __all__: list[str] = [
     "RatingCurveResult",
     "RectangularChannel",
     "RectangularGeometry",
+    "RoadwayCrestPoint",
+    "RoadwayCrestProfile",
+    "RoadwayOvertoppingInput",
     "RoadwayOvertoppingResult",
+    "RoadwayOvertoppingSegmentResult",
+    "RoadwayProfileWeir",
+    "RoadwaySubmergenceCorrection",
+    "RoadwaySurface",
     "RoadwayWeir",
     "RootResult",
     "RootTolerances",
