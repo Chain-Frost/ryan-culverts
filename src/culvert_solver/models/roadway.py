@@ -102,7 +102,8 @@ class RoadwayCrestProfile:
             msg = "RoadwayCrestProfile requires at least two station/elevation points."
             raise InvalidInputError(msg)
         if not all(  # pyright: ignore[reportUnnecessaryIsInstance]
-            isinstance(point, RoadwayCrestPoint) for point in processed_points
+            isinstance(point, RoadwayCrestPoint)  # pyright: ignore[reportUnnecessaryIsInstance]
+            for point in processed_points
         ):
             msg = "points must contain only RoadwayCrestPoint values."
             raise InvalidInputError(msg)

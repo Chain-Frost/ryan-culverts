@@ -20,14 +20,7 @@ call :header "Python version"
 python --version
 if errorlevel 1 goto :failed
 
-if "%QUICK%"=="1" (
-    echo.
-    echo [SKIP] Full pytest suite ^(--quick supplied^)
-) else (
-    call :header "Full pytest suite"
-    python -m pytest -q
-    if errorlevel 1 goto :failed
-)
+
 
 call :header "Ruff lint"
 python -m ruff check .
@@ -52,6 +45,15 @@ if errorlevel 1 goto :failed
 call :header "Git whitespace check"
 git diff --check
 if errorlevel 1 goto :failed
+
+if "%QUICK%"=="1" (
+    echo.
+    echo [SKIP] Full pytest suite ^(--quick supplied^)
+) else (
+    call :header "Full pytest suite"
+    python -m pytest -q
+    if errorlevel 1 goto :failed
+)
 
 echo.
 echo ============================================================
