@@ -2,6 +2,13 @@
 
 Return types retain adopted values, source provenance, warnings, and convergence evidence.
 
+`RoadwayOvertoppingResult.segment_results` preserves the horizontal integration pieces used
+for roadway flow. Each `RoadwayOvertoppingSegmentResult` records the local crest elevation,
+effective horizontal length, local upstream/downstream heads, discharge contribution and
+integration source. Where downstream submergence applies, the segment also retains a
+`RoadwaySubmergenceCorrection` with the interpolated factor plus the governing FHWA source
+and the digital-ordinate source used by the implementation.
+
 ::: culvert_solver
     options:
       members:
@@ -13,6 +20,8 @@ Return types retain adopted values, source provenance, warnings, and convergence
         - PartialFlowOutletResult
         - ModernBoxInletResult
         - RoadwayOvertoppingResult
+        - RoadwayOvertoppingSegmentResult
+        - RoadwaySubmergenceCorrection
         - CriticalDepthResult
         - NormalDepthResult
         - ChannelNormalDepthResult
