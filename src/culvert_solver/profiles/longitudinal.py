@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from ..models.barrel import CulvertBarrel
-from ..outlet_control.full_flow import FullFlowOutletResult
 from .direct_step import InletControlProfile, ProfilePoint, WaterSurfaceProfile
 
 
@@ -139,26 +138,32 @@ def build_free_surface_longitudinal_profile(
 
 def build_full_flow_longitudinal_profile(
     barrel: CulvertBarrel,
-    full_flow: FullFlowOutletResult,
+    *,
+    headwater_elevation: float,
+    entrance_loss: float,
+    friction_loss: float,
+    exit_loss: float,
+    velocity: float,
+    velocity_head: float,
 ) -> LongitudinalHydraulicProfile:
-    """Build the internal barrel HGL/EGL from the authoritative full-flow result.
+    """Build the internal barrel HGL/EGL from retained full-flow scalar evidence.
 
     The first station is immediately downstream of the entrance loss. The final
     station is immediately upstream of the exit loss. Consequently the EGL drop
     between profile endpoints is exactly the scalar full-barrel friction loss.
     """
-    friction_slope = full_flow.friction_loss / barrel.length
-    inlet_egl = full_flow.headwater_elevation - full_flow.entrance_loss
-    inlet_hgl = inlet_egl - full_flow.velocity_head
-    outlet_egl = inlet_egl - full_flow.friction_loss
-    outlet_hgl = outlet_egl - full_flow.velocity_head
+    friction_slope = friction_loss / barrel.length
+    inlet_egl = headwater_elevation - entrance_loss
+    inlet_hgl = inlet_egl - velocity_head
+    outlet_egl = inlet_egl - friction_loss
+    outlet_hgl = outlet_egl - velocity_head
     points = (
         _pressurised_point(
             barrel,
             station=0.0,
             hydraulic_grade_elevation=inlet_hgl,
-            velocity=full_flow.velocity,
-            velocity_head=full_flow.velocity_head,
+            velocity=velocity,
+            velocity_head=velocity_head,
             friction_slope=friction_slope,
             cumulative_friction_loss=0.0,
         ),
@@ -166,28 +171,31 @@ def build_full_flow_longitudinal_profile(
             barrel,
             station=barrel.length,
             hydraulic_grade_elevation=outlet_hgl,
-            velocity=full_flow.velocity,
-            velocity_head=full_flow.velocity_head,
+            velocity=velocity,
+            velocity_head=velocity_head,
             friction_slope=friction_slope,
-            cumulative_friction_loss=full_flow.friction_loss,
+            cumulative_friction_loss=friction_loss,
         ),
     )
     return LongitudinalHydraulicProfile(
         points=points,
-        entrance_loss=full_flow.entrance_loss,
-        friction_loss=full_flow.friction_loss,
-        exit_loss=full_flow.exit_loss,
+        entrance_loss=entrance_loss,
+        friction_loss=friction_loss,
+        exit_loss=exit_loss,
     )
 
 
 def build_mixed_longitudinal_profile(
     barrel: CulvertBarrel,
     free_surface_profile: WaterSurfaceProfile | InletControlProfile,
-    full_flow: FullFlowOutletResult,
     *,
+    friction_loss: float,
+    velocity: float,
+    velocity_head: float,
     upstream_full_length: float = 0.0,
     downstream_full_length: float = 0.0,
     entrance_loss: float | None = None,
+    exit_loss: float | None = None,
 ) -> LongitudinalHydraulicProfile:
     """Combine one existing free-surface path with a supported full-flow reach."""
     if upstream_full_length > 0.0 and downstream_full_length > 0.0:
@@ -195,9 +203,7 @@ def build_mixed_longitudinal_profile(
     if upstream_full_length <= 0.0 and downstream_full_length <= 0.0:
         return build_free_surface_longitudinal_profile(free_surface_profile, entrance_loss=entrance_loss)
 
-    sf = full_flow.friction_loss / barrel.length
-    velocity = full_flow.velocity
-    velocity_head = full_flow.velocity_head
+    sf = friction_loss / barrel.length
     tolerance = max(1e-9, barrel.length * 1e-10)
 
     if upstream_full_length > 0.0:
@@ -231,6 +237,7 @@ def build_mixed_longitudinal_profile(
         )
         free = _free_surface_points(free_points, initial_friction_loss=sf * transition)
         points = (*pressurised, *free)
+        profile_exit_loss = None
     else:
         transition = barrel.length - downstream_full_length
         free_points = tuple(
@@ -263,10 +270,12 @@ def build_mixed_longitudinal_profile(
             ),
         )
         points = (*free, *pressurised)
+        profile_exit_loss = exit_loss
 
     return LongitudinalHydraulicProfile(
         points=points,
         transition_stations=(transition,),
         entrance_loss=entrance_loss,
         friction_loss=points[-1].cumulative_friction_loss,
+        exit_loss=profile_exit_loss,
     )
