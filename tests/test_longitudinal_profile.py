@@ -100,6 +100,7 @@ def test_m2_to_upstream_full_reach_is_one_coherent_profile() -> None:
     assert profile.points[-1].state is HydraulicProfileState.FREE_SURFACE
     assert profile.points[0].water_surface_elevation is None
     assert profile.points[-1].water_surface_elevation is not None
+    assert profile.exit_loss is None
 
 
 def test_submerged_outlet_mixed_reach_marks_downstream_pressurised_state() -> None:
@@ -116,10 +117,13 @@ def test_submerged_outlet_mixed_reach_marks_downstream_pressurised_state() -> No
     result = solve_barrel_hydraulics(barrel, 1.0, 10.901)
 
     profile = result.longitudinal_profile
+    losses = result.full_flow_losses
     assert profile is not None
+    assert losses is not None
     assert profile.is_mixed
     assert profile.transition_stations
     assert profile.points[0].state is HydraulicProfileState.FREE_SURFACE
     assert profile.points[-1].state is HydraulicProfileState.PRESSURISED
     assert profile.points[-1].water_surface_elevation is None
     assert profile.points[-1].hydraulic_grade_elevation == pytest.approx(result.tailwater_elevation, abs=2e-6)
+    assert profile.exit_loss == pytest.approx(losses.exit)

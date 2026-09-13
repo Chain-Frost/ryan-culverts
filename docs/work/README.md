@@ -41,12 +41,12 @@ Application-level culvert project configuration, design-option search, batch/rep
 policy, plotting, GUI, and project-level uncertainty-study orchestration belong in
 `ryan-tools`. In particular:
 
-- `ryan-tools` #81 owns project/scenario/alternative configuration;
-- `ryan-tools` #82 owns design-option/minimum-size search and ranking;
-- `ryan-tools` #83 owns CLI/reporting/export;
-- `ryan-tools` #84 owns plotting/GUI;
-- `ryan-tools` #87 owns floodway formation assessment/reporting; and
-- `ryan-tools` #91 owns project-level culvert uncertainty/sensitivity studies.
+- [`ryan-tools` issue #81](https://github.com/Chain-Frost/ryan-tools/issues/81) owns project/scenario/alternative configuration;
+- [`ryan-tools` issue #82](https://github.com/Chain-Frost/ryan-tools/issues/82) owns design-option/minimum-size search and ranking;
+- [`ryan-tools` issue #83](https://github.com/Chain-Frost/ryan-tools/issues/83) owns CLI/reporting/export;
+- [`ryan-tools` issue #84](https://github.com/Chain-Frost/ryan-tools/issues/84) owns plotting/GUI;
+- [`ryan-tools` issue #87](https://github.com/Chain-Frost/ryan-tools/issues/87) owns floodway formation assessment/reporting; and
+- [`ryan-tools` issue #91](https://github.com/Chain-Frost/ryan-tools/issues/91) owns project-level culvert uncertainty/sensitivity studies.
 
 Core hydraulic prerequisites and reusable classes used by those workflows remain in
 `ryan-culverts`.
@@ -59,23 +59,23 @@ table.
 
 | Legacy ID | Current tracking | Boundary / disposition |
 | --- | --- | --- |
-| CS-009 | `ryan-tools` #81; core work only if later required | Keep project/scenario configuration downstream. Add core serialization only if a stable hydraulic-object interchange contract becomes necessary. |
-| CS-014 | Split background umbrella | Do not implement as one task. Its former hydraulic scope is separated into issues #20 through #23. |
-| CS-015 | `ryan-culverts` #15 | Resolve the Austroads worked-example velocity inconsistency before numerical use. |
-| CS-021 | `ryan-culverts` #16 | GitHub issue is authoritative; currently closed/not planned unless reopened. |
-| CS-022 | `ryan-culverts` #17 | GitHub issue is authoritative; currently closed/not planned because the release-distribution activation trigger is not met. |
-| CS-023 | `ryan-tools` #82 | Design-option enumeration, feasibility and ranking remain downstream. |
-| CS-024 | `ryan-tools` #84; core result support in `ryan-culverts` #9 | Plotting dependencies stay out of the hydraulic core. |
-| CS-025 | `ryan-culverts` #3 | Additional supported shapes and source-traceable materials. |
-| CS-026 | `ryan-culverts` #18 | Explicit debris/blockage hydraulic scenarios. |
-| CS-027 | `ryan-culverts` #19 plus `ryan-tools` #91 | Core owns reusable uncertainty contracts/primitives; downstream owns study orchestration, aggregation and reporting. |
-| CS-028 | `ryan-culverts` #4 and #14; PR #13 | Core owns advanced roadway overtopping and the downstream-consumable roadway hydraulic state. |
-| CS-029 | `ryan-culverts` #2 | Implemented/closed issue; retain the CS section as background validation history. |
-| CS-030 | `ryan-culverts` #20 | Slipline host/liner geometry and sourced roughness treatment. |
-| CS-031 | `ryan-culverts` #21 | Receiving-section model and Borda-Carnot exit-loss refinement. |
-| CS-032 | `ryan-culverts` #22 | Buried-invert geometry and coefficient disposition. |
-| CS-033 | `ryan-culverts` #23 | Depth-dependent roughness with explicit material zones. |
-| CS-034 | `ryan-culverts` #1 | Implemented/closed issue; retain the CS section as background inverse-capacity history. |
+| CS-009 | [`ryan-tools` #81](https://github.com/Chain-Frost/ryan-tools/issues/81); core work only if later required | Keep project/scenario configuration downstream. Add core serialization only if a stable hydraulic-object interchange contract becomes necessary. |
+| CS-014 | Split background umbrella | Do not implement as one task. Its former hydraulic scope is separated into issues [#20](https://github.com/Chain-Frost/ryan-culverts/issues/20) through [#23](https://github.com/Chain-Frost/ryan-culverts/issues/23). |
+| CS-015 | [`ryan-culverts` #15](https://github.com/Chain-Frost/ryan-culverts/issues/15) | Resolve the Austroads worked-example velocity inconsistency before numerical use. |
+| CS-021 | [`ryan-culverts` #16](https://github.com/Chain-Frost/ryan-culverts/issues/16) | GitHub issue is authoritative; currently closed/not planned unless reopened. |
+| CS-022 | [`ryan-culverts` #17](https://github.com/Chain-Frost/ryan-culverts/issues/17) | GitHub issue is authoritative; currently closed/not planned because the release-distribution activation trigger is not met. |
+| CS-023 | [`ryan-tools` #82](https://github.com/Chain-Frost/ryan-tools/issues/82) | Design-option enumeration, feasibility and ranking remain downstream. |
+| CS-024 | [`ryan-tools` #84](https://github.com/Chain-Frost/ryan-tools/issues/84); core result support in [`ryan-culverts` #9](https://github.com/Chain-Frost/ryan-culverts/issues/9) | Plotting dependencies stay out of the hydraulic core. |
+| CS-025 | [`ryan-culverts` #3](https://github.com/Chain-Frost/ryan-culverts/issues/3) | Additional supported shapes and source-traceable materials. |
+| CS-026 | [`ryan-culverts` #18](https://github.com/Chain-Frost/ryan-culverts/issues/18) | Explicit debris/blockage hydraulic scenarios. |
+| CS-027 | [`ryan-culverts` #19](https://github.com/Chain-Frost/ryan-culverts/issues/19) plus [`ryan-tools` #91](https://github.com/Chain-Frost/ryan-tools/issues/91) | Core owns reusable uncertainty contracts/primitives; downstream owns study orchestration, aggregation and reporting. |
+| CS-028 | [`ryan-culverts` #4](https://github.com/Chain-Frost/ryan-culverts/issues/4) and [#14](https://github.com/Chain-Frost/ryan-culverts/issues/14); PR [#13](https://github.com/Chain-Frost/ryan-culverts/pull/13) | Core owns advanced roadway overtopping and the downstream-consumable roadway hydraulic state. |
+| CS-029 | [`ryan-culverts` #2](https://github.com/Chain-Frost/ryan-culverts/issues/2) | Implemented/closed issue; retain the CS section as background validation history. |
+| CS-030 | [`ryan-culverts` #20](https://github.com/Chain-Frost/ryan-culverts/issues/20) | Slipline host/liner geometry and sourced roughness treatment. |
+| CS-031 | [`ryan-culverts` #21](https://github.com/Chain-Frost/ryan-culverts/issues/21) | Receiving-section model and Borda-Carnot exit-loss refinement. |
+| CS-032 | [`ryan-culverts` #22](https://github.com/Chain-Frost/ryan-culverts/issues/22) | Buried-invert geometry and coefficient disposition. |
+| CS-033 | [`ryan-culverts` #23](https://github.com/Chain-Frost/ryan-culverts/issues/23) | Depth-dependent roughness with explicit material zones. |
+| CS-034 | [`ryan-culverts` #1](https://github.com/Chain-Frost/ryan-culverts/issues/1) | Implemented/closed issue; retain the CS section as background inverse-capacity history. |
 
 Completed CS-001 through CS-013, CS-016, CS-017, CS-019, and CS-020 remain historical
 records of bounded work already delivered. Reopen or create a GitHub issue if new evidence
@@ -86,14 +86,14 @@ requires additional work rather than silently changing their historical status.
 The repository review and subsequent integration work are tracked directly as GitHub
 issues:
 
-- #5 synchronises packaged version, wheel and release documentation;
-- #6 reconciles public API documentation with implemented capabilities;
-- #7 provides machine-readable hydraulic result validity/severity;
-- #8 covers independent heterogeneous-crossing and rating-curve validation;
-- #9 provides longitudinal HGL/EGL data for full and pressurised reaches;
-- #10 exposes representative-barrel/equal-flow applicability limits;
-- #11 makes version reporting truthful for standalone and vendored layouts;
-- #14 exposes roadway segment hydraulic state for downstream floodway analysis;
-- #15 through #23 carry the migrated remaining CS work where applicable.
+- [#5](https://github.com/Chain-Frost/ryan-culverts/issues/5) synchronises packaged version, wheel and release documentation;
+- [#6](https://github.com/Chain-Frost/ryan-culverts/issues/6) reconciles public API documentation with implemented capabilities;
+- [#7](https://github.com/Chain-Frost/ryan-culverts/issues/7) provides machine-readable hydraulic result validity/severity;
+- [#8](https://github.com/Chain-Frost/ryan-culverts/issues/8) covers independent heterogeneous-crossing and rating-curve validation;
+- [#9](https://github.com/Chain-Frost/ryan-culverts/issues/9) provides longitudinal HGL/EGL data for full and pressurised reaches;
+- [#10](https://github.com/Chain-Frost/ryan-culverts/issues/10) exposes representative-barrel/equal-flow applicability limits;
+- [#11](https://github.com/Chain-Frost/ryan-culverts/issues/11) makes version reporting truthful for standalone and vendored layouts;
+- [#14](https://github.com/Chain-Frost/ryan-culverts/issues/14) exposes roadway segment hydraulic state for downstream floodway analysis;
+- [#15](https://github.com/Chain-Frost/ryan-culverts/issues/15) through [#23](https://github.com/Chain-Frost/ryan-culverts/issues/23) carry the migrated remaining CS work where applicable.
 
 Always use the GitHub issue itself for current status and acceptance criteria.
