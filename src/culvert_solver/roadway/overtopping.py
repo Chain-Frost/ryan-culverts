@@ -1,6 +1,7 @@
 """FHWA roadway-overtopping calculations for constant and irregular crests."""
 
 from dataclasses import dataclass
+from itertools import pairwise
 
 from .._validation import finite
 from ..exceptions import InvalidInputError
@@ -150,7 +151,7 @@ def _submergence_correction(
     ratio = min(ratio, maximum_supported_ratio)
 
     factor = table[-1][1]
-    for (x0, y0), (x1, y1) in zip(table, table[1:], strict=False):
+    for (x0, y0), (x1, y1) in pairwise(table):
         if ratio <= x1:
             fraction = (ratio - x0) / (x1 - x0)
             factor = y0 + fraction * (y1 - y0)
@@ -232,7 +233,7 @@ def _profile_segment_results(
 ) -> tuple[RoadwayOvertoppingSegmentResult, ...]:
     results: list[RoadwayOvertoppingSegmentResult] = []
     points = roadway.profile.points
-    for interval_index, (left, right) in enumerate(zip(points, points[1:], strict=False)):
+    for interval_index, (left, right) in enumerate(pairwise(points)):
         station_change = right.station - left.station
         elevation_change = right.elevation - left.elevation
         split_parameters = _split_parameters(
@@ -240,7 +241,7 @@ def _profile_segment_results(
             right,
             (headwater_elevation, tailwater_elevation),
         )
-        for lower, upper in zip(split_parameters, split_parameters[1:], strict=False):
+        for lower, upper in pairwise(split_parameters):
             interval_start_station = left.station + lower * station_change
             interval_end_station = left.station + upper * station_change
             midpoint = (lower + upper) / 2.0
@@ -295,10 +296,7 @@ def calculate_roadway_overtopping(
     headwater = finite(headwater_elevation, "headwater_elevation")
     tailwater = finite(tailwater_elevation, "tailwater_elevation")
     if tailwater > headwater:
-        msg = (
-            "Reverse roadway flow is not supported: tailwater_elevation must not "
-            "exceed headwater_elevation."
-        )
+        msg = "Reverse roadway flow is not supported: tailwater_elevation must not exceed headwater_elevation."
         raise InvalidInputError(msg)
 
     if isinstance(roadway, RoadwayWeir):
