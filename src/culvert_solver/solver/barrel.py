@@ -2,8 +2,6 @@
 
 from dataclasses import replace
 
-from culvert_solver.profiles.direct_step import InletControlProfile
-
 from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
@@ -14,7 +12,7 @@ from ..models.barrel import CulvertBarrel
 from ..models.results import BarrelHydraulicResult
 from ..models.tailwater import TailwaterInput, TailwaterResolution, resolve_tailwater
 from ..outlet_control.losses import EntranceLossCoefficient
-from ..profiles.direct_step import WaterSurfaceProfile
+from ..profiles.direct_step import InletControlProfile, WaterSurfaceProfile
 from ..profiles.longitudinal import (
     LongitudinalHydraulicProfile,
     build_free_surface_longitudinal_profile,
@@ -36,7 +34,10 @@ def _build_longitudinal_profile(
     length_tolerance = max(1e-9, result.barrel.length * 1e-10)
 
     full_barrel = profile is None and result.full_flow_length >= result.barrel.length - length_tolerance
-    upstream_full = isinstance(profile, WaterSurfaceProfile) and profile.full_flow_length > length_tolerance
+    upstream_full_length: float | None = None
+    if isinstance(profile, WaterSurfaceProfile) and profile.full_flow_length > length_tolerance:
+        upstream_full_length = profile.full_flow_length
+    upstream_full = upstream_full_length is not None
     downstream_full = profile is not None and result.full_flow_length > length_tolerance and not upstream_full
 
     if not (full_barrel or upstream_full or downstream_full):
@@ -72,14 +73,14 @@ def _build_longitudinal_profile(
 
     entrance_loss = None if result.outlet_control_losses is None else result.outlet_control_losses.entrance
 
-    if upstream_full:
+    if upstream_full_length is not None:
         return build_mixed_longitudinal_profile(
             result.barrel,
             profile,
             friction_loss=full_losses.friction,
             velocity=full_velocity,
             velocity_head=full_velocity_head,
-            upstream_full_length=profile.full_flow_length,
+            upstream_full_length=upstream_full_length,
             entrance_loss=entrance_loss,
         )
 
