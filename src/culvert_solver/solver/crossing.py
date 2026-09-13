@@ -181,11 +181,6 @@ def solve_crossing_discharge_for_headwater(
     tw_elev: float = (
         tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
     )
-    if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
-        msg = (
-            "Submerged roadway overtopping is not supported: tailwater elevation must be at or below the roadway crest."
-        )
-        raise InvalidInputError(msg)
     total_discharge: float = sum(
         solve_group_discharge_for_headwater(
             group,
@@ -428,12 +423,6 @@ def solve_crossing_hydraulics(
 
     tailwater_resolution: TailwaterResolution = resolve_tailwater(tailwater=tailwater, discharge=q_tot, g=g)
     tw_elev: float = tailwater_resolution.elevation
-
-    if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
-        msg = (
-            "Submerged roadway overtopping is not supported: tailwater elevation must be at or below the roadway crest."
-        )
-        raise InvalidInputError(msg)
 
     # Fast path for single-group crossing
     if crossing.num_groups == 1 and crossing.roadway is None:
