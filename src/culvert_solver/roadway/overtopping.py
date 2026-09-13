@@ -9,7 +9,6 @@ from ..models.roadway import (
     FHWA_BRIDGE_WATERWAYS_ROADWAY_SUBMERGENCE,
     FHWA_HDS5_ROADWAY_OVERTOPPING,
     RoadwayCrestPoint,
-    RoadwayCrestProfile,
     RoadwayOvertoppingInput,
     RoadwayProfileWeir,
     RoadwaySurface,
@@ -151,7 +150,7 @@ def _submergence_correction(
     ratio = min(ratio, maximum_supported_ratio)
 
     factor = table[-1][1]
-    for (x0, y0), (x1, y1) in zip(table, table[1:]):
+    for (x0, y0), (x1, y1) in zip(table, table[1:], strict=False):
         if ratio <= x1:
             fraction = (ratio - x0) / (x1 - x0)
             factor = y0 + fraction * (y1 - y0)
@@ -233,7 +232,7 @@ def _profile_segment_results(
 ) -> tuple[RoadwayOvertoppingSegmentResult, ...]:
     results: list[RoadwayOvertoppingSegmentResult] = []
     points = roadway.profile.points
-    for interval_index, (left, right) in enumerate(zip(points, points[1:])):
+    for interval_index, (left, right) in enumerate(zip(points, points[1:], strict=False)):
         station_change = right.station - left.station
         elevation_change = right.elevation - left.elevation
         split_parameters = _split_parameters(
@@ -241,7 +240,7 @@ def _profile_segment_results(
             right,
             (headwater_elevation, tailwater_elevation),
         )
-        for lower, upper in zip(split_parameters, split_parameters[1:]):
+        for lower, upper in zip(split_parameters, split_parameters[1:], strict=False):
             interval_start_station = left.station + lower * station_change
             interval_end_station = left.station + upper * station_change
             midpoint = (lower + upper) / 2.0
