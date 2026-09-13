@@ -384,7 +384,7 @@ def _solve_coupled_discharge(
     )
 
 
-def solve_crossing_hydraulics(
+def solve_crossing_hydraulics(  # noqa: C901
     crossing: CulvertCrossing,
     total_discharge: float,
     tailwater: TailwaterInput,
@@ -473,12 +473,8 @@ def solve_crossing_hydraulics(
             crossing.roadway,
             tw_elev,
         )
-    hw_lo: float = (
-        max(min_bound, roadway_lower_bound)
-        if roadway_lower_bound is not None
-        else min_bound + 1e-4
-    )
-    hw_hi: float = max(crossing.max_inlet_invert, tw_elev) + 1.0
+    hw_lo: float = max(min_bound, roadway_lower_bound) if roadway_lower_bound is not None else min_bound + 1e-4
+    hw_hi: float = max(max(crossing.max_inlet_invert, tw_elev) + 1.0, hw_lo + 1.0)
 
     if roadway_lower_bound is not None:
         minimum_supported_discharge = crossing_discharge_at_hw(hw_lo)
