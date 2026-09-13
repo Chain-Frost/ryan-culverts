@@ -57,9 +57,12 @@ FHWA_BRIDGE_WATERWAYS_ROADWAY_SUBMERGENCE = SourceReference(
 EPA_SWMM_ROADWAY_SUBMERGENCE_DIGITISATION = SourceReference(
     source_id="EPA-SWMM-5.2-ROADWAY-SUBMERGENCE-DIGITISATION",
     publication="EPA Storm Water Management Model roadway-weir implementation",
-    edition="SWMM 5.2",
+    edition="SWMM 5.2, release commit 65e8435e094bc7c10b83d230dc2829cd5031938b",
     locator="src/solver/roadway.c, Kt_Paved and Kt_Gravel tables",
-    url="https://github.com/USEPA/Stormwater-Management-Model/blob/develop/src/solver/roadway.c",
+    url=(
+        "https://github.com/USEPA/Stormwater-Management-Model/blob/"
+        "65e8435e094bc7c10b83d230dc2829cd5031938b/src/solver/roadway.c"
+    ),
     applicability=(
         "Digital ordinates for the paved and gravel roadway submergence curves. "
         "The implementation identifies FHWA/RD-86/108 Figure 10 as the source of the data."
