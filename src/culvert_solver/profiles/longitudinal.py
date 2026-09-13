@@ -191,7 +191,8 @@ def build_mixed_longitudinal_profile(
 ) -> LongitudinalHydraulicProfile:
     """Combine one existing free-surface path with a supported full-flow reach."""
     if upstream_full_length > 0.0 and downstream_full_length > 0.0:
-        raise ValueError("A mixed profile cannot have both upstream and downstream full reaches.")
+        msg = "A mixed profile cannot have both upstream and downstream full reaches."
+        raise ValueError(msg)
     if upstream_full_length <= 0.0 and downstream_full_length <= 0.0:
         return build_free_surface_longitudinal_profile(free_surface_profile, entrance_loss=entrance_loss)
 
@@ -202,11 +203,10 @@ def build_mixed_longitudinal_profile(
 
     if upstream_full_length > 0.0:
         transition = upstream_full_length
-        free_points = tuple(
-            point for point in free_surface_profile.points if point.station >= transition - tolerance
-        )
+        free_points = tuple(point for point in free_surface_profile.points if point.station >= transition - tolerance)
         if not free_points:
-            raise ValueError("Free-surface profile does not contain the upstream full-flow transition.")
+            msg_0 = "Free-surface profile does not contain the upstream full-flow transition."
+            raise ValueError(msg_0)
         transition_hgl = free_points[0].water_surface_elevation
         inlet_hgl = transition_hgl + sf * transition
         pressurised = (
@@ -233,11 +233,10 @@ def build_mixed_longitudinal_profile(
         points = (*pressurised, *free)
     else:
         transition = barrel.length - downstream_full_length
-        free_points = tuple(
-            point for point in free_surface_profile.points if point.station <= transition + tolerance
-        )
+        free_points = tuple(point for point in free_surface_profile.points if point.station <= transition + tolerance)
         if not free_points:
-            raise ValueError("Free-surface profile does not contain the downstream full-flow transition.")
+            msg_1 = "Free-surface profile does not contain the downstream full-flow transition."
+            raise ValueError(msg_1)
         free = _free_surface_points(free_points)
         initial_friction = free[-1].cumulative_friction_loss
         transition_invert = barrel.inlet_invert - barrel.slope * transition

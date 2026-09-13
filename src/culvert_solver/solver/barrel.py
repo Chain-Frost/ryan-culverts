@@ -54,9 +54,7 @@ def _build_longitudinal_profile(
             profile,
             full_flow,
             upstream_full_length=profile.full_flow_length,
-            entrance_loss=(
-                None if result.outlet_control_losses is None else result.outlet_control_losses.entrance
-            ),
+            entrance_loss=(None if result.outlet_control_losses is None else result.outlet_control_losses.entrance),
         )
 
     if result.full_flow_length > length_tolerance:
@@ -65,9 +63,7 @@ def _build_longitudinal_profile(
             profile,
             full_flow,
             downstream_full_length=result.full_flow_length,
-            entrance_loss=(
-                None if result.outlet_control_losses is None else result.outlet_control_losses.entrance
-            ),
+            entrance_loss=(None if result.outlet_control_losses is None else result.outlet_control_losses.entrance),
         )
 
     return build_free_surface_longitudinal_profile(
