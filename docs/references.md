@@ -330,6 +330,5 @@ units and 19.63 to SI. Do not adopt its loss results as reference values.
 [mrwa-spec404]: https://www.mainroads.wa.gov.au/globalassets/technical-commercial/technical-library/specifications/400-series-drainage/specification-404-culverts.pdf
 [swmm]: https://github.com/USEPA/Stormwater-Management-Model/blob/07c371f8a0d477da1d9d4e7c0d75719664f62fec/src/solver/culvert.c
 [stream]: https://github.com/jlillywh/STREAM-1D/tree/32ede6fb1e211db97c76cc82d1cf0a80eb8a55a0
-[hy8]: https://www.fhwa.dot.gov/engineering/hydraulics/software/hy8/
 [hy8-insider-15]: https://www.linkedin.com/pulse/hy-8-insider-article-15-culvert-barrel-results-eric-jones-p-e-/
 [external-culvertflow]: https://github.com/alejandroechev/culvertflow
