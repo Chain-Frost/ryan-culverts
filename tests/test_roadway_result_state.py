@@ -80,13 +80,9 @@ def test_irregular_profile_distinguishes_physical_and_effective_lengths() -> Non
     assert result.segment_results
     assert {segment.flow_state for segment in result.segment_results} == {"free_unsubmerged"}
     assert {segment.physical_interval_length for segment in result.segment_results} == {10.0}
-    assert all(
-        segment.effective_length < segment.physical_interval_length for segment in result.segment_results
-    )
+    assert all(segment.effective_length < segment.physical_interval_length for segment in result.segment_results)
     for source_interval_index in (0, 1):
         interval_segments = [
-            segment
-            for segment in result.segment_results
-            if segment.source_interval_index == source_interval_index
+            segment for segment in result.segment_results if segment.source_interval_index == source_interval_index
         ]
         assert sum(segment.effective_length for segment in interval_segments) == pytest.approx(10.0)
