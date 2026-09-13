@@ -39,14 +39,14 @@ The completed source review adopts the following method dispositions:
 Fixture-ready source records and the limits of their use are in
 [`research/fixture_candidates.md`](research/fixture_candidates.md).
 
-The first hydraulic scope is steady, forward flow through straight, prismatic
-circular and rectangular barrels. Initial crossing boundaries will be specified
-absolute headwater/tailwater elevations in a common datum. Negligible reservoir
-approach and receiving-water velocity is an explicit initial simplification;
-channel approach sections and their energy correction require a later contract.
-Roadway overtopping, adverse-slope solutions, reverse flow and barrel junctions
-are outside the first solver release. Models may represent a horizontal barrel;
-normal depth at zero slope must not be invented for positive discharge.
+The first hydraulic scope was steady, forward flow through straight, prismatic
+circular and rectangular barrels with specified absolute headwater/tailwater elevations
+in a common datum. Negligible reservoir approach and receiving-water velocity remain
+explicit simplifications; channel approach sections and their energy correction require a
+later contract. Roadway overtopping was outside that first solver release and has since
+been added under CS-028 with explicit applicability limits. Adverse-slope solutions,
+reverse flow and barrel junctions remain outside the supported scope. Models may represent
+a horizontal barrel; normal depth at zero slope must not be invented for positive discharge.
 
 These are project decisions, not claims that the excluded cases lack solutions.
 An unsupported case must raise a structured error rather than silently selecting
@@ -167,18 +167,31 @@ compliance remain separate decisions. No HY-8 fallback value has been adopted.
 The repository implements circular and rectangular geometry, hydraulic primitives,
 critical and normal depth, selected HDS-5 inlet and loss coefficients, provisional
 inlet/outlet control, direct-step profiles, barrel/group/crossing solvers, rating curves,
-and constant-crest unsubmerged roadway overtopping. Roadway flow follows HDS-5 Section
-3.1.5 Equation 3.9 in SI units:
+and roadway overtopping for both constant and piecewise-linear irregular crests. Roadway
+flow follows HDS-5 Section 3.1.5 Equation 3.9 in SI units:
 
 ```text
 Q_roadway = C_d L H_wr^1.5
 ```
 
 The caller must supply the SI coefficient selected for the actual roadway geometry and
-overtopping depth. The crossing solver adds this flow to the independently calculated
-culvert-group flows at a common headwater. Tailwater above the crest fails explicitly
-because the Figure 3.11C submergence correction has not been digitised or validated;
-irregular sag curves and segment summation are also deferred.
+overtopping depth. Constant crests use the direct equation. Irregular profiles are split at
+hydraulic-level crossings and integrated horizontally using the four-point Gaussian
+procedure documented in FHWA HY8; each weighted contribution retains its source interval,
+integration station, effective length, crest elevation, local heads, discharge and source
+provenance. The crossing solver adds roadway flow to the independently calculated
+culvert-group flows at a common headwater.
+
+When downstream water is above a local roadway crest, paved or gravel submergence uses the
+source-traceable digital ordinates attributed to FHWA/RD-86/108 and recorded by EPA SWMM.
+The implemented interpolation is deliberately bounded to
+`downstream_head / upstream_head <= 0.99`. The source digitisation also contains an
+ordinate at ratio `1.00`, but applying its nonzero factor in this static capacity solver
+would imply positive discharge when the upstream and downstream water levels are equal.
+That ordinate is therefore not used. Ratios between `0.99` and equal stage fail closed
+rather than extrapolating or inventing a decay relation; exactly equal upstream and
+downstream water levels return zero roadway flow. A submerged roadway requires an explicit
+`RoadwaySurface.PAVED` or `RoadwaySurface.GRAVEL`. Reverse roadway flow is not supported.
 
 The initial discharge-dependent tailwater option is a prismatic-channel normal-depth
 boundary. For bottom width `b`, left and right horizontal-to-vertical side slopes `zL`
@@ -232,10 +245,11 @@ f(Q) = HWforward(Q, TW(Q)) - HWtarget
 using the same forward barrel, group, or crossing solver that defines the corresponding
 rating calculation. `TW(Q)` is therefore recalculated for every bracket expansion and root
 evaluation using barrel discharge, total group discharge, or total crossing discharge as
-applicable. The crossing path retains mixed-group allocation and supported unsubmerged
-roadway flow inside each evaluation. Fixed-stage inputs retain the earlier direct inverse
-path. For a bounded user rating curve, the supplied discharge endpoints are hard root
-bounds; a target outside them fails rather than freezing, clamping, or extrapolating stage.
+applicable. The crossing path retains mixed-group allocation and supported roadway flow,
+including irregular-profile integration and bounded paved/gravel submergence, inside each
+evaluation. Fixed-stage inputs retain the earlier direct inverse path. For a bounded user
+rating curve, the supplied discharge endpoints are hard root bounds; a target outside them
+fails rather than freezing, clamping, or extrapolating stage.
 
 For HDS-5 Section 3.5 steep-slope inlet-control cases, the solver routes an S2 profile
 downstream from immediately below critical depth toward normal depth. Tailwater no higher
