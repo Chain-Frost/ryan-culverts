@@ -10,9 +10,9 @@ path through the same implementation, so they are regression tests rather than i
 hydraulic oracles.
 
 Missing evidence includes additional independent published water-surface-profile and
-hydraulic-jump benchmarks, mixed free-surface/pressurised transitions, and version-pinned
-HEC-RAS comparisons. Performance thresholds are development
-regressions and do not imply hydraulic correctness.
+hydraulic-jump benchmarks, mixed free-surface/pressurised transitions, and external
+comparisons beyond the bounded normal-depth and HY-8 matrices below. Performance thresholds
+are development regressions and do not imply hydraulic correctness.
 
 ## Manning channel tailwater fixtures
 
@@ -27,9 +27,65 @@ Tests separately force automatic bracket expansion, zero-flow and invalid-slope
 contracts, total-crossing-flow resolution before an unequal group split, full provenance
 retention, and per-point tailwater recalculation in a rating curve. Existing fixed-stage,
 roadway, barrel, crossing, and rating tests remain regression gates. These equation-level
-fixtures validate the transcription and integration, but no HEC-RAS or surveyed receiving
-channel comparison has yet been recorded. The boundary therefore remains a documented
-uniform-flow approximation rather than a validated downstream backwater model.
+fixtures validate the transcription and integration. The external comparison below
+validates the bounded prismatic normal-depth calculation, but not a downstream backwater
+model or the suitability of project roughness, slope, or geometry.
+
+### HEC-RAS 7.0.1 normal-depth comparison
+
+The retained eight-row comparison is
+[`validation_data/hecras_7_0_1_normal_depth.csv`](validation_data/hecras_7_0_1_normal_depth.csv),
+SHA-256 `bd5dd2b6da1e965b9ab46ed18d2c03436154ee165c5bed48f81ba759d6bfed97`.
+It was generated on Windows through COM controller `RAS701.HECRASController`, which reported
+`HEC-RAS 7.0.1 June 2026`. The installed `Ras.exe` file version was `7.00.0001` and its
+SHA-256 was `ce2ca395c68c4ee17387376ea3a7152c24db483488dced4eb96a59e85fd72985`.
+
+The seed was the official HEC-RAS 7.0 example directory `1D Steady Flow
+Hydraulics/Mixed Flow Regime Channel`. The source `MIXED.PRJ`, `MIXED.g01`, `MIXED.f01`,
+and `MIXED.P01` SHA-256 values were respectively
+`b0a6d0cad552cc02d9910e147f9704bf58546ba88f6897b7ea6bb7fcc893fb61`,
+`28d264546fabfae32590f369e8d2a7e90099af26fc9678512b4b599f843b5529`,
+`a0c50328fdf645d93b0d7bc1be7ac926fa1252505f7dce531ad37b925ad62e32`, and
+`d9d7603042601db759779902b688dfb86581508cd5b58ac28770d176a3b07f0c`.
+The source advertises `Program Version=6.30` internally but was supplied in the 7.0 example
+pack and was executed only with the version-pinned 7.0.1 controller.
+
+`scripts/compare_hecras_normal_depth.py` copies the source project into an ignored workspace
+and never edits the download. For each case it removes stale HDF/results while copying,
+replaces all cross sections with one prismatic section inside a `10 m`-deep envelope,
+preserves the original reach layout and section inverts, applies one Manning roughness over
+the complete wetted section, and sets both boundaries to normal depth with the stated
+friction slope. The source project remains in English units; the adapter converts explicit
+SI inputs to feet and cubic feet per second, formats flow to seven significant digits, and
+uses the discharge returned by HEC-RAS for the matched local calculation.
+
+The matrix covers rectangular, symmetric trapezoidal, asymmetric trapezoidal, and triangular
+sections, each at `0.5 m3/s` and a higher flow between `2.342083` and `9.262461 m3/s`.
+Bottom width, independent side slopes, Manning roughness, friction slope, effective SI and
+HEC-RAS discharges, both depths, and their signed difference are retained in every row.
+HEC-RAS flow area, wetted perimeter, and top width are also retained to prove geometry
+parity. Their maximum absolute differences from the intended SI section were respectively
+`0.00001513 m2`, `0.00001348 m`, and `0.00001283 m`, within the explicit `0.00002`
+geometry tolerance.
+
+The maximum absolute normal-depth difference was `0.00014520 m`, within the comparison
+tolerance of `0.0002 m` at every point. This tolerance captures the observed version-pinned
+software and legacy text-input precision; it is not a field or design tolerance. The
+comparison was fully automated and was not manually reviewed in the HEC-RAS GUI. It is
+external uniform-flow evidence only and does not supersede the primary Manning equation or
+validate downstream impoundment, constriction, junction, tidal, or other backwater effects.
+
+Reproduce it from the repository root with HEC-RAS 7.0.1 and pywin32 installed:
+
+```powershell
+python -B scripts/compare_hecras_normal_depth.py `
+  --template "reference_docs/Example_Projects_7_0/1D Steady Flow Hydraulics/Mixed Flow Regime Channel" `
+  --workspace "validation_artifacts/hecras-normal-depth" `
+  --output "docs/validation_data/hecras_7_0_1_normal_depth.csv"
+```
+
+The workspace must not already exist; this prevents an earlier HEC-RAS run from being
+silently reused or overwritten.
 
 The provenance tests distinguish the HDS-5 method reference from independent project
 sources for roughness, slope, geometry, and invert. The ambiguous `source` field is
