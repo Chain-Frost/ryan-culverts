@@ -80,7 +80,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-021 | Deferred | Unassigned | 2026-09-12 | 2026-09-20 | Maintain `ruff.toml` and the recorded rule boundaries; add remaining maintenance guidance only when requested. |
 | CS-022 | Optional | Unassigned | 2026-09-09 | 2026-12-01 | Reconsider GitHub Releases only if the Git-pulled office checkout no longer meets user needs. |
 | CS-023 | Moved downstream | Unassigned | 2026-09-12 | 2026-09-20 | Do not implement design-option search here; `ryan-tools` #82 owns candidate generation, design criteria, feasibility and ranking. |
-| CS-024 | Moved downstream | Unassigned | 2026-09-12 | 2026-09-20 | Do not add plotting dependencies here; `ryan-tools` #84 owns plotting/GUI while core result completeness is tracked in GitHub issue #9. |
+| CS-024 | Core follow-up | OpenAI | 2026-09-13 | 2026-09-20 | Implement GitHub issue #9 longitudinal HGL/EGL result completeness only; plotting/GUI remains `ryan-tools` #84. |
 | CS-025 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Prioritise and add supported shapes and materials independently of design automation. |
 | CS-026 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Research and model debris and blockage scenarios with explicit applicability limits. |
 | CS-027 | Deferred | Unassigned | 2026-09-09 | 2026-09-20 | Add uncertainty and sensitivity analysis over explicit input distributions. |
@@ -89,7 +89,7 @@ or create a release artifact merely to complete an earlier task.
 | CS-030 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Model host and liner geometry plus sourced composite roughness for slip-lined culverts. |
 | CS-031 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Model downstream receiving-section area before adding Borda-Carnot exit loss. |
 | CS-032 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Research and model buried-invert geometry without using rejected embedded coefficients. |
-| CS-033 | Deferred | Unassigned | 2026-09-10 | 2026-09-20 | Add depth-dependent roughness only with an explicit supported applicability model. |
+| CS-033 | Deferred | Unassigned | 2026-09-10 | Add depth-dependent roughness only with an explicit supported applicability model. |
 
 ## Repository-review follow-up
 
