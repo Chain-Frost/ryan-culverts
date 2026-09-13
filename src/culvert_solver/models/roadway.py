@@ -105,7 +105,7 @@ class RoadwayCrestProfile:
         ):
             msg = "points must contain only RoadwayCrestPoint values."
             raise InvalidInputError(msg)
-        for left, right in zip(processed_points, processed_points[1:], strict=True):
+        for left, right in zip(processed_points, processed_points[1:]):
             if right.station <= left.station:
                 msg = "Roadway crest stations must be strictly increasing."
                 raise InvalidInputError(msg)
@@ -207,6 +207,11 @@ class RoadwayProfileWeir:
     def crest_length(self) -> float:
         """Horizontal station span of the roadway profile in metres."""
         return self.profile.crest_length
+
+    @property
+    def crest_elevation(self) -> float:
+        """Minimum crest elevation, retained as a scalar compatibility summary."""
+        return self.minimum_crest_elevation
 
     @property
     def minimum_crest_elevation(self) -> float:
