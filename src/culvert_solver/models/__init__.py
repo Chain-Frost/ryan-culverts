@@ -41,7 +41,18 @@ from .results import (
     GroupHydraulicResult,
     HydraulicApplicabilityNotice,
 )
-from .roadway import FHWA_HDS5_ROADWAY_OVERTOPPING, RoadwayWeir
+from .roadway import (
+    EPA_SWMM_ROADWAY_SUBMERGENCE_DIGITISATION,
+    FHWA_BRIDGE_WATERWAYS_ROADWAY_SUBMERGENCE,
+    FHWA_HDS5_ROADWAY_OVERTOPPING,
+    FHWA_HY8_ROADWAY_PROFILE_INTEGRATION,
+    RoadwayCrestPoint,
+    RoadwayCrestProfile,
+    RoadwayOvertoppingInput,
+    RoadwayProfileWeir,
+    RoadwaySurface,
+    RoadwayWeir,
+)
 from .tailwater import (
     FHWA_HDS5_NORMAL_DEPTH_TAILWATER,
     ManningChannelTailwater,
@@ -60,8 +71,11 @@ __all__: list[str] = [
     "CONCRETE_BOX",
     "CONCRETE_PIPE",
     "CORRUGATED_STEEL",
+    "EPA_SWMM_ROADWAY_SUBMERGENCE_DIGITISATION",
+    "FHWA_BRIDGE_WATERWAYS_ROADWAY_SUBMERGENCE",
     "FHWA_HDS5_NORMAL_DEPTH_TAILWATER",
     "FHWA_HDS5_ROADWAY_OVERTOPPING",
+    "FHWA_HY8_ROADWAY_PROFILE_INTEGRATION",
     "MRWA_CONCRETE_REFERENCE",
     "MRWA_CSP_MANNING_TABLE",
     "MRWA_CSP_REFERENCE",
@@ -90,6 +104,11 @@ __all__: list[str] = [
     "ManningChannelTailwater",
     "ManningRoughnessSelection",
     "ProfileCurve",
+    "RoadwayCrestPoint",
+    "RoadwayCrestProfile",
+    "RoadwayOvertoppingInput",
+    "RoadwayProfileWeir",
+    "RoadwaySurface",
     "RoadwayWeir",
     "RoughnessApplicabilityNotice",
     "RoughnessSelectionBasis",
