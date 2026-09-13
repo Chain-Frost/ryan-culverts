@@ -2,10 +2,13 @@
 
 from dataclasses import replace
 
+from culvert_solver.profiles.direct_step import InletControlProfile
+
 from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
-from ..hydraulics.primitives import cross_section_velocity, velocity_head as calculate_velocity_head
+from ..hydraulics.primitives import cross_section_velocity
+from ..hydraulics.primitives import velocity_head as calculate_velocity_head
 from ..inlet_control.coefficients import InletCoefficients
 from ..models.barrel import CulvertBarrel
 from ..models.results import BarrelHydraulicResult
@@ -29,7 +32,7 @@ def _build_longitudinal_profile(
     g: float,
 ) -> LongitudinalHydraulicProfile | None:
     """Build a plotting-ready profile from authoritative scalar/profile results."""
-    profile = result.profile
+    profile: WaterSurfaceProfile | InletControlProfile | None = result.profile
     length_tolerance = max(1e-9, result.barrel.length * 1e-10)
 
     full_barrel = profile is None and result.full_flow_length >= result.barrel.length - length_tolerance
