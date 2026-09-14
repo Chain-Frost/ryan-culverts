@@ -9,6 +9,17 @@ rating-curve solvers. It accepts either an absolute water-surface elevation in m
 increasing discharge and nondecreasing absolute elevation. It returns exact tabulated
 stages or linear interpolation inside the supplied range and rejects extrapolation.
 
+Roadway overtopping accepts either a constant-elevation `RoadwayWeir` or an irregular
+`RoadwayProfileWeir`. Irregular profiles use a `RoadwayCrestProfile` of strictly increasing
+`RoadwayCrestPoint` station/elevation coordinates. Free overflow does not require a surface
+class. Downstream-submerged roadway flow requires `RoadwaySurface.PAVED` or
+`RoadwaySurface.GRAVEL`, because the implemented correction is limited to those sourced
+FHWA relationships. The correction is bounded to a local downstream/upstream head ratio of
+0.99. Ratios between 0.99 and equal stage fail closed rather than extrapolating the sourced
+curve; exactly equal upstream and downstream water levels produce zero roadway flow. For a
+crossing, the common-headwater solve is bounded to this same supported domain and rejects a
+requested discharge below the minimum evaluable submerged-roadway capacity.
+
 ::: culvert_solver
     options:
       members:
@@ -22,6 +33,11 @@ stages or linear interpolation inside the supplied range and rejects extrapolati
         - CulvertInventory
         - CulvertInventoryItem
         - RoadwayWeir
+        - RoadwayProfileWeir
+        - RoadwayCrestProfile
+        - RoadwayCrestPoint
+        - RoadwaySurface
+        - RoadwayOvertoppingInput
         - TailwaterBoundary
         - TailwaterCondition
         - TailwaterInput

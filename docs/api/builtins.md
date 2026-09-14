@@ -47,5 +47,8 @@ applicability limits remain part of the engineering contract.
         - FHWA_HRT_06_138_REFERENCE
         - FHWA_HDS5_NORMAL_DEPTH_TAILWATER
         - FHWA_HDS5_ROADWAY_OVERTOPPING
+        - FHWA_HY8_ROADWAY_PROFILE_INTEGRATION
+        - FHWA_BRIDGE_WATERWAYS_ROADWAY_SUBMERGENCE
+        - EPA_SWMM_ROADWAY_SUBMERGENCE_DIGITISATION
       show_root_heading: false
       heading_level: 2

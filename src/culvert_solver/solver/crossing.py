@@ -30,7 +30,11 @@ from ..numerical.roots import RootResult, solve_brent
 from ..numerical.tolerances import RootTolerances
 from ..outlet_control.losses import EntranceLossCoefficient
 from ..references.models import SourceReference
-from ..roadway.overtopping import RoadwayOvertoppingResult, calculate_roadway_overtopping
+from ..roadway.overtopping import (
+    RoadwayOvertoppingResult,
+    calculate_roadway_overtopping,
+    minimum_supported_roadway_headwater,
+)
 from .barrel import solve_barrel_hydraulics
 from .config import SolverConfiguration
 from .group import solve_group_hydraulics
@@ -181,11 +185,6 @@ def solve_crossing_discharge_for_headwater(
     tw_elev: float = (
         tailwater.elevation if isinstance(tailwater, TailwaterCondition) else finite(tailwater, "tailwater")
     )
-    if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
-        msg = (
-            "Submerged roadway overtopping is not supported: tailwater elevation must be at or below the roadway crest."
-        )
-        raise InvalidInputError(msg)
     total_discharge: float = sum(
         solve_group_discharge_for_headwater(
             group,
@@ -385,7 +384,7 @@ def _solve_coupled_discharge(
     )
 
 
-def solve_crossing_hydraulics(
+def solve_crossing_hydraulics(  # noqa: C901
     crossing: CulvertCrossing,
     total_discharge: float,
     tailwater: TailwaterInput,
@@ -429,12 +428,6 @@ def solve_crossing_hydraulics(
     tailwater_resolution: TailwaterResolution = resolve_tailwater(tailwater=tailwater, discharge=q_tot, g=g)
     tw_elev: float = tailwater_resolution.elevation
 
-    if crossing.roadway is not None and tw_elev > crossing.roadway.crest_elevation:
-        msg = (
-            "Submerged roadway overtopping is not supported: tailwater elevation must be at or below the roadway crest."
-        )
-        raise InvalidInputError(msg)
-
     # Fast path for single-group crossing
     if crossing.num_groups == 1 and crossing.roadway is None:
         g0: CulvertGroup = crossing.groups[0]
@@ -472,20 +465,36 @@ def solve_crossing_hydraulics(
             g=g,
         )
 
-    # Bracket HW elevation:
+    # Bracket HW elevation without entering unsupported near-equal roadway submergence.
     min_bound: float = max(crossing.min_headwater_reference_elevation, tw_elev)
-    hw_lo: float = min_bound + 1e-4
-    hw_hi: float = max(crossing.max_inlet_invert, tw_elev) + 1.0
+    roadway_lower_bound: float | None = None
+    if crossing.roadway is not None and tw_elev > crossing.roadway.minimum_crest_elevation:
+        roadway_lower_bound = minimum_supported_roadway_headwater(
+            crossing.roadway,
+            tw_elev,
+        )
+    hw_lo: float = max(min_bound, roadway_lower_bound) if roadway_lower_bound is not None else min_bound + 1e-4
+    hw_hi: float = max(max(crossing.max_inlet_invert, tw_elev) + 1.0, hw_lo + 1.0)
+
+    if roadway_lower_bound is not None:
+        minimum_supported_discharge = crossing_discharge_at_hw(hw_lo)
+        if minimum_supported_discharge > q_tot:
+            msg = (
+                "Requested crossing discharge would require roadway submergence outside "
+                "the supported FHWA correction range."
+            )
+            raise InvalidInputError(msg)
 
     for _ in range(40):
         if crossing_discharge_at_hw(hw_hi) >= q_tot:
             break
         hw_hi += 1.0
 
-    for _ in range(40):
-        if crossing_discharge_at_hw(hw_lo) <= q_tot:
-            break
-        hw_lo = (hw_lo + min_bound) / 2.0
+    if roadway_lower_bound is None:
+        for _ in range(40):
+            if crossing_discharge_at_hw(hw_lo) <= q_tot:
+                break
+            hw_lo = (hw_lo + min_bound) / 2.0
 
     def hw_residual(hw_val: float) -> float:
         return crossing_discharge_at_hw(hw_val) - q_tot

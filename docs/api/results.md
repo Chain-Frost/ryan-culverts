@@ -2,6 +2,24 @@
 
 Return types retain adopted values, source provenance, warnings, and convergence evidence.
 
+`RoadwayOvertoppingResult.segment_results` preserves the horizontal integration pieces used
+for roadway flow. Each `RoadwayOvertoppingSegmentResult` records the local crest elevation,
+effective horizontal length, local upstream/downstream heads, discharge contribution and
+integration source. Where downstream submergence applies, the segment also retains a
+`RoadwaySubmergenceCorrection` with the interpolated factor plus the governing FHWA source
+and the digital-ordinate source used by the implementation.
+
+For downstream floodway analysis, each roadway segment result also exposes local
+`unit_discharge` in m²/s, a machine-readable `flow_state`, direct `submergence_ratio` and
+`submergence_factor` accessors, and `physical_interval_length`. The supported flow-state
+values are `inactive`, `free_unsubmerged`, and `supported_submerged`. The physical interval
+length is the horizontal roadway interval represented by the integration point;
+`effective_length` is the Gaussian quadrature weight multiplied by that interval and must
+not be interpreted as a physical pavement, shoulder, protection, or floodway design-zone
+length. No critical-depth, velocity, Froude-number, shear, momentum, or protection-design
+quantity is inferred from these integration results because those derived quantities are
+not established as generally applicable across the supported roadway-flow states.
+
 ## Longitudinal hydraulic profile convention
 
 `BarrelHydraulicResult.longitudinal_profile` is the downstream-consumable profile contract
@@ -34,6 +52,8 @@ HGL points.
         - PartialFlowOutletResult
         - ModernBoxInletResult
         - RoadwayOvertoppingResult
+        - RoadwayOvertoppingSegmentResult
+        - RoadwaySubmergenceCorrection
         - CriticalDepthResult
         - NormalDepthResult
         - ChannelNormalDepthResult
