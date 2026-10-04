@@ -17,7 +17,7 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
-- [External validation of advanced roadway overtopping](2026-10-05-roadway-overtopping-external-validation.md) — desktop HY-8/HEC-RAS comparison plan for the roadway functionality merged by PR #13.
+- [External validation of advanced roadway overtopping](2026-10-05-roadway-overtopping-external-validation.md) — awaiting `run-hy8` coefficient and submerged-input updates; desktop input probes and the concrete update request are recorded in the handoff.
 
 Before handoff, run focused tests for edited modules and record the exact commands and
 results in the issue/PR or maintained engineering documentation as appropriate. The

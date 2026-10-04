@@ -6,6 +6,166 @@ Branch: `validation/roadway-overtopping-external`
 
 Baseline: `main` at `0b79a83a83d195df39f055d173725e1ebc73aa19`
 
+Status: Awaiting `run-hy8` input-contract updates. Owner: Unassigned.
+Claimed and handed back by Codex desktop agent: 2026-10-05.
+
+## Desktop investigation and dependency handoff
+
+The user agreed to hand required wrapper changes back to `run-hy8` and resume this task
+afterwards. The validation definition of done below is **not satisfied**. No hydraulic
+equations, coefficients, applicability limits or existing comparison baselines were changed.
+
+### Environment actually inspected
+
+- `ryan-culverts` branch head: `ce5988b78350c58908e340048d0eadf81eefdb5e`.
+- Python: `3.14.6`; Windows 10 Pro `10.0.19045`, build `19045`.
+- HY-8 file/product version: `8.0.1.2`; executable SHA-256:
+  `0b1c5e7fb6b48be9c675b5486ae9a84346f436c5c649aa5ed09a1552267ee806`.
+- Installed `run-hy8` distribution reports `2026.9.8.1`. The retained wheel hash is
+  `efacb82b13f0fc07fa239a9db91a3e329e87f6622e53e3c5d92525848ca70a1e`. Five installed
+  Python files differ bytewise from that wheel: `hydraulics.py`, `models/__init__.py`,
+  `models/base.py`, `models/project.py`, and `models/tailwater_definition.py`.
+  A follow-up UTF-8 comparison confirmed these are line-ending differences only; all
+  23 installed Python files match the wheel's source text. Installed file hashes are retained in
+  [the package fingerprint](../validation_data/hy8_roadway_input_probe_package_hashes.json).
+  Its source commit is unverified. The separate source checkout was at
+  `9d578a3a7045f0aa84698964f0fb64e7347fe309`; that checkout was not used to execute HY-8.
+- HEC-RAS `7.0.1` is installed; `Ras.exe` file/product version is `7.00.0001`, SHA-256
+  `ce2ca395c68c4ee17387376ea3a7152c24db483488dced4eb96a59e85fd72985`.
+  The controller was not invoked and no HEC-RAS hydraulic comparison was run.
+
+PR [#13](https://github.com/Chain-Frost/ryan-culverts/pull/13) and its acceptance record were
+read: they explicitly leave new roadway executable comparison outstanding.
+
+### Input-contract findings
+
+The tracked HY-8 manual, Section 3.3.1, printed page 41, distinguishes paved/gravel
+automatic coefficient selection from the input-discharge-coefficient option. The installed
+wrapper's `RoadwayProfile` has no coefficient field; its writer emits no `WEIRCOEFF` card,
+and its reader drops that card. Selecting `USER_DEFINED` alone therefore does not prove
+coefficient parity.
+
+Six exploratory executable runs used the same constant crest and varied the surface
+option and `WEIRCOEFF` card. Geometry was crest stations `(0, 20) m`, elevations
+`(12, 12) m`, top width `10 m`; total flow `20 m3/s`, tailwater `9.7 m`. The single concrete
+circular barrel was `1.2 m` diameter, `30 m` long, inverts `10/9.7 m`, Manning `0.012`,
+square-edge headwall, one barrel, default profile and exit-loss settings.
+
+With `SURFACE=3`, the card uses the US coefficient even when project display units are SI:
+`C_SI = C_US sqrt(0.3048)`. A target `1.6 m^0.5/s` therefore needs card value
+`2.898094224008874`, saved by HY-8 as `2.898094`. Entering `1.6` directly gave displayed
+headwater `12.91 m` and roadway flow `15.44 m3/s`; the converted card gave `12.62 m` and
+`15.76 m3/s`. This is input-unit evidence, not solver calibration.
+
+For paved and gravel modes, changing that card from `1.6` to `2.898094224008874` left the
+displayed results unchanged within each surface mode: headwater `12.61 m`, roadway flow
+`15.78 m3/s` paved and `15.77 m3/s` gravel. The surface modes do not provide the requested
+explicit-coefficient parity. A wrapper update cannot be assumed to change executable
+semantics or independently select a physical surface and a fixed coefficient.
+
+The wrapper also rejects constant tailwater at or above the lowest roadway crest before
+execution. Three additional exploratory runs changed only the generated constant-tailwater
+rating cards to `12.9 m`, retaining the converted coefficient card and each surface mode.
+HY-8 returned finite flows; its saved files read back at `12.900000108 m`. These raw-card
+probes establish that executable submerged runs are possible, but do not establish the
+submergence law for `USER_DEFINED` mode.
+
+All nine probe summaries, reported culvert flows/velocities/states and raw report hashes are
+retained in [the input-probe CSV](../validation_data/hy8_8_0_1_2_roadway_input_probes.csv).
+Each is classified `unsupported comparison`: these are adapter investigations, not paired
+local-solver validation cases. The inferred free coefficient in the CSV uses rounded
+headwater and flow and must not be treated as an exact selected coefficient.
+
+An initial discarded probe used three points with constant-profile mode. That mode did
+not represent the intended full station span; subsequent constant probes use exactly two
+points. The irregular mode and its point-count requirements must be explicit before the
+sloping/sag matrix is constructed.
+
+### Concrete request for the `run-hy8` agent
+
+Make the following changes in `run-hy8`, with its own task ownership and checks:
+
+1. Add a typed, explicit SI roadway discharge-coefficient field for `USER_DEFINED` mode.
+   Require it in that mode; reject missing, non-finite or out-of-range values. Serialize
+   and read `WEIRCOEFF` using its demonstrated US-unit storage contract independently of
+   project display units. Preserve it through dictionaries/configuration and round trips.
+   Verify the executable/manual coefficient range rather than treating this one probe as
+   a full contract. Do not silently replace it with a paved/gravel coefficient.
+2. Model/document constant versus irregular roadway profiles and validate their respective
+   station counts and extents. The manual specifies 3-15 points for an irregular profile;
+   represent a two-point linear slope with an explicitly collinear middle point if required.
+3. Replace the blanket `constant_elevation >= crest` rejection with a documented supported
+   submerged-roadway input path. Retain invalid-input checks; verify the actual saved
+   tailwater, roadway extent and selected surface/coefficient after executable execution.
+4. Investigate and retain evidence for `USER_DEFINED` submergence semantics. Establish
+   whether explicit coefficient and independently selected paved/gravel correction can
+   coexist in HY-8 8.0.1.2. If they cannot, expose that limitation and classify the later
+   submerged comparison accordingly; do not imply that a new API field fixes it.
+5. Build an identifiable validation wheel/source revision and verify the installed package
+   matches it. Add focused read/write, unit-conversion, config and executable input-parity
+   tests. Keep HY-8 file adapters and parsing in `run-hy8`.
+
+No `run-hy8` files were changed and no issue/comment/message was sent externally. This is
+a reviewable request for the next agent, not a claim that those updates have been made.
+
+### Validation limits and resumption
+
+HY-8 reports these quantities to two decimal places. No local/external acceptance tolerance
+was selected, and no maximum local/external difference or state agreement can be reported:
+paired solver comparisons have not run. Displayed flow closure in the nine probes is
+within `0.01 m3/s`; this records rounding, not engineering acceptance. Crest activation,
+irregular profiles, supported ratios near `0.99`, equal stage, the unsupported gap, reverse
+head and missing-surface boundaries remain outstanding in the required matrix.
+
+HEC-RAS comparison is deferred while the primary HY-8 input contract is resolved. Its
+roadway formulation also uses upstream **energy** head; equivalent approach-section and
+velocity-head treatment must be demonstrated before comparing it to the local stage-based
+input. See the official
+[HEC-RAS weir coefficient reference](https://www.hec.usace.army.mil/confluence/rasdocs/ras1dtechref/6.5/modeling-culverts/culvert-data-and-coefficients/weir-flow-coefficient).
+This is an outstanding supplementary comparison, not a permanent exclusion.
+
+Resume on this branch using the verified updated wrapper. Run the small constant/free case
+first, then the sloping/sag, submerged and combined sequences below. Retain local Gaussian
+segment evidence and discrepancy dispositions; choose quantity-specific tolerances from
+output precision and documented method differences. Add external regression tests only
+once matched, version-pinned evidence exists. No regression assertion should enshrine the
+exploratory probes as hydraulic truth.
+
+### Commands executed during investigation
+
+The generated projects, reports and temporary exploratory drivers remain ignored under
+`validation_artifacts/roadway-probe/`. The three drivers used the installed wrapper and
+`HY864.exe -OpenRunSave`; they injected the known `WEIRCOEFF` card into wrapper-generated
+files before execution. The submerged driver additionally replaced the constant rating
+stage cards. They are exploratory local artifacts, not a maintained comparison harness.
+
+```powershell
+$env:PYTHONPATH='src'
+python validation_artifacts/roadway-probe/probe.py
+python validation_artifacts/roadway-probe/probes.py
+python validation_artifacts/roadway-probe/subprobe.py
+```
+
+All three completed with exit code 0. Inline Python commands extracted retained summaries
+through `run_hy8.parse_rst` / `Hy8Results`, read saved projects with
+`load_project_from_hy8`, and compared installed Python files to the retained wheel.
+`python --version`, `python -m pip show run-hy8`, executable `VersionInfo`, `Get-FileHash`,
+and `Get-CimInstance Win32_OperatingSystem` supplied the environment evidence above.
+
+Repository checks after the documentation/evidence changes:
+
+- `python -m pytest -q`: **398 passed**, 17.07 seconds.
+- `python -m ruff check .`: passed.
+- `python -m ruff format --check .`: passed, 128 files already formatted.
+- `python -m pyright`: passed, 0 errors / 0 warnings.
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`: passed.
+- `python -m mkdocs build --strict`: initially failed because this branch's new handoff
+  page was absent from navigation; passed after adding it to `mkdocs.yml`.
+- `git diff --check`: passed.
+
+Packaging checks were not run: no packaging or Python-code changes were made. No files
+were staged, committed, pushed or published. The task owner is returned to `Unassigned`.
+
 ## Purpose
 
 Externally validate the advanced roadway-overtopping implementation merged by PR #13 using a

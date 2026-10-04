@@ -1,0 +1,28 @@
+{
+  "distribution_version": "2026.9.8.1",
+  "installed_python_file_sha256": {
+    "__init__.py": "1057d937df18008ed11637d7a164d324f7e15d85daf0c43f5b01525dfa5283a4",
+    "__main__.py": "eba72e00274f38d5ca418eb29f622bb85f4cb4e3852edc9c4e265c949340e312",
+    "classes_references.py": "7025fb442df7eb2da50e8c8608ba01a04804cd8157a3327e0dafd6b79f5b58cc",
+    "cli.py": "ad7c509887767ea75d4dd3dc76d975ac45ba93fb32dbcf8b79382c9cc58d8839",
+    "config.py": "a556995d0e823d3f73b7116343a6851e83c209acf6569bc27815e089bc1d730b",
+    "executor.py": "c0e01cab90375d7f05be1992568a66f5dac7c3bf7b4bbffa546f9d35936ae019",
+    "hy8_path.py": "7bacfde26a388ce7ac219ddded72bbfcd0d7d78350e5bc39fcdf29c4dde8a857",
+    "hydraulic_defaults.py": "48440a74c1b8729869b5a1022a565478934f6f7dd883e684242b452157354c7c",
+    "hydraulics.py": "fc0a1ac9374e549590eff9fae6370269373b4a4aa4f75a82f02ddd2168d0d1af",
+    "inlet_configurations.py": "8e57b1679021e3a8e0418d647c289e3bdd7cda61f4cf7627404553c0d2f1a44f",
+    "models/__init__.py": "34325971d4dc5d5036403d770d94e0c3c0b96d06a107f036b4ce56175d2f01f9",
+    "models/base.py": "b75830844e1ce44a07bb510b19d414ff961bbe2c62d4f6a9b8f1c8e5a3198f38",
+    "models/culvert_barrel.py": "17ef8f2ad7a0a0c68581a777d7284d4df3e26a42a21f0f40f6e3b1a57bc50484",
+    "models/culvert_crossing.py": "b604657a06c8e835f5a622fbeedcf7ef27ff5915596f166773817b9c4ce56353",
+    "models/flow_definition.py": "224412ad7477b3d01b7e66d9d4d032f597f1ce0dce0240d29f1862a8c15c88da",
+    "models/project.py": "b2c90e3bc0c409994890b781a2dc850c012528880ef7e3461a251b011693752d",
+    "models/roadway_profile.py": "ce0bb868349d1bb17769358881df53ed790cd197db178c6210f6cf95da31cecc",
+    "models/tailwater_definition.py": "008362f93ae4f412b17fdb95229f8428b01a25c2f03b51d62c86237eef51a768",
+    "reader.py": "587237b44b5d59a6586be24cf24d2369a021dd7befc52071d58fc19b25bcbef1",
+    "results.py": "87ffe94d0e85ed8c6341ca7c31af930c85458baa709ce862384efc03dcdb293a",
+    "type_helpers.py": "d01de0bd79ddff8e9c1afea6c9b86a6cccc1c2f93dc67f670da4356a491de9a4",
+    "units.py": "94eebc743caf0d7551b2dc872cf31e2672c1cfeef38c36e9baafd0bda93c1450",
+    "writer.py": "3168d637d797a6807f67eb733393a78c1e81c346a4f39af4cab48d7780cc978e"
+  }
+}

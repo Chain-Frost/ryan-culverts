@@ -265,6 +265,23 @@ The following external fixture adds unequal-barrel flow division; tailwater rati
 relationships, storage routing, irregular road crests, and submerged roadway overtopping
 remain outside this evidence.
 
+### Advanced roadway external-validation input investigation (2026-10-05)
+
+The merged advanced roadway implementation has analytical/regression coverage for
+irregular crest integration and bounded paved/gravel submergence. Paired HY-8 roadway
+validation remains outstanding. Nine HY-8 8.0.1.2 input probes identified missing
+`run-hy8` coefficient preservation and a blanket submerged-tailwater rejection. Paved and
+gravel modes also select their own coefficients rather than honouring the explicit
+`WEIRCOEFF` card. These probes are classified `unsupported comparison`, not numerical
+acceptance evidence.
+
+The [desktop investigation and wrapper update request](work/2026-10-05-roadway-overtopping-external-validation.md)
+records exact versions, installed-package fingerprints, probe quantities, limitations
+and the concrete resumption steps. Its compact CSV is an input-contract investigation;
+it does not establish local/external differences, tolerances or state agreement. HEC-RAS
+comparison and the irregular/submerged/combined matrix remain open. No solver tuning or
+baseline changes were made.
+
 ### Heterogeneous crossing and regime-transition rating fixture
 
 The CS-006 issue #8 increment compares a mixed crossing against FHWA HY-8 `8.0.1.2` through
