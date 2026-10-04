@@ -15,6 +15,10 @@ migrated task by editing a legacy CS `Owner` field, and do not infer current iss
 from a CS table entry. If an issue links to a CS section, treat that section as background
 context unless the issue explicitly says otherwise.
 
+## Active validation handoff
+
+- [External validation of advanced roadway overtopping](2026-10-05-roadway-overtopping-external-validation.md) — desktop HY-8/HEC-RAS comparison plan for the roadway functionality merged by PR #13.
+
 Before handoff, run focused tests for edited modules and record the exact commands and
 results in the issue/PR or maintained engineering documentation as appropriate. The
 ordinary repository checks are:
