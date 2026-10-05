@@ -1,6 +1,6 @@
 # References and review register
 
-Reviewed through 2026-09-09. This register distinguishes transcription checks, methodology
+Reviewed through 2026-10-06. This register distinguishes transcription checks, methodology
 review, discovery, and pending engineering acceptance. Implemented coefficient values
 have been checked against HDS-5, but no combined solver is externally validated.
 
@@ -32,6 +32,10 @@ same as adoption: unsupported geometry and context remain explicit future tasks.
 | HY-8 embedded-coefficient correction note | Reviewed | Reject original NCHRP embedded coefficients as executable; treat adjusted curves as secondary HY-8 implementation evidence |
 | HY-8 User Manual v8.0 and executable 8.0.1.2 | Reviewed | Version-pinned implementation comparison, never hydraulic authority |
 | Austroads AGRD05B-23 edition 1.2 | Reviewed | Adopt Australian workflow/reporting context; do not replace HDS-5 equations |
+| ARR Project 11 Stage 1 (2009) | Reviewed and bounded for CS-026 | Hydraulic equations and screen-arrangement distinctions; legacy ELM/RAM concepts are not universal validated defaults |
+| ARR Project 11 Stage 2 / ARR 2019 Book 6 Chapter 6 | Reviewed for CS-026 | Adopt blockage mechanism and scenario/risk context; percentages select scenarios rather than define one hydraulic capacity factor |
+| Sellevold et al. (2024) | Reviewed and bounded for CS-026 | Primary experimental evidence for idealised bottom-up blockage at source-matched circular pipe inlets only |
+| FHWA HEC-9, third edition | Reviewed for CS-026 context | Authoritative debris assessment/countermeasure context; no generic culvert blockage factor adopted |
 | Current MRWA guidance listed below | Reviewed | Adopt jurisdiction-specific defaults and application notices where implemented |
 | HEC-RAS 7.0 technical reference | Reviewed | Independent methodology comparison; apparent inlet-page transcription rejected |
 | EPA SWMM source at `07c371f8` | Reviewed | Secondary implementation comparison; code reuse not licensed |
@@ -213,6 +217,53 @@ diameter. Plastic flexible culverts are a contract-specific provision, limited t
 only, with roughness from manufacturer data. A hydraulic Table 2.2 lookup does not
 establish current Spec 404 construction compliance.
 
+### Debris and blockage sources (CS-026)
+
+The detailed source review, applicability matrix, proposed typed scenario boundary, and
+validation plan are recorded in
+[`research/debris_blockage.md`](research/debris_blockage.md).
+
+[ARR Project 11 Stage 1][arr-p11-stage1], P11/S1/007 (November 2009), Section 4 was
+reviewed for blockage hydraulics. Printed page 45 defines `BR` as the inlet free/open
+area divided by downstream full-pipe area, gives the outlet-control entrance-loss
+relationship in Equation 4.2, and gives the inlet-control discharge factor
+`BF = BR^(5/4)` in Equation 4.3. Printed pages 46-51 separate upstream screens,
+inlet-attached screens, outlet screens, and downstream screens. In particular, an
+inlet-attached screen uses a combined screen/entry loss rather than independent losses.
+These equations are retained as authoritative Australian historical method evidence, not
+as a generic default for every blockage mechanism.
+
+[ARR Project 11 Stage 2][arr-p11-stage2], P11/S2/021 (February 2013), printed pages
+17-19 identifies blockage type, location, porosity, timing, and extent as distinct
+hydraulic factors and separates top-down floating debris, bottom-up depositional
+blockage, porous plugs, and mixed modes. Table 3.16 on printed page 44 provides
+design/severe blockage scenario guidance by structure type and separately identifies
+screened inlets. The report states that design blockage should be determined by type and
+location rather than assuming severe blockage everywhere. These percentages select
+analysis scenarios; they are not a blanket hydraulic efficiency factor.
+
+[ARR 2019 Book 6 Chapter 6][arr-book6-blockage] retains national blockage guidance but
+explicitly states that quantitative evidence for the impact of blockage remains limited
+and that the procedure is not definitive. That limitation remains part of the engineering
+applicability statement.
+
+[Sellevold et al. (2024)][sellevold-2024] provides the strongest reviewed physical
+validation for CS-026. Controlled experiments cover idealised bottom-up blockage at
+seven circular-pipe inlet geometries. The paper develops source-specific blocked
+entrance-loss regressions for outlet-control pressure flow and supports
+`Q_b / Q = 1 - A_b/A` for the tested submerged inlet-control Type 5 conditions over
+its reported blockage-analysis range. It reports large conservative discrepancies for
+the traditional ELM/RAM comparisons and explicitly does not extend its blocked
+entrance-loss method to outlet-control Types 2 and 3. Its regression coefficients must
+not be transferred to rectangular culverts, top-down floating debris, porous plugs,
+longitudinal barrel deposits, or merely similar-sounding inlet labels.
+
+[FHWA HEC-9][hec9] is reviewed as an authoritative debris accumulation and
+countermeasure reference for culvert/bridge structures. It supports treating debris
+assessment and control structures as explicit engineering concerns; it does not supply a
+single generic capacity-reduction factor that overrides the source-specific hydraulic
+methods above.
+
 ## Reference implementations
 
 ### EPA SWMM
@@ -332,3 +383,8 @@ units and 19.63 to SI. Do not adopt its loss results as reference values.
 [stream]: https://github.com/jlillywh/STREAM-1D/tree/32ede6fb1e211db97c76cc82d1cf0a80eb8a55a0
 [hy8-insider-15]: https://www.linkedin.com/pulse/hy-8-insider-article-15-culvert-barrel-results-eric-jones-p-e-/
 [external-culvertflow]: https://github.com/alejandroechev/culvertflow
+[arr-p11-stage1]: https://www.arr-software.org/pdfs/ARR_Project11_Stage1_report_Final.pdf
+[arr-p11-stage2]: https://www.arr-software.org/pdfs/ARR_Project11_Stage2_Final.pdf
+[arr-book6-blockage]: https://www.arr-software.org/pdfs/ARR_190514_Book6_V4.1.pdf
+[sellevold-2024]: https://doi.org/10.1061/JIDEDH.IRENG-10219
+[hec9]: https://www.fhwa.dot.gov/engineering/hydraulics/library_arc.cfm?id=23&pub_number=9
