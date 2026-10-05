@@ -65,6 +65,7 @@ nav:
       - API reference:
           - Overview: api.md
           - Inputs and configuration: api/inputs.md
+          - Uncertainty contracts and evaluation: api/uncertainty.md
           - Results and diagnostics: api/results.md
           - Solvers and rating curves: api/solvers.md
           - Hydraulic methods: api/methods.md
@@ -86,6 +87,7 @@ nav:
   - Development:
       - Progress: progress.md
       - Work register: work/README.md
+      - Uncertainty CI repair: work/2026-10-06-uncertainty-ci-fix.md
       - CS-028 roadway overtopping handoff: work/2026-09-13-cs-028-handoff.md
       - Roadway external validation handoff: work/2026-10-05-roadway-overtopping-external-validation.md
       - Roadway external comparison results: work/2026-10-06-roadway-overtopping-comparison-results.md

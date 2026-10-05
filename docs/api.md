@@ -16,6 +16,8 @@ The reference is grouped by how callers use the library:
   warnings, convergence evidence, and inventory summaries.
 - [Solvers and rating curves](api/solvers.md) covers the main forward and inverse
   entry points.
+- [Uncertainty contracts and evaluation](api/uncertainty.md) covers sampled input
+  assumptions and deterministic single-sample evaluation.
 - [Hydraulic methods](api/methods.md) covers lower-level equations, numerical roots,
   profiles, losses, and coefficient selection.
 - [Built-ins and references](api/builtins.md) covers standard materials, coefficients,

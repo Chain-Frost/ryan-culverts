@@ -244,7 +244,7 @@ def sample_uniform_parameter(
 ) -> tuple[HydraulicSample, ...]:
     """Return reproducible uniform samples using an explicit local random seed."""
     sample_count = _positive_count(count)
-    if not isinstance(seed, int) or isinstance(seed, bool):
+    if not isinstance(seed, int) or isinstance(seed, bool):  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = "seed must be an integer."
         raise InvalidInputError(msg)
     generator = Random(seed)  # noqa: S311 - deterministic engineering sampling, not cryptography.
@@ -389,7 +389,7 @@ def _validate_source(source: SourceReference) -> None:
 
 
 def _positive_count(count: int) -> int:
-    if not isinstance(count, int) or isinstance(count, bool) or count <= 0:
+    if not isinstance(count, int) or isinstance(count, bool) or count <= 0:  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = "count must be a strictly positive integer."
         raise InvalidInputError(msg)
     return count
