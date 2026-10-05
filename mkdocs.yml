@@ -82,6 +82,7 @@ nav:
       - Research index: research/README.md
       - Local evidence inventory: research/local_evidence_inventory.md
       - Fixture candidates: research/fixture_candidates.md
+      - Austroads worked-example velocity: research/austroads_worked_example_velocity.md
       - FHWA box inlets: research/fhwa_box_inlets.md
       - NCHRP 734 coefficients: research/nchrp734_coefficients.md
   - Development:

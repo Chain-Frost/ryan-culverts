@@ -113,14 +113,29 @@ low- and high-end numerical errors.
 
 ## Austroads design-workflow case
 
-AGRD05B-23 Section 3.15.1, printed pages 101-106 (local PDF pages 111-116), uses
-three 1,050 mm RCP barrels, 15.6 m long at slope `0.0065`, carrying `6.25 m³/s`
-total with tailwater `0.96 m`. It publishes inlet headwater `1.40 m`, outlet
-headwater `1.36 m`, inlet control, outlet depth `0.75 m`, outlet area `0.67 m²`,
-outlet velocity `3.08 m/s`, and Froude number `1.17`.
+AGRD05B-23 edition 1.2 Section 3.15.1, printed pages 101-106 (local PDF pages
+111-116), uses three 1,050 mm RCP barrels, 15.6 m long at slope `0.0065`, carrying
+`6.25 m³/s` total with tailwater `0.96 m`. It publishes inlet headwater `1.40 m`,
+outlet headwater `1.36 m`, inlet control, outlet depth `0.75 m`, outlet area
+`0.67 m²`, outlet velocity `3.08 m/s`, and Froude number `1.17`.
 
-This case is accepted as a workflow and reporting checklist, not as a strict numerical
-fixture. Printed page 105 states full-flow velocity `2.5 m/s`, then tabulates `2.75
-m/s` and uses `2.75 × 1.12 = 3.08 m/s`. Its inlet and full-flow heads are also read
-from nomographs. CS-015 must reconcile that source inconsistency or identify a corrected
-edition before numerical acceptance; no solver value is tuned to it.
+CS-015 resolved the printed-page-105 full-flow velocity inconsistency by independent
+reconstruction. The source first states `Vf = 2.5 m/s`, but its Step 7 table uses
+`2.75 m/s` and the following calculation uses `2.75 × 1.12 = 3.08 m/s`. For
+`D = 1.05 m`, `n = 0.012`, and `S = 0.0065`, Manning's equation gives
+`Vf = 2.754408209 m/s`; multiplying by the exact full circular area gives
+`Qf = 2.385046132 m³/s`, which matches the source's nomograph reading of
+`2.4 m³/s` at displayed precision. The independent continuity check
+`2.40 / 0.867 = 2.768 m/s` points to the same disposition. Therefore `2.75 m/s`
+is the supported full-flow velocity and the isolated `2.5 m/s` statement is treated
+as a source transcription error. See
+[`austroads_worked_example_velocity.md`](austroads_worked_example_velocity.md) for
+the source-status check, exact locators, arithmetic and precision record.
+
+The complete worked example remains a workflow and reporting checklist rather than a
+strict combined-solver numerical fixture. Its inlet/outlet-control heads, full-flow
+discharge and part-flow factors include nomograph readings and displayed rounding. No
+executable fixture is added from this case by CS-015. If the resolved velocity
+subcalculation is later promoted to a fixture, retain the source-reported `2.75 m/s`
+precision separately from the solver tolerance rather than treating displayed rounding
+as an acceptance threshold.

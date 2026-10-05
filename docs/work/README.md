@@ -17,6 +17,28 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+PR #26 CI repair (2026-10-06): Owner: Unassigned. Status: verified locally.
+Added the Austroads worked-example research page to MkDocs navigation, resolving
+the strict-build failure in Actions run 37349719931. The remaining checks in that
+job were skipped after the documentation failure; all three installed-wheel jobs
+passed. No hydraulic behaviour or source interpretation changed.
+
+Verification on Python 3.14.6:
+
+- `python -m pytest -q`: 488 passed.
+- `python -m ruff check .`: passed.
+- `python -m ruff format --check .`: passed, 132 files formatted.
+- `python -m pyright`: zero errors, warnings or information messages.
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`: passed.
+- `python -m mkdocs build --strict`: passed.
+- `git diff --check`: passed.
+- `python scripts/verify_wheel.py`: existing retained wheel integrity passed.
+
+No new package build or local installed-wheel test was run for this navigation-only
+repair. HY-8 executable comparison was not run. The repair is committed locally;
+next action is to push the branch and confirm the new CI run completes. No release
+or publication was performed.
+
 - [External validation of advanced roadway overtopping](2026-10-05-roadway-overtopping-external-validation.md) — [47 discharge cases and seven boundary investigations recorded](2026-10-06-roadway-overtopping-comparison-results.md); irregular differences and submerged-method parity remain unresolved.
 
 Before handoff, run focused tests for edited modules and record the exact commands and
