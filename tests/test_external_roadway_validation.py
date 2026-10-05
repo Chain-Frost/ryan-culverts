@@ -1,6 +1,7 @@
 """Offline hydraulic checks against retained, version-pinned roadway evidence."""
 
 import csv
+import hashlib
 import json
 from itertools import pairwise
 from pathlib import Path
@@ -29,6 +30,15 @@ from culvert_solver import (
 DATA = Path(__file__).resolve().parents[1] / "docs" / "validation_data"
 MATRIX = DATA / "hy8_8_0_1_2_roadway_overtopping.csv"
 BOUNDARIES = DATA / "hy8_8_0_1_2_roadway_overtopping_boundaries.csv"
+
+
+@pytest.mark.parametrize(("path", "field"), [(MATRIX, "csv_sha256"), (BOUNDARIES, "boundary_csv_sha256")])
+@pytest.mark.parametrize("line_ending", [b"\n", b"\r\n"])
+def test_retained_csv_hashes_are_verifiable_across_checkouts(path: Path, field: str, line_ending: bytes) -> None:
+    identity = json.loads(MATRIX.with_suffix(".json").read_text(encoding="utf-8"))
+    assert identity["csv_hash_encoding"] == "UTF-8 with CRLF normalized to LF"
+    content = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\n", line_ending)
+    assert hashlib.sha256(content.replace(b"\r\n", b"\n")).hexdigest() == identity[field]
 
 
 def _rows(path: Path) -> tuple[dict[str, str | None], ...]:

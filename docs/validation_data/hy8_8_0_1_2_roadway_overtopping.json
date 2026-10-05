@@ -48,7 +48,7 @@
     "run_hy8/writer.py": "a0f7bcdddc5d8bed8806fc7ce6a72544847480af417eb51e19149cd9f565a2d2"
   },
   "case_count": 47,
-  "boundary_csv_sha256": "5e26da071af53c15aea5f3237bee6f42f941c9c4cfd9502d5b10fd02f5f5e727",
+  "boundary_csv_sha256": "6ff5ccffbc22e8fa2c38900a1ef51fd7359a487eb2820b96a8610876028816bd",
   "boundary_artifact_hashes": {
     "boundary-crest/boundary-crest_q_from_hw_run_001.hy8": "b24b5d1f49e2f5e0615d018141a28e333dc79c364833041c26a04115ee19d4b5",
     "boundary-crest/boundary-crest_q_from_hw_run_001.rsql": "1f3bd55e90ed9811221628195086fc24a70d15bcfbe921e45b748446deef0c85",
@@ -114,5 +114,6 @@
     "boundary-supported-0.99/boundary-supported-0.99_q_from_hw_run_001.rsql": "c9bed803f8a36233cccd885d35ed44d1ab52bd2ce39ec806db18cdcda94dac5a",
     "boundary-supported-0.99/boundary-supported-0.99_q_from_hw_run_001.rst": "93fbb7e5733baa133dac5f9828aceca734ee00e7b8f5940c2e230be3680d4962"
   },
-  "csv_sha256": "182796708eb65a132fc48469bc6b1d6522f755e7223fcd012884c3aed6db265a"
+  "csv_sha256": "bed6f2d53ee9709d32ca1d4b3f1d110daf5e2fe6bdcd8210c1049b993cfc5b69",
+  "csv_hash_encoding": "UTF-8 with CRLF normalized to LF"
 }

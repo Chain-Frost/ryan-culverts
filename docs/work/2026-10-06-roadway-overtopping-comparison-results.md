@@ -227,6 +227,35 @@ Python-range edits. Those local edits are preserved; this PR changes only the op
 dependency and type-check configuration there. Build/install artifacts remain ignored;
 no tracked distribution wheel is replaced. Remote CI evidence belongs to the draft PR.
 
+### PR review corrections
+
+The CSV digests now hash UTF-8 bytes with CRLF normalized to LF, as declared in the
+identity JSON. The writer explicitly emits LF record terminators. The corrected matrix
+digest is `bed6f2d53ee9709d32ca1d4b3f1d110daf5e2fe6bdcd8210c1049b993cfc5b69`; the boundary
+digest is `6ff5ccffbc22e8fa2c38900a1ef51fd7359a487eb2820b96a8610876028816bd`. Both match
+the committed Git blobs. Only the identity metadata changed; CSV evidence and native
+artifact hashes were retained. Offline tests verify the hashes with LF and CRLF content.
+
+The subsequent `b74cae4` project-metadata commit changed `requires-python` to `>=3.14`.
+The installed-wheel smoke check now reads this requirement from `pyproject.toml`, allowing
+constraint reordering by the build backend and rejecting absent or stale requirements.
+It no longer hard-codes the previous upper bound. The tested interpreter remains 3.14.
+
+Verification for these corrections on 2026-10-06:
+
+- `python -m pytest -q`: **488 passed**, 18.77 seconds.
+- Isolated Python with `run_hy8` absent: **488 passed**, 18.71 seconds.
+- `python -m ruff check .` and `python -m ruff format --check .`: passed.
+- `python -m pyright` and `python -m pyright --project pyright-external.json`: passed.
+- Markdown scan, strict MkDocs build and `git diff --check`: passed.
+- `python -m build --wheel --outdir validation_artifacts/pr-review-fix-wheel`: passed;
+  `scripts/verify_wheel.py` verified that wheel.
+- Reinstalled that wheel with `--no-deps` into the isolated interpreter, then ran
+  `python -I scripts/smoke_test_installed_wheel.py`: passed; `run_hy8` confirmed absent.
+
+No new HY-8 or HEC-RAS execution was needed or performed for these metadata corrections.
+No version bump or tracked distribution replacement was made.
+
 ## Remaining work
 
 The matrix and offline regression evidence are delivered. The overall task is not marked

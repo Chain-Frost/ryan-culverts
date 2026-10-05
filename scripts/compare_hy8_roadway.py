@@ -412,10 +412,10 @@ def boundary_rows(executable: Hy8Executable, workspace: Path) -> list[dict[str, 
 
 
 def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
-    """Write uniform evidence rows using UTF-8 and explicit CSV escaping."""
+    """Write uniform evidence rows using UTF-8, LF and explicit CSV escaping."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]), lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -477,13 +477,14 @@ def main() -> None:
             if str(path).startswith("run_hy8/") and str(path).endswith(".py")
         },
         "case_count": len(rows),
-        "boundary_csv_sha256": hashlib.sha256(boundary_path.read_bytes()).hexdigest(),
+        "csv_hash_encoding": "UTF-8 with CRLF normalized to LF",
+        "boundary_csv_sha256": hashlib.sha256(boundary_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
         "boundary_artifact_hashes": {
             str(path.relative_to(args.workspace)).replace("\\", "/"): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(args.workspace.glob("boundary-*/*"))
             if path.suffix in (".hy8", ".rst", ".rsql")
         },
-        "csv_sha256": hashlib.sha256(args.output.read_bytes()).hexdigest(),
+        "csv_sha256": hashlib.sha256(args.output.read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
     }
     args.output.with_suffix(".json").write_text(json.dumps(identity, indent=2) + "\n", encoding="utf-8")
 
