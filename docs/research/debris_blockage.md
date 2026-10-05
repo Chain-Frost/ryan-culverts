@@ -508,7 +508,7 @@ number.
   P11/S1/007. See Section 4, especially printed pages 45-51.
   https://www.arr-software.org/pdfs/ARR_Project11_Stage1_report_Final.pdf
 - Weeks, W. and project contributors (2013), *ARR Revision Project 11: Blockage of
-  Hydraulic Structures, Stage 2 Report*, P11/S2/021. See Sections 2.5 and 3.6/Table 3.16,
+  Hydraulic Structures, Stage 2 Report*, P11/S2/021. See Section 2.5 and Table 3.16,
   especially printed pages 17-19 and 44-45.
   https://www.arr-software.org/pdfs/ARR_Project11_Stage2_Final.pdf
 - Ball, J. et al. (eds.) (2019), *Australian Rainfall and Runoff*, Book 6,
