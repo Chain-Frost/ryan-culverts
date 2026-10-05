@@ -17,7 +17,7 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
-- [External validation of advanced roadway overtopping](2026-10-05-roadway-overtopping-external-validation.md) — awaiting `run-hy8` coefficient and submerged-input updates; desktop input probes and the concrete update request are recorded in the handoff.
+- [External validation of advanced roadway overtopping](2026-10-05-roadway-overtopping-external-validation.md) — [47 discharge cases and seven boundary investigations recorded](2026-10-06-roadway-overtopping-comparison-results.md); irregular differences and submerged-method parity remain unresolved.
 
 Before handoff, run focused tests for edited modules and record the exact commands and
 results in the issue/PR or maintained engineering documentation as appropriate. The

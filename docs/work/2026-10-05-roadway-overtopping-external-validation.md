@@ -6,8 +6,19 @@ Branch: `validation/roadway-overtopping-external`
 
 Baseline: `main` at `0b79a83a83d195df39f055d173725e1ebc73aa19`
 
-Status: Awaiting `run-hy8` input-contract updates. Owner: Unassigned.
+Status: Prepared for external-review PR; comparison limits unresolved. Owner: Unassigned.
+Resumed and handed back by Codex desktop agent: 2026-10-06.
 Claimed and handed back by Codex desktop agent: 2026-10-05.
+
+## Current execution evidence
+
+The updated adapter unblocked execution. The
+[2026-10-06 comparison results](2026-10-06-roadway-overtopping-comparison-results.md)
+record 47 discharge comparisons and seven boundary investigations, reproducible automation,
+retained external/local quantities, independent analytical checks, and exact provenance.
+The older dependency investigation below is historical. The overall engineering validation
+remains open: active irregular-profile differences exceed report rounding, submerged
+coefficient/surface parity is unsupported, and exact near-equal-stage behaviour is unresolved.
 
 ## Desktop investigation and dependency handoff
 

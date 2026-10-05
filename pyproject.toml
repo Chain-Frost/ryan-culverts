@@ -41,6 +41,14 @@ dev = [
     "ruff==0.16.6",
 ]
 
+external-validation = [
+    # Local HY-8 tooling only; GitHub CI installs dev without this extra.
+    "run-hy8 @ git+https://github.com/Chain-Frost/run-hy8.git@0baaa2ac83e38aaad1a0419dc6e39c40445cb98d",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/culvert_solver"]
 
@@ -52,6 +60,8 @@ addopts = "-ra"
 [tool.pyright]
 # Current tested baseline, not an installation restriction.
 include = ["src", "tests", "scripts"]
+# Optional executable harnesses are checked locally with external-validation installed.
+exclude = ["scripts/compare_hy8.py", "scripts/compare_hy8_roadway.py"]
 extraPaths = ["src"]
 pythonVersion = "3.14"
 typeCheckingMode = "strict"

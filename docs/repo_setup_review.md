@@ -49,8 +49,9 @@ a separately tested migration.
 
 The `run-hy8` Windows CI structure is directly reusable and has been adapted here with
 this repository's lint, format, typing, test, Markdown, build, and wheel-verification
-commands. The CI installation pins `run-hy8` commit `9a0ab0c` so strict checking of the
-optional external-comparison script does not depend on an undeclared runner installation.
+commands. CI installs the `dev` extra without `run-hy8`. Local external comparisons use the
+separate `external-validation` extra declared in `pyproject.toml`; the optional HY-8
+harnesses are excluded from the ordinary CI type check and checked explicitly locally.
 Its MkDocs and Pages workflow was later adapted under CS-016 after this repository gained
 an intentional landing page, generated API page, reviewed navigation, direct documentation
 dependencies, and a strict local/CI build.
