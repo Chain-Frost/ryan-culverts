@@ -216,7 +216,6 @@ def test_successful_evaluation_exposes_result_status_warnings_and_convergence(
     assert evaluation.result.entrance_loss_selection.source is uncertainty_source
 
 
-
 def test_sampled_roughness_clears_baseline_parameter_set_id(
     barrel: CulvertBarrel,
     uncertainty_source: SourceReference,
