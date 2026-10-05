@@ -15,6 +15,10 @@ migrated task by editing a legacy CS `Owner` field, and do not infer current iss
 from a CS table entry. If an issue links to a CS section, treat that section as background
 context unless the issue explicitly says otherwise.
 
+## Active validation handoff
+
+- [External validation of advanced roadway overtopping](2026-10-05-roadway-overtopping-external-validation.md) — [47 discharge cases and seven boundary investigations recorded](2026-10-06-roadway-overtopping-comparison-results.md); irregular differences and submerged-method parity remain unresolved.
+
 Before handoff, run focused tests for edited modules and record the exact commands and
 results in the issue/PR or maintained engineering documentation as appropriate. The
 ordinary repository checks are:
