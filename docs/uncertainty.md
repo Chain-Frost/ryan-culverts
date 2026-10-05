@@ -34,7 +34,7 @@ without mutating global random state.
 HydraulicSample may contain multiple distinct sampled inputs. The initial supported
 parameter identities are:
 
-- Manning roughness, dimensionless;
+- Manning roughness, s/m^(1/3);
 - discharge, m³/s;
 - fixed tailwater elevation, m;
 - entrance-loss coefficient, dimensionless.
@@ -47,7 +47,9 @@ validation and provenance rules.
 
 evaluate_barrel_sample applies one HydraulicSample and then calls the public
 solve_barrel_hydraulics entry point. It does not implement uncertainty-specific
-hydraulic equations.
+hydraulic equations. When roughness is sampled, any baseline parameter_set_id is cleared
+because the sampled roughness defines a different adopted parameter set and must not retain
+a stale identifier.
 
 Successful evaluations retain the complete BarrelHydraulicResult, including structured
 hydraulic status, warnings, provenance and convergence records. Expected
