@@ -1,5 +1,7 @@
 """Reusable hydraulic uncertainty contracts and low-level evaluation primitives."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass, replace
 from enum import StrEnum
 from random import Random
@@ -27,7 +29,7 @@ class HydraulicUncertaintyParameter(StrEnum):
     ENTRANCE_LOSS_COEFFICIENT = "entrance_loss_coefficient"
 
     @property
-    def unit(self) -> "HydraulicUncertaintyUnit":
+    def unit(self) -> HydraulicUncertaintyUnit:
         """Return the canonical SI unit for this parameter."""
         return _PARAMETER_UNITS[self]
 
@@ -365,10 +367,14 @@ def _validate_parameter_value(
     parameter: HydraulicUncertaintyParameter,
     value: float,
 ) -> None:
-    if parameter in (
-        HydraulicUncertaintyParameter.MANNING_ROUGHNESS,
-        HydraulicUncertaintyParameter.DISCHARGE,
-    ) and value <= 0.0:
+    if (
+        parameter
+        in (
+            HydraulicUncertaintyParameter.MANNING_ROUGHNESS,
+            HydraulicUncertaintyParameter.DISCHARGE,
+        )
+        and value <= 0.0
+    ):
         msg = f"{parameter.value} must be strictly positive."
         raise InvalidInputError(msg)
     if parameter is HydraulicUncertaintyParameter.ENTRANCE_LOSS_COEFFICIENT and value < 0.0:
