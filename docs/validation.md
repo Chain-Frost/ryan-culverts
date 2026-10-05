@@ -265,6 +265,35 @@ The following external fixture adds unequal-barrel flow division; tailwater rati
 relationships, storage routing, irregular road crests, and submerged roadway overtopping
 remain outside this evidence.
 
+### Advanced roadway external validation (2026-10-06)
+
+The merged advanced roadway implementation has analytical/regression coverage for
+irregular crest integration and bounded paved/gravel submergence. Nine initial HY-8 8.0.1.2 input probes identified missing
+`run-hy8` coefficient preservation and a blanket submerged-tailwater rejection. Paved and
+gravel modes also select their own coefficients rather than honouring the explicit
+`WEIRCOEFF` card. These probes are classified `unsupported comparison`, not numerical
+acceptance evidence.
+
+The updated adapter enabled [47 discharge comparisons and seven boundary investigations](work/2026-10-06-roadway-overtopping-comparison-results.md),
+retained in `validation_data/hy8_8_0_1_2_roadway_overtopping.csv` and its boundary/provenance
+companions. The tested wheel reports `run-hy8 2026.10.5.1`, SHA-256
+`76ab3ea636f30be8c409136bd1717d42b00765c95c4cdeaee89bcc3a23016b39`, source commit
+`0baaa2ac83e38aaad1a0419dc6e39c40445cb98d`. Installed package text matches that wheel.
+
+Constant free roadway flow is corroborated within propagated two-decimal report precision.
+Twelve active irregular-profile cases exceed that band; maximum isolated-roadway headwater
+differences are `0.019307 m` for the slope and `0.009834 m` for the sag. Independent
+closed-form crest integration supports the local four-point approximation; the external
+difference is unresolved. Twenty submerged comparisons remain unsupported because HY-8
+cannot independently match a fixed coefficient and paved/gravel correction. Two native
+submerged flow-closure residuals of `0.02 m3/s` exceed report rounding and remain unresolved.
+
+The 81 offline checks cover conservation, segment evidence, independent integration,
+precision-based discrepancy dispositions and fail-closed boundaries. Rounded inverse
+results cannot establish exact equal-stage or gap-ratio HY-8 behaviour. HEC-RAS is excluded
+pending a matched energy-head/approach-section model. No solver tuning or previous baseline
+changes were made; overall engineering acceptance remains open.
+
 ### Heterogeneous crossing and regime-transition rating fixture
 
 The CS-006 issue #8 increment compares a mixed crossing against FHWA HY-8 `8.0.1.2` through

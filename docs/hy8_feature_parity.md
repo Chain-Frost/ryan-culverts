@@ -36,11 +36,17 @@ inventory. It is evidence of useful workflows, not hydraulic authority.
 | Multiple barrels and mixed groups | Confirm full versioned manual scope | Implemented | Conservation and inverse round-trip tests; broader cases pending | Deferred |
 | Profiles and hydraulic jumps | HY-8 profile codes and plots | Supported prismatic families implemented | Independent M/H/S, jump, and mixed-flow fixtures | S2, S1, JS1, S1f, JS1f, and M2/full cases compared |
 | Rating curves | Performance tables | Implemented | Scalar equivalence and repeatability tests | Deferred |
-| Roadway overtopping | HDS-5 Equation 3.9 | Constant crest and free overflow implemented | Analytical, inactive, roadway-only, and combined-flow tests | Irregular/submerged cases deferred to CS-028 |
+| Roadway overtopping | HDS-5 Equation 3.9; sourced profile integration and submergence | Constant/irregular crests; free flow and bounded paved/gravel submergence implemented | Analytical, segment-state, applicability and combined-flow tests | 47-case matrix and seven boundary investigations; constant free flow corroborated, irregular differences unresolved, submerged parity unsupported |
 | Embedded/broken-back culverts | HY-8 release notes | Deferred | No implementation | Outside initial scope |
 
 The executable evidence is diagnostic rather than an acceptance tolerance. See
 [validation](validation.md) for version pins, discrepancy dispositions, and remaining
 scope limits.
+
+The [2026-10-06 roadway results](work/2026-10-06-roadway-overtopping-comparison-results.md)
+record actual input parity, discrepancy dispositions, precision limits and exact software
+identity. HY-8's user coefficient uses US-unit storage; paved/gravel modes select their own
+coefficient. The matrix does not establish fixed-coefficient paved/gravel submerged parity
+or resolve exact equal-stage/gap-stage executable behaviour.
 
 [hy8]: https://www.fhwa.dot.gov/engineering/hydraulics/software/hy8/

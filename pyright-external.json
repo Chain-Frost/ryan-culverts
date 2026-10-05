@@ -1,0 +1,7 @@
+{
+  "include": ["scripts/compare_hy8.py", "scripts/compare_hy8_roadway.py"],
+  "exclude": [],
+  "extraPaths": ["src"],
+  "pythonVersion": "3.14",
+  "typeCheckingMode": "strict"
+}

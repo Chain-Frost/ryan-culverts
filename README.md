@@ -48,6 +48,18 @@ python -m pymarkdown -d MD013 scan -r README.md docs
 The Markdown check allows long lines for tables and source URLs. Heading rules,
 including MD025, remain enabled.
 
+The `dev` extra supports offline tests and CI without `run-hy8` or HY-8. Local executable
+comparisons use the separate `external-validation` extra and require the separately
+installed Windows HY-8 executable. The hydraulic library has no runtime dependency on either.
+
+```powershell
+python -m pip install --user -e ".[dev,external-validation]"
+python -m pyright --project pyright-external.json
+```
+
+The ordinary Pyright check excludes those optional harnesses; GitHub CI installs only `dev`
+and runs all offline tests against retained comparison evidence.
+
 Dependencies and build metadata live in `pyproject.toml`; there is no separate
 `requirements.txt`. Pip installs the package and its `dev` extra, while Hatchling
 builds the universal wheel through `python -m build --wheel`. See the
