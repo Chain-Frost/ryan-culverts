@@ -525,39 +525,30 @@ number.
 
 ## References
 
-- Weeks, W., Barthelmess, A., Rigby, E., Witheridge, G. and Adamson, R. (2009),
-  *ARR Revision Project 11: Blockage of Hydraulic Structures, Stage 1 Report*,
-  P11/S1/007. See Section 4, especially printed pages 45-51.
-  https://www.arr-software.org/pdfs/ARR_Project11_Stage1_report_Final.pdf
-- Weeks, W. and project contributors (2013), *ARR Revision Project 11: Blockage of
-  Hydraulic Structures, Stage 2 Report*, P11/S2/021. See Section 2.5 and Table 3.16,
+- [Weeks et al. (2009), ARR Revision Project 11 Stage 1][arr-p11-stage1],
+  *Blockage of Hydraulic Structures*, P11/S1/007. See Section 4, especially
+  printed pages 45-51.
+- [ARR Revision Project 11 Stage 2 (2013)][arr-p11-stage2],
+  *Blockage of Hydraulic Structures*, P11/S2/021. See Section 2.5 and Table 3.16,
   especially printed pages 17-19 and 44-45.
-  https://www.arr-software.org/pdfs/ARR_Project11_Stage2_Final.pdf
-- Ball, J. et al. (eds.) (2019), *Australian Rainfall and Runoff*, Book 6,
-  Chapter 6, "Blockage of Hydraulic Structures".
-  https://www.arr-software.org/pdfs/ARR_190514_Book6_V4.1.pdf
-- Sellevold, J., Norem, H., Bruland, O., Rüther, N. and Pummer, E. (2024),
-  "Effects of Bottom-Up Blockage on Entrance Loss Coefficients and Head-Discharge
-  Relationships for Pipe Culvert Inlets: Comparisons of Theoretical Methods and
-  Experimental Results", *Journal of Irrigation and Drainage Engineering*, 150(2),
-  04023038. https://doi.org/10.1061/JIDEDH.IRENG-10219
-- Bradley, J.B., Richards, D.L. and Bahner, C.D. (2005), *Debris Control Structures -
-  Evaluation and Countermeasures*, Hydraulic Engineering Circular 9, third edition,
-  FHWA-IF-04-016.
-  https://www.fhwa.dot.gov/engineering/hydraulics/library_arc.cfm?id=23&pub_number=9
-- Schall, J.D., Thompson, P.L., Zerges, S.M., Kilgore, R.T. and Morris, J.L. (2012),
-  *Hydraulic Design of Highway Culverts*, third edition, FHWA-HIF-12-026.
-  https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf
-- Ollett, P., Syme, B. and Ryan, P. (2017), "Australian Rainfall and Runoff guidance on
-  blockage of hydraulic structures: numerical implementation and three case studies",
-  *Journal of Hydrology (New Zealand)*, 56(2), 109-122.
-  https://www.hydralinc.com/wp-content/uploads/JoHNZ-V56-2-2017-ARR-Blockage-Ollett-Ryan-Syme.pdf
-- French, R. and Jones, M. (2018), "Design for culvert blockage: the ARR 2016 guidelines",
-  *Australasian Journal of Water Resources*, 22(1), 84-87.
-  https://doi.org/10.1080/13241583.2018.1477268
-- TUFLOW (2026), *TUFLOW Classic/HPC User Manual 2026.0*, structures/blockage
+- [Australian Rainfall and Runoff 2019, Book 6][arr-book6], Chapter 6,
+  "Blockage of Hydraulic Structures".
+- [Sellevold et al. (2024)][sellevold-2024], "Effects of Bottom-Up Blockage on
+  Entrance Loss Coefficients and Head-Discharge Relationships for Pipe Culvert
+  Inlets: Comparisons of Theoretical Methods and Experimental Results",
+  *Journal of Irrigation and Drainage Engineering*, 150(2), 04023038.
+- [FHWA HEC-9 (2005)][hec9], *Debris Control Structures - Evaluation and
+  Countermeasures*, third edition, FHWA-IF-04-016.
+- [FHWA HDS-5 (2012)][hds5], *Hydraulic Design of Highway Culverts*, third
+  edition, FHWA-HIF-12-026.
+- [Ollett, Syme and Ryan (2017)][ollett-2017], "Australian Rainfall and Runoff
+  guidance on blockage of hydraulic structures: numerical implementation and three
+  case studies", *Journal of Hydrology (New Zealand)*, 56(2), 109-122.
+- [French and Jones (2018)][french-jones-2018], "Design for culvert blockage:
+  the ARR 2016 guidelines", *Australasian Journal of Water Resources*, 22(1),
+  84-87.
+- [TUFLOW Classic/HPC User Manual 2026.0][tuflow-2026], structures/blockage
   documentation. Secondary implementation evidence only.
-  https://docs.tuflow.com/classic-hpc/manual/2026.0/Structures-2.html
 
 ## Remaining research gaps
 
@@ -575,3 +566,14 @@ needed for:
 
 These gaps should remain explicit issues or unsupported configurations. They must not be filled
 with an undocumented engineering judgement inside the hydraulic core.
+
+
+[arr-p11-stage1]: https://www.arr-software.org/pdfs/ARR_Project11_Stage1_report_Final.pdf
+[arr-p11-stage2]: https://www.arr-software.org/pdfs/ARR_Project11_Stage2_Final.pdf
+[arr-book6]: https://www.arr-software.org/pdfs/ARR_190514_Book6_V4.1.pdf
+[sellevold-2024]: https://doi.org/10.1061/JIDEDH.IRENG-10219
+[hec9]: https://www.fhwa.dot.gov/engineering/hydraulics/library_arc.cfm?id=23&pub_number=9
+[hds5]: https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf
+[ollett-2017]: https://www.hydralinc.com/wp-content/uploads/JoHNZ-V56-2-2017-ARR-Blockage-Ollett-Ryan-Syme.pdf
+[french-jones-2018]: https://doi.org/10.1080/13241583.2018.1477268
+[tuflow-2026]: https://docs.tuflow.com/classic-hpc/manual/2026.0/Structures-2.html
