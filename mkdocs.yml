@@ -61,6 +61,7 @@ nav:
   - User guide:
       - Packaging and installation: packaging.md
       - Public API policy: public_api.md
+      - Uncertainty primitives: uncertainty.md
       - API reference:
           - Overview: api.md
           - Inputs and configuration: api/inputs.md
