@@ -1,8 +1,9 @@
 # Research intake status
 
-This directory contains reviewed extracts derived from the primary publications
-under `reference_docs/`. The PDFs are evidence inputs; the Markdown extracts are
-not executable defaults until their transcription and applicability are tested.
+This directory contains reviewed extracts derived from primary publications under
+`reference_docs/` and from explicitly cited external primary/authoritative sources. The
+research records are evidence inputs; they are not executable defaults until their
+transcription, applicability, and required validation are tested.
 
 The superseded root-level research prompt and two raw agent reports were removed during
 the `26.9.9.1` release cleanup. One report was incomplete and the other contained
@@ -22,6 +23,9 @@ Current reviewed extracts:
   the separate HY-8 developer correction blocks use of the original embedded coefficients.
 - [`fixture_candidates.md`](fixture_candidates.md): the complete Bodhaine example audit,
   selected corrected-box fixtures, and the Austroads worked-example limitation.
+- [`debris_blockage.md`](debris_blockage.md): CS-026 source review, blockage-mechanism
+  distinctions, hydraulic interaction rules, fail-closed support matrix, proposed typed
+  scenario/provenance boundary, and published validation/tolerance evidence.
 
 The authoritative task status is in
 [`docs/work/2026-09-06-phase-0-to-10-remediation.md`](../work/2026-09-06-phase-0-to-10-remediation.md).
