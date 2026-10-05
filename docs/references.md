@@ -35,6 +35,8 @@ same as adoption: unsupported geometry and context remain explicit future tasks.
 | ARR Project 11 Stage 1 (2009) | Reviewed and bounded for CS-026 | Hydraulic equations and screen-arrangement distinctions; legacy ELM/RAM concepts are not universal validated defaults |
 | ARR Project 11 Stage 2 / ARR 2019 Book 6 Chapter 6 | Reviewed for CS-026 | Adopt blockage mechanism and scenario/risk context; percentages select scenarios rather than define one hydraulic capacity factor |
 | Sellevold et al. (2024) | Reviewed and bounded for CS-026 | Primary experimental evidence for idealised bottom-up blockage at source-matched circular pipe inlets only |
+| Miranzadeh et al. (2023) | Reviewed and bounded for CS-026 | Primary unsteady-flow evidence for woody-debris blockage formation at box and circular culverts; not a blocked-inlet loss/head-discharge method |
+| De Vos et al. (2026) | Reviewed for CS-026 | Recent dynamic scenario/catchment evidence using ELM for outlet-control logjams; supports explicit trigger/timing metadata, not broader hydraulic validation |
 | FHWA HEC-9, third edition | Reviewed for CS-026 context | Authoritative debris assessment/countermeasure context; no generic culvert blockage factor adopted |
 | Ollett, Syme and Ryan (2017) | Reviewed for CS-026 | Secondary numerical/case-study evidence comparing ARR energy-loss and reduced-area approaches |
 | French and Jones (2018) | Reviewed for CS-026 | Published contrary evidence on the empirical basis of ARR blockage design guidance; reinforces explicit uncertainty |
@@ -260,6 +262,20 @@ entrance-loss method to outlet-control Types 2 and 3. Its regression coefficient
 not be transferred to rectangular culverts, top-down floating debris, porous plugs,
 longitudinal barrel deposits, or merely similar-sounding inlet labels.
 
+[Miranzadeh et al. (2023)][miranzadeh-2023] provides primary laboratory evidence for
+the formation and timing of transported woody-debris blockage at both box and circular
+culverts under an unsteady synthetic flood hydrograph. It supports explicit debris type,
+shape, and event-timing scenario metadata, but its regression target is blockage
+formation/percentage rather than a source-specific blocked-inlet entrance-loss or
+head-discharge relationship.
+
+[De Vos et al. (2026)][de-vos-2026] is the most recent reviewed system-level blockage
+study. Its TELEMAC-2D framework varies blockage degree and water-level trigger timing,
+uses the ARR/Ollett energy-loss method for outlet-control logjam inlet scenarios, and
+states that timing and degree remain major uncertainties. It supports keeping trigger/
+timing metadata separate from the static hydraulic transformation; it does not provide
+new local physical validation or justify ELM under inlet control.
+
 [FHWA HEC-9][hec9] is reviewed as an authoritative debris accumulation and
 countermeasure reference for culvert/bridge structures. It supports treating debris
 assessment and control structures as explicit engineering concerns; it does not supply a
@@ -399,6 +415,8 @@ units and 19.63 to SI. Do not adopt its loss results as reference values.
 [arr-p11-stage2]: https://www.arr-software.org/pdfs/ARR_Project11_Stage2_Final.pdf
 [arr-book6-blockage]: https://www.arr-software.org/pdfs/ARR_190514_Book6_V4.1.pdf
 [sellevold-2024]: https://doi.org/10.1061/JIDEDH.IRENG-10219
+[miranzadeh-2023]: https://doi.org/10.1080/15715124.2022.2064483
+[de-vos-2026]: https://doi.org/10.5194/nhess-26-2319-2026
 [hec9]: https://www.fhwa.dot.gov/engineering/hydraulics/library_arc.cfm?id=23&pub_number=9
 [ollett-2017]: https://www.hydralinc.com/wp-content/uploads/JoHNZ-V56-2-2017-ARR-Blockage-Ollett-Ryan-Syme.pdf
 [french-jones-2018]: https://doi.org/10.1080/13241583.2018.1477268
