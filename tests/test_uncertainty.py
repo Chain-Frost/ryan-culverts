@@ -3,7 +3,10 @@
 import pytest
 
 from culvert_solver import (
+    CIRCULAR_CMP_HEADWALL,
     CONCRETE,
+    CORRUGATED_STEEL,
+    PIPE_CMP_LOSS_HEADWALL,
     BoundedParameterSpec,
     CircularGeometry,
     CulvertBarrel,
@@ -12,6 +15,7 @@ from culvert_solver import (
     HydraulicSample,
     HydraulicUncertaintyParameter,
     HydraulicUncertaintyUnit,
+    HydraulicWarningCode,
     InvalidInputError,
     ParameterBounds,
     SampledParameter,
@@ -57,7 +61,7 @@ def test_bounded_sampling_includes_bounds_without_probability_assumption(
         bounds=ParameterBounds(
             lower=0.011,
             upper=0.015,
-            unit=HydraulicUncertaintyUnit.DIMENSIONLESS,
+            unit=HydraulicUncertaintyUnit.SECOND_PER_METRE_ONE_THIRD,
         ),
         source=uncertainty_source,
     )
@@ -154,7 +158,7 @@ def test_increasing_roughness_increases_full_flow_headwater(
             SampledParameter(
                 parameter=HydraulicUncertaintyParameter.MANNING_ROUGHNESS,
                 value=0.011,
-                unit=HydraulicUncertaintyUnit.DIMENSIONLESS,
+                unit=HydraulicUncertaintyUnit.SECOND_PER_METRE_ONE_THIRD,
                 source=uncertainty_source,
             ),
         ),
@@ -164,7 +168,7 @@ def test_increasing_roughness_increases_full_flow_headwater(
             SampledParameter(
                 parameter=HydraulicUncertaintyParameter.MANNING_ROUGHNESS,
                 value=0.018,
-                unit=HydraulicUncertaintyUnit.DIMENSIONLESS,
+                unit=HydraulicUncertaintyUnit.SECOND_PER_METRE_ONE_THIRD,
                 source=uncertainty_source,
             ),
         ),
@@ -210,3 +214,84 @@ def test_successful_evaluation_exposes_result_status_warnings_and_convergence(
     assert evaluation.convergence == evaluation.result.convergence
     assert evaluation.result.entrance_loss_selection is not None
     assert evaluation.result.entrance_loss_selection.source is uncertainty_source
+
+
+
+def test_sampled_roughness_clears_baseline_parameter_set_id(
+    barrel: CulvertBarrel,
+    uncertainty_source: SourceReference,
+) -> None:
+    identified_barrel = CulvertBarrel(
+        geometry=barrel.geometry,
+        length=barrel.length,
+        inlet_invert=barrel.inlet_invert,
+        outlet_invert=barrel.outlet_invert,
+        roughness=barrel.roughness,
+        material=barrel.material,
+        parameter_set_id="baseline-roughness-set",
+    )
+    sample = HydraulicSample(
+        parameters=(
+            SampledParameter(
+                parameter=HydraulicUncertaintyParameter.MANNING_ROUGHNESS,
+                value=0.015,
+                unit=HydraulicUncertaintyUnit.SECOND_PER_METRE_ONE_THIRD,
+                source=uncertainty_source,
+            ),
+        ),
+    )
+
+    evaluation = evaluate_barrel_sample(
+        sample,
+        barrel=identified_barrel,
+        discharge=1.5,
+        tailwater=12.0,
+    )
+
+    assert evaluation.result is not None
+    assert evaluation.result.barrel.parameter_set_id is None
+    assert evaluation.result.adopted_roughness == pytest.approx(0.015)
+    assert evaluation.result.roughness_source is uncertainty_source
+
+
+def test_evaluation_preserves_structured_hydraulic_warning_status_and_convergence(
+    uncertainty_source: SourceReference,
+) -> None:
+    warning_barrel = CulvertBarrel(
+        geometry=CircularGeometry(diameter=0.9),
+        length=10.0,
+        inlet_invert=100.2,
+        outlet_invert=100.0,
+        roughness=0.020,
+        material=CORRUGATED_STEEL,
+        inlet_coefficients=CIRCULAR_CMP_HEADWALL,
+        entrance_loss_coefficient=PIPE_CMP_LOSS_HEADWALL,
+    )
+    sample = HydraulicSample(
+        parameters=(
+            SampledParameter(
+                parameter=HydraulicUncertaintyParameter.DISCHARGE,
+                value=4.63,
+                unit=HydraulicUncertaintyUnit.CUBIC_METRE_PER_SECOND,
+                source=uncertainty_source,
+            ),
+        ),
+        sample_id="high-head-advisory",
+    )
+
+    evaluation = evaluate_barrel_sample(
+        sample,
+        barrel=warning_barrel,
+        discharge=4.0,
+        tailwater=100.1,
+    )
+
+    assert evaluation.result is not None
+    assert evaluation.failure is None
+    assert evaluation.status is HydraulicResultStatus.VALID_WITH_ADVISORY
+    assert tuple(warning.code for warning in evaluation.warnings) == (
+        HydraulicWarningCode.INLET_CONTROL_HIGH_HEAD_EXTENSION,
+    )
+    assert evaluation.warnings == evaluation.result.warnings
+    assert evaluation.convergence == evaluation.result.convergence
+    assert evaluation.convergence
