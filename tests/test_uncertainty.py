@@ -3,9 +3,9 @@
 import pytest
 
 from culvert_solver import (
+    CONCRETE,
     BoundedParameterSpec,
     CircularGeometry,
-    CONCRETE,
     CulvertBarrel,
     EvaluationFailureKind,
     HydraulicResultStatus,
