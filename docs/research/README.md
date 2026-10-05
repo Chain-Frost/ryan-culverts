@@ -1,8 +1,9 @@
 # Research intake status
 
-This directory contains reviewed extracts derived from the primary publications
-under `reference_docs/`. The PDFs are evidence inputs; the Markdown extracts are
-not executable defaults until their transcription and applicability are tested.
+This directory contains reviewed extracts derived from primary publications under
+`reference_docs/` and from explicitly cited external primary/authoritative sources. The
+research records are evidence inputs; they are not executable defaults until their
+transcription, applicability, and required validation are tested.
 
 The superseded root-level research prompt and two raw agent reports were removed during
 the `26.9.9.1` release cleanup. One report was incomplete and the other contained
@@ -25,6 +26,9 @@ Current reviewed extracts:
 - [`austroads_worked_example_velocity.md`](austroads_worked_example_velocity.md): CS-015
   source-status check and independent reconstruction resolving the Section 3.15.1
   `2.5`/`2.75 m/s` full-flow velocity inconsistency.
+- [`debris_blockage.md`](debris_blockage.md): CS-026 source review, blockage-mechanism
+  distinctions, hydraulic interaction rules, fail-closed support matrix, proposed typed
+  scenario/provenance boundary, and published validation/tolerance evidence.
 
 The authoritative task status is in
 [`docs/work/2026-09-06-phase-0-to-10-remediation.md`](../work/2026-09-06-phase-0-to-10-remediation.md).
