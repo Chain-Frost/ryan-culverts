@@ -36,6 +36,8 @@ same as adoption: unsupported geometry and context remain explicit future tasks.
 | ARR Project 11 Stage 2 / ARR 2019 Book 6 Chapter 6 | Reviewed for CS-026 | Adopt blockage mechanism and scenario/risk context; percentages select scenarios rather than define one hydraulic capacity factor |
 | Sellevold et al. (2024) | Reviewed and bounded for CS-026 | Primary experimental evidence for idealised bottom-up blockage at source-matched circular pipe inlets only |
 | FHWA HEC-9, third edition | Reviewed for CS-026 context | Authoritative debris assessment/countermeasure context; no generic culvert blockage factor adopted |
+| Ollett, Syme and Ryan (2017) | Reviewed for CS-026 | Secondary numerical/case-study evidence comparing ARR energy-loss and reduced-area approaches |
+| French and Jones (2018) | Reviewed for CS-026 | Published contrary evidence on the empirical basis of ARR blockage design guidance; reinforces explicit uncertainty |
 | Current MRWA guidance listed below | Reviewed | Adopt jurisdiction-specific defaults and application notices where implemented |
 | HEC-RAS 7.0 technical reference | Reviewed | Independent methodology comparison; apparent inlet-page transcription rejected |
 | EPA SWMM source at `07c371f8` | Reviewed | Secondary implementation comparison; code reuse not licensed |
@@ -264,6 +266,16 @@ assessment and control structures as explicit engineering concerns; it does not 
 single generic capacity-reduction factor that overrides the source-specific hydraulic
 methods above.
 
+[Ollett, Syme and Ryan (2017)][ollett-2017] is retained as secondary numerical/case-study
+evidence. Its three TUFLOW case studies found materially different behaviour between the
+ARR energy-loss and conventional reduced-area approaches and reported that area reduction
+can exaggerate energy losses. It does not replace controlled physical validation.
+
+[French and Jones (2018)][french-jones-2018] is retained as published contrary evidence.
+Its critique of the data basis and predictive ability of the ARR blockage guidelines
+reinforces the decision to separate blockage-scenario guidance from source-specific
+hydraulic transformation and to expose the remaining uncertainty.
+
 ## Reference implementations
 
 ### EPA SWMM
@@ -388,3 +400,5 @@ units and 19.63 to SI. Do not adopt its loss results as reference values.
 [arr-book6-blockage]: https://www.arr-software.org/pdfs/ARR_190514_Book6_V4.1.pdf
 [sellevold-2024]: https://doi.org/10.1061/JIDEDH.IRENG-10219
 [hec9]: https://www.fhwa.dot.gov/engineering/hydraulics/library_arc.cfm?id=23&pub_number=9
+[ollett-2017]: https://www.hydralinc.com/wp-content/uploads/JoHNZ-V56-2-2017-ARR-Blockage-Ollett-Ryan-Syme.pdf
+[french-jones-2018]: https://doi.org/10.1080/13241583.2018.1477268
