@@ -14,6 +14,7 @@ The exact source locators and precision record are in
 `docs/research/austroads_worked_example_velocity.md`. The complete worked example remains
 a workflow/reporting check because several expected values are nomograph-read and rounded;
 no executable acceptance fixture, solver coefficient or solver tolerance changed.
+
 ## 2026-09-13 - CS-029 HEC-RAS normal-depth validation
 
 Completed the remaining CS-029 external comparison with HEC-RAS 7.0.1. A Windows-only

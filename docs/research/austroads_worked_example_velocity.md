@@ -13,7 +13,7 @@ reviewed on 2026-10-06. Its edition 1.2 change log lists rewrites to Sections 4.
 amendment did not locate a separate correction for this worked example.
 
 Official publication record:
-https://austroads.gov.au/publications/road-design/agrd05b
+<https://austroads.gov.au/publications/road-design/agrd05b>
 
 The repository copy is
 `reference_docs/AGRD05B-23_Guide_to_Road_Design_Part-5B_Drainage_Open_Channels_Culverts_and_Floodway_Crossings.pdf`,
