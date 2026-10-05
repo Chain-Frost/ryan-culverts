@@ -977,12 +977,28 @@ tests, not independent combined-method hydraulic validation.
 
 ### CS-015 - Austroads worked-example clarification
 
-Tracked by [GitHub issue #15](https://github.com/Chain-Frost/ryan-culverts/issues/15).
+Status: Complete. Tracked by
+[GitHub issue #15](https://github.com/Chain-Frost/ryan-culverts/issues/15).
 
-Resolve AGRD05B-23 edition 1.2 Section 3.15.1's full-flow velocity inconsistency before
-using it as a numerical fixture: printed page 105 states `2.5 m/s`, then tabulates `2.75
-m/s` and uses the latter to obtain `3.08 m/s`. Seek an erratum or corrected edition; until
-then use the case only as a workflow and reporting checklist.
+Resolved 2026-10-06 by independent reconstruction. The official Austroads publication
+page still identifies AGRD05B-23 edition 1.2, 30 January 2023, as the current edition;
+its edition change log does not identify a Section 3.15.1 correction, and no separate
+Austroads erratum/corrigendum for this worked example was located.
+
+Printed page 105 states `Vf = 2.5 m/s`, then tabulates `2.75 m/s` and uses
+`2.75 × 1.12 = 3.08 m/s`. For the stated `D = 1.05 m`, `S = 0.0065`, and
+the concrete-pipe `n = 0.012` used by the Appendix E circular-flow material, Manning's
+equation reconstructs `Vf = 2.754408209 m/s` and `Qf = 2.385046132 m³/s`.
+Those values round to the table's `2.75 m/s` and Figure C 1 reading `2.4 m³/s`.
+The independent printed-value check `2.40 / 0.867 = 2.768 m/s` reaches the same
+disposition. Treat the isolated `2.5 m/s` as an identified source transcription error;
+this is a project reconstruction, not a claimed formal Austroads correction.
+
+Exact edition/page/equation/figure locators, units, arithmetic and precision are recorded
+in [`docs/research/austroads_worked_example_velocity.md`](../research/austroads_worked_example_velocity.md).
+The complete example remains a workflow/reporting check rather than a strict combined-
+solver fixture because its headwaters and several intermediate values are nomograph-read
+and rounded. No executable fixture or solver tolerance was added by CS-015.
 
 ## CS-016 - Documentation site and Pages publication
 
