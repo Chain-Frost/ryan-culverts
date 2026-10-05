@@ -63,6 +63,8 @@ The following decisions are recommended before any solver implementation:
 | Sellevold et al. (2024), Journal of Irrigation and Drainage Engineering | Controlled physical experiments for bottom-up blockage of circular pipe inlets | Primary validation evidence for the bounded circular-inlet cases only |
 | FHWA HEC-9, third edition (2005) | Debris accumulation, assessment, and countermeasure context for culverts and bridges | Authoritative context; it does not justify one generic culvert blockage factor |
 | FHWA HDS-5, third edition (2012) | Existing clean-culvert hydraulic baseline | Remains the clean hydraulic baseline; blockage methods must compose with it without replacing unrelated equations |
+| Ollett, Syme and Ryan (2017) | Numerical implementation and three ARR blockage case studies | Secondary case-study evidence; supports separating ELM from whole-barrel reduced-area treatment |
+| French and Jones (2018) | Published technical critique of ARR blockage guidance | Contrary evidence reinforcing that scenario percentages are not calibrated hydraulic truth |
 | TUFLOW Classic/HPC 2026.0 manual | Secondary implementation of ARR RAM/ELM concepts | Comparison evidence only; do not treat software behaviour or terminology as hydraulic authority |
 
 No reviewed source supplied equally strong modern physical validation for rectangular culvert
@@ -139,6 +141,22 @@ ARR 2019 Book 6 Chapter 6 carries the blockage guidance into the current nationa
 states that actual evidence for blockage impacts and clear quantitative design advice is limited.
 It describes the procedure as non-definitive and expected to evolve. This limitation must remain
 visible in the public engineering documentation.
+
+### Secondary Australian implementation and critique
+
+Ollett, Syme, and Ryan (2017) implemented the ARR blockage methods in TUFLOW and compared
+the energy-loss and reduced-area approaches in three flood-model case studies. Their published
+abstract reports that the energy-loss approach produced more realistic headwater levels than
+reducing culvert area in those models and that whole-area reduction can exaggerate energy
+losses. This is useful implementation/case-study evidence, especially against treating a local
+inlet blockage as a smaller barrel, but it is not a controlled physical validation dataset.
+
+French and Jones (2018) published a technical critique of the ARR blockage guidance, focusing
+on the limited observational data and unproven predictive basis for the recommended blockage
+levels. The conclusion adopted here is narrower than either side of that debate: retain ARR as
+authoritative Australian scenario/risk guidance, but do not present its generic blockage
+percentages as calibrated hydraulic performance data. Source-specific physical evidence should
+control the hydraulic transformation where it exists.
 
 ## Primary experimental evidence: Sellevold et al. 2024
 
@@ -454,9 +472,13 @@ A later implementation should include at least:
 ### Independent comparison
 
 TUFLOW's RAM/ELM implementation is useful as a secondary comparison for legacy ARR equations.
-It must not define acceptance when it conflicts with the source or physical validation. In
-particular, terminology around `BR` should be normalised against the original ARR definition,
-not copied from secondary software text.
+It must not define acceptance when it conflicts with the source or physical validation. Its
+2026.0 ELM documentation states that `BR = 1` is unblocked and tabulates `BR = 0.9` for 10%
+blockage, consistent with ARR's open-area ratio, despite an adjacent prose definition that calls
+`BR` blocked area divided by unblocked area. The ARR source definition governs. TUFLOW also
+uses a minimum `BR` of 0.001 to avoid division by zero; this numerical clamp should not become a
+physical library rule. A fully impermeable blockage should be represented explicitly as zero
+culvert capacity for a method that supports that limiting state.
 
 HY-8 is not currently identified as a primary blockage-method source for this task. Do not add a
 HY-8 parity requirement unless a version-pinned blockage feature and its method documentation
@@ -526,6 +548,13 @@ number.
 - Schall, J.D., Thompson, P.L., Zerges, S.M., Kilgore, R.T. and Morris, J.L. (2012),
   *Hydraulic Design of Highway Culverts*, third edition, FHWA-HIF-12-026.
   https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf
+- Ollett, P., Syme, B. and Ryan, P. (2017), "Australian Rainfall and Runoff guidance on
+  blockage of hydraulic structures: numerical implementation and three case studies",
+  *Journal of Hydrology (New Zealand)*, 56(2), 109-122.
+  https://www.hydralinc.com/wp-content/uploads/JoHNZ-V56-2-2017-ARR-Blockage-Ollett-Ryan-Syme.pdf
+- French, R. and Jones, M. (2018), "Design for culvert blockage: the ARR 2016 guidelines",
+  *Australasian Journal of Water Resources*, 22(1), 84-87.
+  https://doi.org/10.1080/13241583.2018.1477268
 - TUFLOW (2026), *TUFLOW Classic/HPC User Manual 2026.0*, structures/blockage
   documentation. Secondary implementation evidence only.
   https://docs.tuflow.com/classic-hpc/manual/2026.0/Structures-2.html
