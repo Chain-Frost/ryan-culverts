@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import importlib.metadata
+import tomllib
+from pathlib import Path
 
 import culvert_solver as cs
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> int:
@@ -14,8 +18,12 @@ def main() -> int:
     if cs.__version__ != installed_version:
         msg = f"Public version {cs.__version__!r} does not match metadata {installed_version!r}."
         raise RuntimeError(msg)
-    if metadata["Requires-Python"] != "<3.15,>=3.14":
-        msg = "Installed wheel does not declare the supported Python baseline."
+    with (PROJECT_ROOT / "pyproject.toml").open("rb") as stream:
+        expected_python = tomllib.load(stream)["project"]["requires-python"]
+    installed_python = metadata["Requires-Python"] or ""
+    # Build backends can reorder comma-separated constraints in core metadata.
+    if {part.strip() for part in installed_python.split(",")} != {part.strip() for part in expected_python.split(",")}:
+        msg = f"Installed wheel Requires-Python {installed_python!r} does not match pyproject.toml {expected_python!r}."
         raise RuntimeError(msg)
     project_urls = set(metadata.get_all("Project-URL") or ())
     expected_urls = {
