@@ -1,33 +1,58 @@
-# Uncertainty PR CI repair
+# Uncertainty PR verification and review follow-up
 
-Task: repair CI for PR #25, within issue #19's uncertainty-primitives boundary.
-Owner: Unassigned. Status: CI repair verified locally; awaiting commit and push.
+Task: verify PR #25 within issue #19's uncertainty-primitives boundary.
+Owner: Unassigned. Status: implementation and reviewer follow-up committed; PR remains
+open and unmerged pending final review.
 
-The GitHub issue remains the authoritative feature tracker. This bounded repair
-preserves runtime integer validation for sampling counts and seeds while addressing
-Pyright diagnostics. Hydraulic equations and comparison baselines are unchanged.
+The GitHub issue remains the authoritative feature tracker. The implementation preserves
+runtime integer validation for sampling counts and seeds, exposes all public uncertainty
+contracts in the API reference, and leaves hydraulic equations and comparison baselines
+unchanged.
 
-GitHub Actions run 37349638175 failed only at type checking, reporting
-`reportUnnecessaryIsInstance` for seed and count validation. Targeted annotations
-match existing runtime-validation conventions in the module. Local full testing
-also revealed missing public API reference entries for all 13 uncertainty exports;
-the new API reference page documents each once and is included in navigation.
+## CI repair history
 
-Verification on Python 3.14.6:
+An earlier GitHub Actions run failed only at type checking because Pyright reported
+`reportUnnecessaryIsInstance` for runtime seed and count validation. Targeted annotations
+were added to match existing runtime-validation conventions. Local full testing also
+identified missing public API reference entries for the uncertainty exports; the dedicated
+API reference page now documents them and is included in navigation.
 
-- `python -m pytest -q tests/test_uncertainty.py tests/test_public_api.py`: 21 passed.
-- `python -m pytest -q`: 494 passed.
-- `python -m ruff check .`: passed.
-- `python -m ruff format --check .`: passed, 136 files formatted.
-- `python -m pyright`: zero errors, warnings or information messages.
-- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`: passed.
-- `python -m mkdocs build --strict`: passed.
-- `git diff --check`: passed.
-- `python scripts/verify_wheel.py`: existing retained wheel verified; this is
-  artifact integrity evidence, not verification that the wheel contains this patch.
+A subsequent full CI run, #79, passed before automated review follow-up, including the
+repository verification job and installed-wheel jobs on Windows, Ubuntu and macOS.
 
-HY-8 executable comparison was not run; this repair changes no hydraulic behaviour.
-No version bump, new package build, staging, commit, push or publication was performed.
-Installed-wheel jobs for Windows, Ubuntu and macOS passed in the existing CI run;
-they were not repeated locally. Issue #19's broader feature acceptance remains open.
-Next action: commit and push the repair, then confirm the new PR CI run passes.
+## Automated review follow-up
+
+The PR reviewer identified two substantive issues, both addressed with regression tests:
+
+- Manning roughness now carries its dimensional SI unit, `s/m^(1/3)`, rather than being
+  incorrectly labelled dimensionless.
+- Sampling Manning roughness clears any baseline `parameter_set_id` so a modified adopted
+  parameter set cannot retain stale identity/provenance.
+
+The hardening pass also adds a real high-head advisory case proving that uncertainty
+evaluation preserves the deterministic solver's structured hydraulic warning, resulting
+`HydraulicResultStatus`, and convergence evidence.
+
+Final merge remains intentionally deferred. The PR checks are the authoritative record for
+verification of the current branch head.
+
+## Verification scope
+
+The ordinary repository gate includes:
+
+- `python -m pytest -q`;
+- `python -m ruff check .`;
+- `python -m ruff format --check .`;
+- `python -m pyright`;
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`;
+- `python -m mkdocs build --strict`;
+- `git diff --check`;
+- package build and installed-wheel smoke tests on Windows, Ubuntu and macOS.
+
+HY-8 executable comparison is not required for this task because the uncertainty layer
+calls the existing authoritative deterministic solver and does not change hydraulic
+equations, empirical coefficient methods, or comparison baselines.
+
+No version bump or release publication is part of CS-027. Project-level Monte Carlo study
+orchestration, aggregation, reporting, ranking and design acceptance remain downstream in
+`ryan-tools` issue #91.
