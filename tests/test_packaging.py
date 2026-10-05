@@ -1,11 +1,53 @@
 from __future__ import annotations
 
 import datetime as dt
+from email.message import Message
 from pathlib import Path
 
 import pytest
 
-from scripts import build_package, verify_wheel
+from scripts import build_package, smoke_test_installed_wheel, verify_wheel
+
+
+@pytest.mark.parametrize(
+    ("declared", "installed"),
+    [(">=3.14", ">=3.14"), (">=3.14,<3.15", "<3.15,>=3.14")],
+)
+def test_installed_smoke_checks_authoritative_python_range(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, declared: str, installed: str
+) -> None:
+    metadata = _smoke_metadata(tmp_path, monkeypatch, declared)
+    metadata["Requires-Python"] = installed
+    assert smoke_test_installed_wheel.main() == 0
+
+
+@pytest.mark.parametrize("installed", [None, ">=3.13", ">=3.14,<3.15"])
+def test_installed_smoke_rejects_missing_or_stale_python_range(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, installed: str | None
+) -> None:
+    metadata = _smoke_metadata(tmp_path, monkeypatch, ">=3.14")
+    if installed is not None:
+        metadata["Requires-Python"] = installed
+    with pytest.raises(RuntimeError, match=r"Requires-Python.*does not match pyproject\.toml"):
+        smoke_test_installed_wheel.main()
+
+
+def _smoke_metadata(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, declared: str) -> Message:
+    (tmp_path / "pyproject.toml").write_text(f'[project]\nrequires-python = "{declared}"\n', encoding="utf-8")
+    metadata = Message()
+    metadata["Project-URL"] = "Documentation, https://chain-frost.github.io/ryan-culverts/"
+    metadata["Project-URL"] = "Changelog, https://github.com/Chain-Frost/ryan-culverts/blob/main/docs/changelog.md"
+    monkeypatch.setattr(smoke_test_installed_wheel, "PROJECT_ROOT", tmp_path)
+
+    def installed_metadata(_name: str) -> Message:
+        return metadata
+
+    def installed_version(_name: str) -> str:
+        return smoke_test_installed_wheel.cs.__version__
+
+    monkeypatch.setattr(smoke_test_installed_wheel.importlib.metadata, "metadata", installed_metadata)
+    monkeypatch.setattr(smoke_test_installed_wheel.importlib.metadata, "version", installed_version)
+    return metadata
 
 
 def _write_package_version(project_root: Path, version: str) -> Path:

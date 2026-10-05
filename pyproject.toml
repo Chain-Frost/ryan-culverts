@@ -1,57 +1,66 @@
 [build-system]
-requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
+requires = ["hatchling>=1.27"]
 
 [project]
-name = "ryan-culverts"
-version = "26.9.10.2"
+authors = [{name = "Ryan Brook"}]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering",
+  "Typing :: Typed",
+]
 description = "Independent SI culvert hydraulics: numerical foundations and traceable methods."
-readme = "README.md"
-requires-python = ">=3.14,<3.15"
+keywords = ["culvert", "hydraulics", "hydrology", "civil-engineering"]
 license = "SUL-1.0"
 license-files = ["LICENSE"]
-authors = [{ name = "Ryan Brook" }]
-keywords = ["culvert", "hydraulics", "hydrology", "civil-engineering"]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Science/Research",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.14",
-    "Topic :: Scientific/Engineering",
-    "Typing :: Typed",
-]
+name = "ryan-culverts"
+readme = "README.md"
+requires-python = ">=3.14"
+version = "26.9.10.2"
 # Runtime dependencies only; the current foundation uses the standard library.
 dependencies = []
 
 [project.urls]
-Repository = "https://github.com/Chain-Frost/ryan-culverts"
-Issues = "https://github.com/Chain-Frost/ryan-culverts/issues"
-Documentation = "https://chain-frost.github.io/ryan-culverts/"
 Changelog = "https://github.com/Chain-Frost/ryan-culverts/blob/main/docs/changelog.md"
+Documentation = "https://chain-frost.github.io/ryan-culverts/"
+Issues = "https://github.com/Chain-Frost/ryan-culverts/issues"
+Repository = "https://github.com/Chain-Frost/ryan-culverts"
 
 [project.optional-dependencies]
 dev = [
-    "build>=1.2",
-    "mkdocs>=1.6",
-    "mkdocs-material>=9.6",
-    "mkdocstrings[python]>=0.30",
-    "pymarkdownlnt>=0.9.39",
-    "pyright>=1.1.410",
-    "pytest>=9",
-    "ruff==0.16.6",
+  "build>=1.2",
+  "mkdocs>=1.6",
+  "mkdocs-material>=9.6",
+  "mkdocstrings[python]>=0.30",
+  "pymarkdownlnt>=0.9.39",
+  "pyright>=1.1.410",
+  "pytest>=9",
+  "ruff==0.16.6",
 ]
+external-validation = [
+  # Local HY-8 tooling only; GitHub CI installs dev without this extra.
+  "run-hy8 @ git+https://github.com/Chain-Frost/run-hy8.git@0baaa2ac83e38aaad1a0419dc6e39c40445cb98d",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/culvert_solver"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["src"]
 addopts = "-ra"
+pythonpath = ["src"]
+testpaths = ["tests"]
 
 [tool.pyright]
 # Current tested baseline, not an installation restriction.
-include = ["src", "tests", "scripts"]
 extraPaths = ["src"]
+include = ["src", "tests", "scripts"]
+# Optional executable harnesses are checked locally with external-validation installed.
+exclude = ["scripts/compare_hy8.py", "scripts/compare_hy8_roadway.py"]
 pythonVersion = "3.14"
 typeCheckingMode = "strict"
