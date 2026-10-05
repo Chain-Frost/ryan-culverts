@@ -61,15 +61,20 @@ The following decisions are recommended before any solver implementation:
 | ARR Revision Project 11 Stage 2, P11/S2/021 (2013) | Blockage type, location, porosity, timing, design/severe scenario guidance | Adopt for scenario construction and application context, not as a blanket hydraulic capacity factor |
 | Australian Rainfall and Runoff 2019, Book 6 Chapter 6 | Current Australian blockage guidance and limitations | Adopt for Australian application/risk context; chapter explicitly notes limited quantitative evidence |
 | Sellevold et al. (2024), Journal of Irrigation and Drainage Engineering | Controlled physical experiments for bottom-up blockage of circular pipe inlets | Primary validation evidence for the bounded circular-inlet cases only |
+| Miranzadeh, Keshavarzi and Hamidifar (2023) | Unsteady-flow laboratory experiments on woody-debris accumulation at box and circular culverts | Primary blockage-formation/timing evidence; useful for scenario construction, not a source-specific entrance-loss or head-discharge transformation |
+| De Vos et al. (2026), Natural Hazards and Earth System Sciences | Dynamic trigger/timing scenarios in a 2D catchment model using ELM for logjam inlet blockage | Recent system-level comparison evidence; supports explicit timing/trigger metadata but does not provide new local physical validation |
 | FHWA HEC-9, third edition (2005) | Debris accumulation, assessment, and countermeasure context for culverts and bridges | Authoritative context; it does not justify one generic culvert blockage factor |
 | FHWA HDS-5, third edition (2012) | Existing clean-culvert hydraulic baseline | Remains the clean hydraulic baseline; blockage methods must compose with it without replacing unrelated equations |
 | Ollett, Syme and Ryan (2017) | Numerical implementation and three ARR blockage case studies | Secondary case-study evidence; supports separating ELM from whole-barrel reduced-area treatment |
 | French and Jones (2018) | Published technical critique of ARR blockage guidance | Contrary evidence reinforcing that scenario percentages are not calibrated hydraulic truth |
 | TUFLOW Classic/HPC 2026.0 manual | Secondary implementation of ARR RAM/ELM concepts | Comparison evidence only; do not treat software behaviour or terminology as hydraulic authority |
 
-No reviewed source supplied equally strong modern physical validation for rectangular culvert
-inlet blockage. That absence is an implementation constraint, not permission to transfer the
-circular regressions.
+No reviewed source supplied a source-specific rectangular blocked-inlet entrance-loss or
+head-discharge relationship with physical validation equivalent to Sellevold et al. Miranzadeh
+et al. did test woody-debris accumulation at both box and circular culverts under an unsteady
+hydrograph, but that study addresses blockage formation and percentage rather than the hydraulic
+transformation needed by this solver. That distinction is an implementation constraint, not
+permission to transfer the circular regressions.
 
 ## Australian Rainfall and Runoff findings
 
@@ -157,6 +162,31 @@ levels. The conclusion adopted here is narrower than either side of that debate:
 authoritative Australian scenario/risk guidance, but do not present its generic blockage
 percentages as calibrated hydraulic performance data. Source-specific physical evidence should
 control the hydraulic transformation where it exists.
+
+## Additional laboratory and dynamic-model evidence
+
+Miranzadeh, Keshavarzi, and Hamidifar (2023) tested transported cylindrical woody debris under a
+synthetic unsteady flood hydrograph for both box and circular culverts. They found that peak
+blockage occurred on the falling limb, that smaller debris-feed rate materially affected
+blockage, and that the circular culvert was more susceptible to blockage than the box culvert.
+Their regression target is blockage percentage/formation. It therefore strengthens the case for
+explicit debris type, culvert shape, event timing, and scenario provenance, but it does not
+supply the entrance-loss or head-discharge transformation required to make rectangular blockage
+hydraulically executable here.
+
+De Vos et al. (2026) provides a recent catchment-scale test of dynamic blockage scenarios in
+TELEMAC-2D. The study varies both blockage degree and a water-level trigger ratio, and explicitly
+notes that blockage timing and degree remain major uncertainties. For logjam inlet scenarios it
+uses the ARR/Ollett energy-loss method under outlet control and treats the blockage as
+instantaneous once triggered. This supports retaining optional timing/trigger metadata and
+keeping static deterministic scenarios distinct from dynamic accumulation. It does not supersede
+Sellevold et al. as the reviewed local physical validation source, and it does not justify using
+ELM under inlet control or as a fallback for unsupported mechanisms.
+
+A final literature search on 2026-10-06 did not identify a newer peer-reviewed physical study
+that provides a more directly applicable blocked-inlet entrance-loss/head-discharge dataset for
+the currently supported circular and rectangular culvert hydraulics. The support matrix below
+therefore remains deliberately narrow.
 
 ## Primary experimental evidence: Sellevold et al. 2024
 
@@ -537,6 +567,13 @@ number.
   Entrance Loss Coefficients and Head-Discharge Relationships for Pipe Culvert
   Inlets: Comparisons of Theoretical Methods and Experimental Results",
   *Journal of Irrigation and Drainage Engineering*, 150(2), 04023038.
+- [Miranzadeh, Keshavarzi and Hamidifar (2023)][miranzadeh-2023], "Blockage of
+  box-shaped and circular culverts under flood event conditions: a laboratory
+  investigation", *International Journal of River Basin Management*, 21(4),
+  607-616.
+- [De Vos et al. (2026)][de-vos-2026], "Culvert blockages in 2D-hydrodynamic
+  flash flood modeling: quantifying the impact on flood dynamics and mitigation
+  strategies", *Natural Hazards and Earth System Sciences*, 26, 2319-2352.
 - [FHWA HEC-9 (2005)][hec9], *Debris Control Structures - Evaluation and
   Countermeasures*, third edition, FHWA-IF-04-016.
 - [FHWA HDS-5 (2012)][hds5], *Hydraulic Design of Highway Culverts*, third
@@ -572,6 +609,8 @@ with an undocumented engineering judgement inside the hydraulic core.
 [arr-p11-stage2]: https://www.arr-software.org/pdfs/ARR_Project11_Stage2_Final.pdf
 [arr-book6]: https://www.arr-software.org/pdfs/ARR_190514_Book6_V4.1.pdf
 [sellevold-2024]: https://doi.org/10.1061/JIDEDH.IRENG-10219
+[miranzadeh-2023]: https://doi.org/10.1080/15715124.2022.2064483
+[de-vos-2026]: https://doi.org/10.5194/nhess-26-2319-2026
 [hec9]: https://www.fhwa.dot.gov/engineering/hydraulics/library_arc.cfm?id=23&pub_number=9
 [hds5]: https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf
 [ollett-2017]: https://www.hydralinc.com/wp-content/uploads/JoHNZ-V56-2-2017-ARR-Blockage-Ollett-Ryan-Syme.pdf
