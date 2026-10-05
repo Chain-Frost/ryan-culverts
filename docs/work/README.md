@@ -17,6 +17,33 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+PR #27 review and CI repair (2026-10-06): Owner: Unassigned. Status: verified locally.
+Clarified the source regression's inlet-velocity basis and its conversion to the
+full-barrel velocity basis. Checked Sellevold et al. Equations 4/5 (page
+04023038-3), Equations 10/11 and Table 4 (page 04023038-8) in the
+[author-uploaded full text](https://www.researchgate.net/publication/377473974).
+An independent algebra check confirmed equal head loss on both velocity bases
+and the conversion factor of 16 at 75% blockage. No solver code was changed.
+
+Actions run 37351762892 failed Markdown checking on an extra blank line.
+Removed it and added the missing research-page navigation entry, which also
+caused a local strict-build failure. All three installed-wheel CI jobs passed.
+
+Verification on Python 3.14.6:
+
+- `python -m pytest -q`: 488 passed.
+- `python -m ruff check .`: passed.
+- `python -m ruff format --check .`: passed, 133 files formatted.
+- `python -m pyright`: zero errors, warnings or information messages.
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`: passed.
+- `python -m mkdocs build --strict`: passed.
+- `git diff --check`: passed.
+
+No new package build, local installed-wheel test or HY-8 executable comparison
+was run for this documentation repair. Changes are uncommitted and unpushed;
+no publication was performed. Implementation and experimental validation remain
+future work under issue #18. Next action: commit and push, then verify fresh CI.
+
 PR #26 CI repair (2026-10-06): Owner: Unassigned. Status: verified locally.
 Added the Austroads worked-example research page to MkDocs navigation, resolving
 the strict-build failure in Actions run 37349719931. The remaining checks in that

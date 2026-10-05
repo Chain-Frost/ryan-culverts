@@ -202,12 +202,35 @@ For the tested non-mitered inlets, the paper represents the blocked entrance coe
 linear relationship of the form
 
 ```text
-k_eb = k_e + beta * (A_b / A)
+k_eb(v_b) = k_e(v) + beta * (A_b / A)  [Equation 10]
 ```
 
 where `A_b / A` is blocked area divided by clean pipe area. The mitered inlet uses a separate
 quadratic relationship. The authors recommend conservative use of the maximum fitted
 coefficient where in-situ blockage variability cannot be known exactly.
+
+The coefficient basis is essential: `v = Q / A` is full-barrel velocity, while
+`v_b = Q / (A - A_b)` is velocity through the open inlet area. Equations 4 and 5
+(printed page 04023038-3) give
+
+```text
+v_b = v / (1 - A_b / A)
+k_eb(v) = k_eb(v_b) / (1 - A_b / A)^2
+```
+
+Equations 10 and 11 and Table 4 (printed page 04023038-8) use the `v_b` basis,
+including the mitered regression. Convert once before passing a coefficient to
+the current full-flow solver, which uses `v = Q / A`:
+
+```text
+entrance_head_loss = k_eb(v) * v^2 / (2 g)
+                  = k_eb(v_b) * v_b^2 / (2 g)
+```
+
+At 75% blockage the conversion factor is 16. Using the unconverted regression
+with full-barrel velocity underestimates entrance loss by that factor. Retain
+both coefficient bases in provenance. Do not reduce barrel friction geometry;
+complete blockage requires a separate zero-capacity state.
 
 The experiments show why the older ARR ELM should not be treated as exact physical truth for
 these cases: ELM overpredicted blocked entrance coefficients by as much as about 124% in the
@@ -468,7 +491,7 @@ ARR Stage 1 candidate checks include:
 
 For Sellevold et al. fixtures, compare the quantity actually validated by the source:
 
-- blocked entrance-loss coefficient for the outlet-control regression; and
+- blocked entrance-loss coefficient on the source's `v_b` basis for the outlet-control regression; and
 - blocked/unblocked discharge ratio for Type 5 inlet control.
 
 Use source-specific published uncertainty/error by inlet where available. Do not invent a
@@ -490,6 +513,8 @@ A later implementation should include at least:
   engineering input/applicability error;
 - a local entrance blockage leaves barrel area, wetted perimeter, Manning roughness, and
   friction geometry unchanged;
+- converting the inlet-velocity coefficient to the barrel-velocity basis preserves entrance
+  head loss, with identity at zero blockage and a factor of 16 at 75% blockage;
 - a barrel obstruction cannot be accepted without longitudinal extent;
 - an attached screen cannot receive both separate screen and entrance blockage losses;
 - results retain scenario source, method source, resolved blockage extent, and applicability
@@ -603,7 +628,6 @@ needed for:
 
 These gaps should remain explicit issues or unsupported configurations. They must not be filled
 with an undocumented engineering judgement inside the hydraulic core.
-
 
 [arr-p11-stage1]: https://www.arr-software.org/pdfs/ARR_Project11_Stage1_report_Final.pdf
 [arr-p11-stage2]: https://www.arr-software.org/pdfs/ARR_Project11_Stage2_Final.pdf
