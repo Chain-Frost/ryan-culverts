@@ -245,7 +245,7 @@ def sample_uniform_parameter(
     if not isinstance(seed, int) or isinstance(seed, bool):
         msg = "seed must be an integer."
         raise InvalidInputError(msg)
-    generator = Random(seed)
+    generator = Random(seed)  # noqa: S311 - deterministic engineering sampling, not cryptography.
     return tuple(
         HydraulicSample(
             parameters=(
