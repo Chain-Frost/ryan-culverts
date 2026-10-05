@@ -40,10 +40,11 @@ class HydraulicUncertaintyUnit(StrEnum):
     DIMENSIONLESS = "1"
     METRE = "m"
     CUBIC_METRE_PER_SECOND = "m3/s"
+    SECOND_PER_METRE_ONE_THIRD = "s/m^(1/3)"
 
 
 _PARAMETER_UNITS: dict[HydraulicUncertaintyParameter, HydraulicUncertaintyUnit] = {
-    HydraulicUncertaintyParameter.MANNING_ROUGHNESS: HydraulicUncertaintyUnit.DIMENSIONLESS,
+    HydraulicUncertaintyParameter.MANNING_ROUGHNESS: HydraulicUncertaintyUnit.SECOND_PER_METRE_ONE_THIRD,
     HydraulicUncertaintyParameter.DISCHARGE: HydraulicUncertaintyUnit.CUBIC_METRE_PER_SECOND,
     HydraulicUncertaintyParameter.TAILWATER_ELEVATION: HydraulicUncertaintyUnit.METRE,
     HydraulicUncertaintyParameter.ENTRANCE_LOSS_COEFFICIENT: HydraulicUncertaintyUnit.DIMENSIONLESS,
@@ -295,6 +296,7 @@ def evaluate_barrel_sample(
                 roughness=sampled.value,
                 roughness_selection_basis=RoughnessSelectionBasis.USER_OVERRIDE,
                 roughness_source=sampled.source,
+                parameter_set_id=None,
                 roughness_selection=None,
             )
         elif sampled.parameter is HydraulicUncertaintyParameter.DISCHARGE:
