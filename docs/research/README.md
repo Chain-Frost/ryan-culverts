@@ -22,7 +22,10 @@ Current reviewed extracts:
   label is resolved by the immediately preceding narrative but retained as a source typo;
   the separate HY-8 developer correction blocks use of the original embedded coefficients.
 - [`fixture_candidates.md`](fixture_candidates.md): the complete Bodhaine example audit,
-  selected corrected-box fixtures, and the Austroads worked-example limitation.
+  selected corrected-box fixtures, and the Austroads worked-example disposition.
+- [`austroads_worked_example_velocity.md`](austroads_worked_example_velocity.md): CS-015
+  source-status check and independent reconstruction resolving the Section 3.15.1
+  `2.5`/`2.75 m/s` full-flow velocity inconsistency.
 - [`debris_blockage.md`](debris_blockage.md): CS-026 source review, blockage-mechanism
   distinctions, hydraulic interaction rules, fail-closed support matrix, proposed typed
   scenario/provenance boundary, and published validation/tolerance evidence.

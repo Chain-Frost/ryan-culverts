@@ -1,5 +1,20 @@
 # Development progress
 
+## 2026-10-06 - CS-015 Austroads worked-example velocity
+
+Resolved the AGRD05B-23 edition 1.2 Section 3.15.1 full-flow velocity inconsistency
+without tuning the solver to the example. The official Austroads publication record still
+lists edition 1.2 and no issue-specific erratum/corrigendum was located. Independent
+reconstruction from the source geometry, slope and concrete-pipe roughness gives
+`Vf = 2.754408209 m/s` and `Qf = 2.385046132 m³/s`, supporting the printed Step 7
+table value `2.75 m/s` and its rounded `2.4 m³/s` full-flow discharge. The isolated
+`2.5 m/s` sentence is recorded as a source transcription error.
+
+The exact source locators and precision record are in
+`docs/research/austroads_worked_example_velocity.md`. The complete worked example remains
+a workflow/reporting check because several expected values are nomograph-read and rounded;
+no executable acceptance fixture, solver coefficient or solver tolerance changed.
+
 ## 2026-09-13 - CS-029 HEC-RAS normal-depth validation
 
 Completed the remaining CS-029 external comparison with HEC-RAS 7.0.1. A Windows-only

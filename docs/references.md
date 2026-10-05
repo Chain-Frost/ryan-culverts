@@ -193,9 +193,16 @@ Section 2.3, culvert scope and hydraulic design in Sections 3.4–3.14, and the 
 example in Section 3.15.1 (printed pages 101–106; local PDF pages 111–116).
 Austroads supplies Australian design workflow, allowable-headwater, blockage, velocity,
 scour and reporting context; HDS-5 remains the project's hydraulic method baseline.
-The Section 3.15.1 example is not a strict numerical fixture because it first states
-full-flow velocity `2.5 m/s`, then tabulates `2.75 m/s` and uses the latter to obtain
-`3.08 m/s`. CS-015 records the required source clarification.
+CS-015 independently reconstructed the Section 3.15.1 full-flow step and resolved its
+`2.5`/`2.75 m/s` inconsistency in favour of `2.75 m/s`: for `D = 1.05 m`,
+`n = 0.012`, and `S = 0.0065`, Manning's equation gives `2.754408209 m/s`, while
+the printed `Qf = 2.40 m³/s` and `A = 0.867 m²` independently imply about
+`2.77 m/s`. The isolated `2.5 m/s` sentence is therefore treated as a source
+transcription error, not as an Austroads-issued correction. The official publication
+page still listed edition 1.2 on 6 October 2026 and its change log did not identify a
+Section 3.15.1 correction. The full worked example remains a workflow/reporting check
+because other expected values are nomograph-read and rounded. See
+[`research/austroads_worked_example_velocity.md`](research/austroads_worked_example_velocity.md).
 
 [MRWA supplement to Part 5B][mrwa]: inspected the live page, version 1F,
 3 July 2020. Relevant to local culvert types and site/design information.
