@@ -101,12 +101,18 @@ def _default_coefficients_for_barrel(barrel: CulvertBarrel) -> InletCoefficients
     if isinstance(barrel.geometry, HorizontalEllipseGeometry):
         if barrel.material in {CONCRETE, CONCRETE_PIPE}:
             return HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE
-        msg = "No default inlet coefficients exist for this horizontal ellipse material; provide inlet_coefficients explicitly."
+        msg = (
+            "No default inlet coefficients exist for this horizontal ellipse material; "
+            "provide inlet_coefficients explicitly."
+        )
         raise InvalidInputError(msg)
     if isinstance(barrel.geometry, VerticalEllipseGeometry):
         if barrel.material in {CONCRETE, CONCRETE_PIPE}:
             return VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE
-        msg = "No default inlet coefficients exist for this vertical ellipse material; provide inlet_coefficients explicitly."
+        msg = (
+            "No default inlet coefficients exist for this vertical ellipse material; "
+            "provide inlet_coefficients explicitly."
+        )
         raise InvalidInputError(msg)
     if isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
