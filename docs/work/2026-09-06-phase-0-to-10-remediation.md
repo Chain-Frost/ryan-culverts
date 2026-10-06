@@ -1220,7 +1220,7 @@ computational core.
 
 ## CS-025 - Additional shapes and materials
 
-Status: Deferred. Owner: Unassigned. Updated: 2026-09-14. Next review: 2026-09-20.
+Status: In progress. Owner: ChatGPT. Updated: 2026-10-07. Next review: 2026-10-14.
 
 Tracked by [GitHub issue #3](https://github.com/Chain-Frost/ryan-culverts/issues/3).
 
