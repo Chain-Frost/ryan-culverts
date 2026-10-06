@@ -6,6 +6,7 @@ from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
+from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.critical import CriticalDepthResult, calculate_critical_depth
@@ -17,6 +18,8 @@ from .coefficients import (
     BOX_CONCRETE_FLARED_WINGWALLS_30_75,
     CIRCULAR_CMP_HEADWALL,
     CIRCULAR_CONCRETE_SQUARE_EDGE,
+    HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
+    VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
     InletCoefficients,
 )
 from .fhwa import (
@@ -95,6 +98,16 @@ def _default_coefficients_for_barrel(barrel: CulvertBarrel) -> InletCoefficients
             "provide inlet_coefficients explicitly."
         )
         raise InvalidInputError(msg)
+    if isinstance(barrel.geometry, HorizontalEllipseGeometry):
+        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
+            return HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE
+        msg = "No default inlet coefficients exist for this horizontal ellipse material; provide inlet_coefficients explicitly."
+        raise InvalidInputError(msg)
+    if isinstance(barrel.geometry, VerticalEllipseGeometry):
+        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
+            return VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE
+        msg = "No default inlet coefficients exist for this vertical ellipse material; provide inlet_coefficients explicitly."
+        raise InvalidInputError(msg)
     if isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
             return BOX_CONCRETE_FLARED_WINGWALLS_30_75
@@ -111,6 +124,10 @@ def _validate_coefficient_shape(barrel: CulvertBarrel, coefficients: InletCoeffi
     """Reject empirical coefficients that do not apply to the barrel geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape: GeometryShape = GeometryShape.CIRCULAR
+    elif isinstance(barrel.geometry, HorizontalEllipseGeometry):
+        barrel_shape = GeometryShape.HORIZONTAL_ELLIPSE
+    elif isinstance(barrel.geometry, VerticalEllipseGeometry):
+        barrel_shape = GeometryShape.VERTICAL_ELLIPSE
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         barrel_shape = GeometryShape.RECTANGULAR
     else:

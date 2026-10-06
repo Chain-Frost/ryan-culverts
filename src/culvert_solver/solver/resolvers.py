@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
+from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..inlet_control.coefficients import InletCoefficients
@@ -59,6 +60,10 @@ def _validate_inlet_shape(barrel: CulvertBarrel, coefficients: InletCoefficients
     """Reject inlet coefficients for a different geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape = GeometryShape.CIRCULAR
+    elif isinstance(barrel.geometry, HorizontalEllipseGeometry):
+        barrel_shape = GeometryShape.HORIZONTAL_ELLIPSE
+    elif isinstance(barrel.geometry, VerticalEllipseGeometry):
+        barrel_shape = GeometryShape.VERTICAL_ELLIPSE
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         barrel_shape = GeometryShape.RECTANGULAR
     else:
@@ -82,6 +87,16 @@ def _default_inlet_coefficients(barrel: CulvertBarrel, config: SolverConfigurati
             "No default inlet coefficients exist for this circular barrel material; "
             "provide inlet_coefficients explicitly."
         )
+        raise InvalidInputError(msg)
+    if isinstance(barrel.geometry, HorizontalEllipseGeometry):
+        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
+            return config.default_horizontal_ellipse_concrete_inlet
+        msg = "No default inlet coefficients exist for this horizontal ellipse material; provide inlet_coefficients explicitly."
+        raise InvalidInputError(msg)
+    if isinstance(barrel.geometry, VerticalEllipseGeometry):
+        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
+            return config.default_vertical_ellipse_concrete_inlet
+        msg = "No default inlet coefficients exist for this vertical ellipse material; provide inlet_coefficients explicitly."
         raise InvalidInputError(msg)
     if isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
@@ -268,6 +283,18 @@ def resolve_entrance_loss_coefficient(
             msg = (
                 "No default entrance-loss coefficient exists for this circular barrel material; provide one explicitly."
             )
+            raise InvalidInputError(msg)
+    elif isinstance(barrel.geometry, HorizontalEllipseGeometry):
+        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
+            default_coeff = config.default_horizontal_ellipse_concrete_loss
+        else:
+            msg = "No default entrance-loss coefficient exists for this horizontal ellipse material; provide one explicitly."
+            raise InvalidInputError(msg)
+    elif isinstance(barrel.geometry, VerticalEllipseGeometry):
+        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
+            default_coeff = config.default_vertical_ellipse_concrete_loss
+        else:
+            msg = "No default entrance-loss coefficient exists for this vertical ellipse material; provide one explicitly."
             raise InvalidInputError(msg)
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
