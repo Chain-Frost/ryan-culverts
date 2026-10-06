@@ -76,7 +76,48 @@ before this implementation slice is considered ready to merge.
 No HY-8 ellipse executable comparison is claimed. That external validation remains blocked
 on [run-hy8 issue #5](https://github.com/Chain-Frost/run-hy8/issues/5).
 
+## Local validation repair, 2026-10-07
+
+Owner: Unassigned. Status: verified locally on Python 3.14.6; uncommitted and unpushed.
+The initial full suite had 525 passing tests and two failures: missing ellipse API
+documentation and a nonmonotonic vertical-ellipse projecting-inlet transition.
+
+Checked Chart 30 Scale 3 against tracked `reference_docs/HDS-5.pdf`, Table A.2,
+PDF page 198: `K=0.0095`, `M=2.0`, `c=0.0317`, `Y=0.69` are correctly transcribed.
+The fixed cubic bridge is unsupported for the tested 1.2 m span and 2.4 m rise.
+The transition now checks its quadratic derivative's exact minimum and fails closed
+when negative. Published coefficients and endpoint tangents are preserved; a sourced
+alternative transition remains future work. Bounding empirical branches remain usable.
+
+Added the missing public API entries and MkDocs navigation. Resolved lint and formatting
+issues, combined the existing circular/ellipse normal-depth branches without changing
+their capacity or root contracts, and extracted entrance-loss default selection.
+Ellipse value equality remains explicitly unhashable.
+
+Verification:
+
+- `python -m pytest -q`: 530 passed.
+- `python -m pytest -q tests/test_inlet_control.py tests/test_elliptical_geometry.py tests/test_elliptical_resolvers.py tests/test_normal.py tests/test_resolvers.py tests/test_public_api.py`: 118 passed.
+- `python -m ruff check .`: passed.
+- `python -m ruff format --check .`: passed, 142 files already formatted.
+- `python -m pyright`: zero errors, warnings or information messages.
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`: passed.
+- `python -m mkdocs build --strict`: passed.
+- `git diff --check`: passed.
+
+An initial focused command used nonexistent `tests/test_normal_depth.py` and collected
+no tests; the corrected command above passed. No package build, installed-wheel test,
+or HY-8 executable comparison was run. These are local regression checks, not independent
+engineering acceptance or completion of the broader issue.
+
 ## Remaining CS-025 work
+
+Naming follow-up: renamed the shared circular/ellipse normal-depth residual to
+`f_conveyance_closed`. No equation or control-flow change. Verification:
+`python -m pytest -q tests/test_normal.py tests/test_elliptical_geometry.py` passed
+26 tests; focused Ruff check and format check passed for
+`src/culvert_solver/hydraulics/normal.py`. Markdown lint and `git diff --check` passed.
+The full suite, Pyright, MkDocs, packaging, and HY-8 were not rerun for this rename.
 
 - research a source-backed standard profile representation for pipe-arch families before
   implementing their depth-dependent section properties;

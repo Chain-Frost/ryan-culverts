@@ -212,6 +212,12 @@ Ellipse contract tests additionally verify half-depth symmetry, full/surcharged 
 critical-depth compatibility, and the rising normal-depth branch where open-channel
 conveyance exceeds the full-section value near the crown.
 
+Inlet transition checks cover every catalogued coefficient set. The published Chart 30
+Scale 3 constants produce a nonmonotonic cubic bridge for a vertical ellipse with 1.2 m
+span and 2.4 m rise. Tests require an explicit error throughout that transition interval;
+the source coefficients and independently evaluable bounding branches are preserved.
+This is an unresolved transition-method applicability limit, not HY-8 validation.
+
 These fixtures separate geometry, critical flow, uniform flow, and loss transcription from
 the numerical solvers that consume them. They do not validate profile selection, mixed
 free-surface/pressurised transitions, groups, crossings, or rating curves.

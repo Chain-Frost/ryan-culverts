@@ -111,62 +111,13 @@ def calculate_normal_depth(
 
     k_req: float = (n * q) / math.sqrt(s0)
 
-    # Circular geometry: solve on stable conveyance branch [0, 0.93818 * D]
-    if isinstance(geometry, CircularGeometry):
-        d: float = geometry.diameter
-        y_peak: float = _CIRCULAR_MAX_CONVEYANCE_DEPTH_RATIO * d
-        r_peak: float = geometry.hydraulic_radius(y_peak)
-        k_max: float = geometry.area(y_peak) * (r_peak ** (2.0 / 3.0))
-        k_full: float = geometry.area_full * (geometry.hydraulic_radius_full ** (2.0 / 3.0))
-
-        if k_req > k_max:
-            return NormalDepthResult(
-                depth=d,
-                velocity=q / geometry.area_full,
-                froude_number=math.nan,
-                conveyance=k_full,
-                is_full=True,
-                capacity_exceeded=True,
-            )
-
-        if k_req == k_max:
-            a_peak = geometry.area(y_peak)
-            v_peak = q / a_peak
-            t_peak = geometry.top_width(y_peak)
-            fr_peak = froude_number(q, a_peak, t_peak, accel)
-            return NormalDepthResult(
-                depth=y_peak,
-                velocity=v_peak,
-                froude_number=fr_peak,
-                conveyance=k_max,
-                is_full=False,
-                capacity_exceeded=False,
-            )
-
-        def f_conveyance_circ(y: float) -> float:
-            r_val: float = geometry.hydraulic_radius(y)
-            return geometry.area(y) * (r_val ** (2.0 / 3.0)) - k_req
-
-        root_res = solve_brent(f_conveyance_circ, 0.0, y_peak, tolerances=tolerances)
-        yn = root_res.root
-        a = geometry.area(yn)
-        v = q / a
-        t = geometry.top_width(yn)
-        fr = froude_number(q, a, t, accel)
-        k_val = a * (geometry.hydraulic_radius(yn) ** (2.0 / 3.0))
-        return NormalDepthResult(
-            depth=yn,
-            velocity=v,
-            froude_number=fr,
-            conveyance=k_val,
-            is_full=False,
-            capacity_exceeded=False,
-            convergence=root_res,
+    # Closed circles and ellipses reach maximum conveyance before the crown.
+    if isinstance(geometry, (CircularGeometry, HorizontalEllipseGeometry, VerticalEllipseGeometry)):
+        y_peak = (
+            _CIRCULAR_MAX_CONVEYANCE_DEPTH_RATIO * geometry.diameter
+            if isinstance(geometry, CircularGeometry)
+            else _ellipse_max_conveyance_depth(geometry)
         )
-
-    # Closed ellipses, like circular conduits, reach maximum conveyance before the crown.
-    if isinstance(geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry)):
-        y_peak = _ellipse_max_conveyance_depth(geometry)
         k_max = _section_conveyance(geometry, y_peak)
         k_full = _section_conveyance(geometry, geometry.rise)
 
@@ -194,10 +145,10 @@ def calculate_normal_depth(
                 capacity_exceeded=False,
             )
 
-        def f_conveyance_ellipse(y: float) -> float:
+        def f_conveyance_closed(y: float) -> float:
             return _section_conveyance(geometry, y) - k_req
 
-        root_res = solve_brent(f_conveyance_ellipse, 0.0, y_peak, tolerances=tolerances)
+        root_res = solve_brent(f_conveyance_closed, 0.0, y_peak, tolerances=tolerances)
         yn = root_res.root
         area = geometry.area(yn)
         velocity = q / area

@@ -15,6 +15,8 @@ class _EllipticalGeometry(CrossSectionGeometry):
     """Shared exact-area ellipse geometry with numerical incomplete arc length."""
 
     __slots__ = ("_rise", "_span")
+    # Mutable dimensions with value equality must remain unhashable.
+    __hash__ = None  # pyright: ignore[reportAssignmentType]
 
     def __init__(self, span: float, rise: float) -> None:
         span_value = finite(span, "span")
@@ -69,9 +71,7 @@ class _EllipticalGeometry(CrossSectionGeometry):
             return self.area_full
         eta = self._normalized_vertical(y)
         root = math.sqrt(max(0.0, 1.0 - eta * eta))
-        return (self.span * self.rise / 4.0) * (
-            eta * root + math.asin(eta) + math.pi / 2.0
-        )
+        return (self.span * self.rise / 4.0) * (eta * root + math.asin(eta) + math.pi / 2.0)
 
     def wetted_perimeter(self, depth: float) -> float:
         """Wetted ellipse arc length below the water surface."""
@@ -116,23 +116,16 @@ class _EllipticalGeometry(CrossSectionGeometry):
             )
 
         total = integrand(start) + integrand(end)
-        total += 4.0 * sum(
-            integrand(start + index * step)
-            for index in range(1, _ARC_SIMPSON_PANELS, 2)
-        )
-        total += 2.0 * sum(
-            integrand(start + index * step)
-            for index in range(2, _ARC_SIMPSON_PANELS, 2)
-        )
+        total += 4.0 * sum(integrand(start + index * step) for index in range(1, _ARC_SIMPSON_PANELS, 2))
+        total += 2.0 * sum(integrand(start + index * step) for index in range(2, _ARC_SIMPSON_PANELS, 2))
         return total * step / 3.0
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(span={self.span}, rise={self.rise})"
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not type(self):
+        if not isinstance(other, _EllipticalGeometry) or type(other) is not type(self):
             return False
-        assert isinstance(other, _EllipticalGeometry)
         return self.span == other.span and self.rise == other.rise
 
 

@@ -90,6 +90,7 @@ nav:
       - Progress: progress.md
       - Work register: work/README.md
       - Uncertainty CI repair: work/2026-10-06-uncertainty-ci-fix.md
+      - CS-025 elliptical culverts: work/2026-10-07-cs-025-elliptical-culverts.md
       - CS-028 roadway overtopping handoff: work/2026-09-13-cs-028-handoff.md
       - Roadway external validation handoff: work/2026-10-05-roadway-overtopping-external-validation.md
       - Roadway external comparison results: work/2026-10-06-roadway-overtopping-comparison-results.md

@@ -14,12 +14,15 @@ from ..inlet_control.coefficients import (
 from ..inlet_control.coefficients import (
     HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE as INLET_HORIZONTAL_ELLIPSE_SQUARE,
 )
-from ..inlet_control.coefficients import InletCoefficients
 from ..inlet_control.coefficients import (
     VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE as INLET_VERTICAL_ELLIPSE_SQUARE,
 )
+from ..inlet_control.coefficients import InletCoefficients
 from ..outlet_control.losses import (
     BOX_CONCRETE_FLARED_WINGWALLS_30_75 as LOSS_BOX_FLARED,
+)
+from ..outlet_control.losses import (
+    HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE as LOSS_HORIZONTAL_ELLIPSE_SQUARE,
 )
 from ..outlet_control.losses import (
     PIPE_CMP_HEADWALL as LOSS_CMP_HEADWALL,
@@ -27,13 +30,10 @@ from ..outlet_control.losses import (
 from ..outlet_control.losses import (
     PIPE_CONCRETE_SQUARE_EDGE as LOSS_CONCRETE_SQUARE,
 )
-from ..outlet_control.losses import EntranceLossCoefficient
-from ..outlet_control.losses import (
-    HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE as LOSS_HORIZONTAL_ELLIPSE_SQUARE,
-)
 from ..outlet_control.losses import (
     VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE as LOSS_VERTICAL_ELLIPSE_SQUARE,
 )
+from ..outlet_control.losses import EntranceLossCoefficient
 
 
 @dataclass(frozen=True, slots=True)

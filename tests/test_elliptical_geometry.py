@@ -40,21 +40,13 @@ def test_ellipse_geometry_identities(
         abs=2e-10,
     )
     assert geometry.area(half) == pytest.approx(0.5 * geometry.area_full)
-    assert geometry.wetted_perimeter(half) == pytest.approx(
-        0.5 * geometry.wetted_perimeter_full
-    )
+    assert geometry.wetted_perimeter(half) == pytest.approx(0.5 * geometry.wetted_perimeter_full)
     assert geometry.top_width(half) == pytest.approx(geometry.span)
-    assert geometry.area(quarter) + geometry.area(three_quarters) == pytest.approx(
-        geometry.area_full
+    assert geometry.area(quarter) + geometry.area(three_quarters) == pytest.approx(geometry.area_full)
+    assert geometry.wetted_perimeter(quarter) + geometry.wetted_perimeter(three_quarters) == pytest.approx(
+        geometry.wetted_perimeter_full, abs=4e-10
     )
-    assert (
-        geometry.wetted_perimeter(quarter)
-        + geometry.wetted_perimeter(three_quarters)
-        == pytest.approx(geometry.wetted_perimeter_full, abs=4e-10)
-    )
-    assert geometry.top_width(quarter) == pytest.approx(
-        geometry.top_width(three_quarters)
-    )
+    assert geometry.top_width(quarter) == pytest.approx(geometry.top_width(three_quarters))
 
 
 def test_ellipse_from_mm_and_orientation_contracts() -> None:
@@ -101,9 +93,7 @@ def test_ellipse_depth_boundaries(
     assert geometry.wetted_perimeter(0.0) == 0.0
     assert geometry.top_width(0.0) == 0.0
     assert geometry.area(2.0 * geometry.rise) == pytest.approx(geometry.area_full)
-    assert geometry.wetted_perimeter(2.0 * geometry.rise) == pytest.approx(
-        geometry.wetted_perimeter_full
-    )
+    assert geometry.wetted_perimeter(2.0 * geometry.rise) == pytest.approx(geometry.wetted_perimeter_full)
     assert geometry.top_width(2.0 * geometry.rise) == 0.0
     assert geometry.is_full(geometry.rise)
     with pytest.raises(InvalidInputError):

@@ -17,6 +17,13 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+Issue #3 ellipse validation repair (2026-10-07): Owner: Unassigned. Status: verified locally.
+Boundary: repair local test and quality-check failures in the ellipse implementation
+slice without changing sourced coefficients or HY-8 baselines.
+See [the implementation note](2026-10-07-cs-025-elliptical-culverts.md) for exact checks
+and the remaining Chart 30 Scale 3 transition applicability limit. Changes are uncommitted
+and unpushed; the broader issue remains open.
+
 PR #27 review and CI repair (2026-10-06): Owner: Unassigned. Status: verified locally.
 Clarified the source regression's inlet-velocity basis and its conversion to the
 full-barrel velocity basis. Checked Sellevold et al. Equations 4/5 (page

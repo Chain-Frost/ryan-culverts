@@ -24,6 +24,8 @@ requested discharge below the minimum evaluable submerged-roadway capacity.
     options:
       members:
         - CircularGeometry
+        - HorizontalEllipseGeometry
+        - VerticalEllipseGeometry
         - RectangularGeometry
         - FilletedRectangularGeometry
         - CrossSectionGeometry

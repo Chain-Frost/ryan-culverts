@@ -16,13 +16,14 @@ from culvert_solver import (
     CONCRETE_PIPE,
     EXTREME_HEADWATER_RATIO,
     HDS5_LABORATORY_HW_D_MAX,
-    HorizontalEllipseGeometry,
     SMOOTH_HDPE,
     STANDARD_INLET_COEFFICIENTS,
+    VERTICAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING,
     CircularGeometry,
     CulvertBarrel,
     FlowRegime,
     GeometryShape,
+    HorizontalEllipseGeometry,
     HydraulicWarningCode,
     InletCoefficients,
     InletEquationForm,
@@ -65,11 +66,26 @@ def test_tangent_transition_matches_endpoint_values_and_slopes() -> None:
         transition_headwater(3.4, value_low, value_high, tangent_low, tangent_high)
 
 
+@pytest.mark.parametrize(
+    ("low", "high", "tangent_low", "tangent_high"),
+    [(1.0, 1.01, 1.0, 1.0), (1.0, 0.9, 0.1, 0.1), (1.0, 1.4, -0.1, 0.7)],
+)
+def test_transition_rejects_decreasing_bridge(
+    low: float,
+    high: float,
+    tangent_low: float,
+    tangent_high: float,
+) -> None:
+    """Reject interior reversal and negative boundary slopes before returning a head."""
+    with pytest.raises(InvalidInputError, match="monotonic cubic transition"):
+        transition_headwater(3.75, low, high, tangent_low, tangent_high)
+
+
 @pytest.mark.parametrize("coefficients", STANDARD_INLET_COEFFICIENTS)
 def test_standard_inlet_transitions_are_monotonic_and_tangent(
     coefficients: InletCoefficients,
 ) -> None:
-    """All catalogued inlet transitions remain monotonic and C1 at both bounds."""
+    """Catalogued transitions are monotonic and C1, or fail closed when unsupported."""
     if coefficients.shape is GeometryShape.CIRCULAR:
         geometry = CircularGeometry(diameter=1.2)
     elif coefficients.shape is GeometryShape.RECTANGULAR:
@@ -79,7 +95,8 @@ def test_standard_inlet_transitions_are_monotonic_and_tangent(
     elif coefficients.shape is GeometryShape.VERTICAL_ELLIPSE:
         geometry = VerticalEllipseGeometry(span=1.2, rise=2.4)
     else:  # pragma: no cover - STANDARD_INLET_COEFFICIENTS is a closed catalogue
-        raise AssertionError(f"Unsupported standard coefficient shape: {coefficients.shape}")
+        msg = f"Unsupported standard coefficient shape: {coefficients.shape}"
+        raise AssertionError(msg)
     barrel = CulvertBarrel(
         geometry=geometry,
         length=30.0,
@@ -94,6 +111,15 @@ def test_standard_inlet_transitions_are_monotonic_and_tangent(
     def dimensionless_headwater(q_star: float) -> float:
         result = calculate_inlet_control_headwater(barrel, q_star * discharge_per_q_star)
         return result.headwater_depth / geometry.rise
+
+    if coefficients is VERTICAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING:
+        # Published constants are retained. The fixed cubic bridge is unsupported
+        # for this aspect ratio; both empirical branches remain independently usable.
+        assert dimensionless_headwater(4.0) > dimensionless_headwater(3.5)
+        for index in range(1, 50):
+            with pytest.raises(InvalidInputError, match="monotonic cubic transition"):
+                dimensionless_headwater(3.5 + index * 0.01)
+        return
 
     values = [dimensionless_headwater(3.5 + index * 0.01) for index in range(51)]
     assert all(first <= second for first, second in pairwise(values))

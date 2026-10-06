@@ -122,9 +122,7 @@ def test_hds5_table_a2_ellipse_coefficients(
 ) -> None:
     assert coefficient.shape is shape
     assert (coefficient.chart, coefficient.scale) == (chart, scale)
-    assert (coefficient.k, coefficient.m, coefficient.c, coefficient.y) == pytest.approx(
-        (k, m, c, y)
-    )
+    assert (coefficient.k, coefficient.m, coefficient.c, coefficient.y) == pytest.approx((k, m, c, y))
     assert coefficient.reference.source_id == "FHWA-HDS5-2012-TABLE-A2"
 
 

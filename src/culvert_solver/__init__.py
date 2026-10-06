@@ -195,9 +195,6 @@ from .outlet_control.losses import (
     PIPE_CONCRETE_SQUARE_EDGE as PIPE_LOSS_SQUARE_EDGE,
 )
 from .outlet_control.losses import (
-    VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE as VERTICAL_ELLIPSE_LOSS_SQUARE_EDGE,
-)
-from .outlet_control.losses import (
     STANDARD_EXIT_LOSS_COEFFICIENT,
     STANDARD_EXIT_LOSS_SELECTION,
     EntranceLossCoefficient,
@@ -207,6 +204,9 @@ from .outlet_control.losses import (
     calculate_friction_loss,
     calculate_total_head_loss,
     resolve_exit_loss_coefficient,
+)
+from .outlet_control.losses import (
+    VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE as VERTICAL_ELLIPSE_LOSS_SQUARE_EDGE,
 )
 from .outlet_control.partial_flow import (
     PartialFlowOutletResult,
@@ -285,10 +285,6 @@ __all__: list[str] = [
     "CIRCULAR_CMP_PROJECTING",
     "CIRCULAR_CONCRETE_GROOVE_END",
     "CIRCULAR_CONCRETE_SQUARE_EDGE",
-    "HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END",
-    "HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING",
-    "HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE",
-    "HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE",
     "CONCRETE",
     "CONCRETE_BOX",
     "CONCRETE_PIPE",
@@ -305,6 +301,10 @@ __all__: list[str] = [
     "FHWA_MODERN_BOX_HW_D_MIN",
     "GRAVITATIONAL_ACCELERATION",
     "HDS5_LABORATORY_HW_D_MAX",
+    "HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END",
+    "HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING",
+    "HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE",
+    "HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE",
     "MRWA_CONCRETE_REFERENCE",
     "MRWA_CSP_MANNING_TABLE",
     "MRWA_CSP_REFERENCE",
@@ -364,6 +364,7 @@ __all__: list[str] = [
     "GroupHydraulicResult",
     "GroupSummary",
     "HeadLossComponents",
+    "HorizontalEllipseGeometry",
     "HydraulicApplicabilityNotice",
     "HydraulicEvaluationFailure",
     "HydraulicProfilePoint",
@@ -372,7 +373,6 @@ __all__: list[str] = [
     "HydraulicSample",
     "HydraulicUncertaintyParameter",
     "HydraulicUncertaintyUnit",
-    "HorizontalEllipseGeometry",
     "HydraulicWarning",
     "HydraulicWarningCode",
     "InletCoefficientSelection",

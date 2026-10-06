@@ -279,6 +279,23 @@ def resolve_entrance_loss_coefficient(
             shape=GeometryShape.ANY,
         )
 
+    default_coeff = _default_entrance_loss_coefficient(barrel, config)
+
+    validate_entrance_loss_shape(barrel, default_coeff)
+    return EntranceLossSelection(
+        ke=default_coeff.ke,
+        name=default_coeff.name,
+        basis=EntranceLossSelectionBasis.GEOMETRY_DEFAULT,
+        source=default_coeff.reference,
+        shape=default_coeff.shape,
+    )
+
+
+def _default_entrance_loss_coefficient(
+    barrel: CulvertBarrel,
+    config: SolverConfiguration,
+) -> EntranceLossCoefficient:
+    """Select a source-bearing default for the explicit geometry and material."""
     # 3. Geometry/material-based library default
     if isinstance(barrel.geometry, CircularGeometry):
         if barrel.material == CORRUGATED_STEEL:
@@ -321,11 +338,4 @@ def resolve_entrance_loss_coefficient(
         msg = "No default entrance-loss coefficient exists for this geometry; provide one explicitly."
         raise InvalidInputError(msg)
 
-    validate_entrance_loss_shape(barrel, default_coeff)
-    return EntranceLossSelection(
-        ke=default_coeff.ke,
-        name=default_coeff.name,
-        basis=EntranceLossSelectionBasis.GEOMETRY_DEFAULT,
-        source=default_coeff.reference,
-        shape=default_coeff.shape,
-    )
+    return default_coeff

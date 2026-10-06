@@ -143,8 +143,11 @@ page A.6 states that the nomograph transition was drawn by hand, so no reproduci
 algorithm is prescribed. The adopted project method is a cubic Hermite bridge over
 `3.5 <= q* <= 4.0`, using the value and first derivative of each bounding curve. For Form
 1, the lower tangent includes the exact critical-specific-energy derivative. It is C1
-continuous and monotonic for every catalogued circular, horizontal/vertical ellipse,
-and rectangular coefficient set.
+continuous when supported. The exact minimum of the cubic derivative is checked;
+nonmonotonic bridges fail closed without altering published constants or endpoint slopes.
+For example, Chart 30 Scale 3 (vertical concrete ellipse, groove end projecting) fails
+this check for a 1.2 m span and 2.4 m rise. Its empirical unsubmerged and submerged
+branches remain evaluable, but the transition requires a separately justified method.
 This is a deterministic implementation of the HDS-5 tangency requirement, not a claim of
 exact HY-8 polynomial or hand-drawn-nomograph equivalence.
 
