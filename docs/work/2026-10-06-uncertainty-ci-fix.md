@@ -1,8 +1,8 @@
 # Uncertainty PR verification and review follow-up
 
 Task: verify PR #25 within issue #19's uncertainty-primitives boundary.
-Owner: Unassigned. Status: implementation and reviewer follow-up committed; PR remains
-open and unmerged pending final review.
+Owner: Unassigned. Status: implementation and reviewer follow-up complete; PR #25 merged
+to `main` as commit `0213eac2bf10b5751feb13ae7d88d00026eeb9f1`.
 
 The GitHub issue remains the authoritative feature tracker. The implementation preserves
 runtime integer validation for sampling counts and seeds, exposes all public uncertainty
@@ -33,8 +33,9 @@ The hardening pass also adds a real high-head advisory case proving that uncerta
 evaluation preserves the deterministic solver's structured hydraulic warning, resulting
 `HydraulicResultStatus`, and convergence evidence.
 
-Final merge remains intentionally deferred. The PR checks are the authoritative record for
-verification of the current branch head.
+A subsequent Codex review found no major issues. Final PR-head CI run #90 passed before
+PR #25 was merged. The merged implementation therefore completes the `ryan-culverts`
+scope of CS-027.
 
 ## Verification scope
 
