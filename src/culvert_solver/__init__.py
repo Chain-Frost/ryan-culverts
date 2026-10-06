@@ -20,6 +20,7 @@ from .constants import (
 from .exceptions import ConvergenceError, InvalidInputError
 from .geometry.base import CrossSectionGeometry
 from .geometry.circular import CircularGeometry
+from .geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
 from .geometry.filleted_rectangular import FilletedRectangularGeometry
 from .geometry.rectangular import RectangularGeometry
 from .hydraulics.critical import CriticalDepthResult, calculate_critical_depth
@@ -351,6 +352,7 @@ __all__: list[str] = [
     "HydraulicSample",
     "HydraulicUncertaintyParameter",
     "HydraulicUncertaintyUnit",
+    "HorizontalEllipseGeometry",
     "HydraulicWarning",
     "HydraulicWarningCode",
     "InletCoefficientSelection",
@@ -403,6 +405,7 @@ __all__: list[str] = [
     "TailwaterResolution",
     "TrapezoidalChannel",
     "UniformParameterSpec",
+    "VerticalEllipseGeometry",
     "WaterSurfaceProfile",
     "__version__",
     "calculate_channel_normal_depth",

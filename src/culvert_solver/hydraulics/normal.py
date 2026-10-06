@@ -8,6 +8,7 @@ from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
 from ..geometry.base import CrossSectionGeometry
 from ..geometry.circular import CircularGeometry
+from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
 from ..numerical.roots import RootResult, solve_brent
 from ..numerical.tolerances import RootTolerances
 from .primitives import froude_number
@@ -16,6 +17,28 @@ _DEFAULT_NORMAL_TOLERANCES = RootTolerances(x_abs=1e-7, x_rel=1e-9)
 
 # Fraction of diameter where circular Manning conveyance reaches its maximum
 _CIRCULAR_MAX_CONVEYANCE_DEPTH_RATIO: float = 0.9381796
+
+
+def _section_conveyance(geometry: CrossSectionGeometry, depth: float) -> float:
+    area = geometry.area(depth)
+    radius = geometry.hydraulic_radius(depth)
+    return area * (radius ** (2.0 / 3.0))
+
+
+def _ellipse_max_conveyance_depth(
+    geometry: HorizontalEllipseGeometry | VerticalEllipseGeometry,
+) -> float:
+    """Locate the rising-branch conveyance maximum for a closed ellipse."""
+    lower = 0.0
+    upper = geometry.rise
+    for _ in range(80):
+        first = lower + (upper - lower) / 3.0
+        second = upper - (upper - lower) / 3.0
+        if _section_conveyance(geometry, first) < _section_conveyance(geometry, second):
+            lower = first
+        else:
+            upper = second
+    return (lower + upper) / 2.0
 
 
 @dataclass(frozen=True, slots=True)
@@ -141,7 +164,56 @@ def calculate_normal_depth(
             convergence=root_res,
         )
 
-    # Rectangular / general cross-sections: monotonic on [0, rise]
+    # Closed ellipses, like circular conduits, reach maximum conveyance before the crown.
+    if isinstance(geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry)):
+        y_peak = _ellipse_max_conveyance_depth(geometry)
+        k_max = _section_conveyance(geometry, y_peak)
+        k_full = _section_conveyance(geometry, geometry.rise)
+
+        if k_req > k_max:
+            return NormalDepthResult(
+                depth=geometry.rise,
+                velocity=q / geometry.area_full,
+                froude_number=math.nan,
+                conveyance=k_full,
+                is_full=True,
+                capacity_exceeded=True,
+            )
+
+        if k_req == k_max:
+            area_peak = geometry.area(y_peak)
+            velocity_peak = q / area_peak
+            top_width_peak = geometry.top_width(y_peak)
+            froude_peak = froude_number(q, area_peak, top_width_peak, accel)
+            return NormalDepthResult(
+                depth=y_peak,
+                velocity=velocity_peak,
+                froude_number=froude_peak,
+                conveyance=k_max,
+                is_full=False,
+                capacity_exceeded=False,
+            )
+
+        def f_conveyance_ellipse(y: float) -> float:
+            return _section_conveyance(geometry, y) - k_req
+
+        root_res = solve_brent(f_conveyance_ellipse, 0.0, y_peak, tolerances=tolerances)
+        yn = root_res.root
+        area = geometry.area(yn)
+        velocity = q / area
+        top_width = geometry.top_width(yn)
+        froude = froude_number(q, area, top_width, accel)
+        return NormalDepthResult(
+            depth=yn,
+            velocity=velocity,
+            froude_number=froude,
+            conveyance=_section_conveyance(geometry, yn),
+            is_full=False,
+            capacity_exceeded=False,
+            convergence=root_res,
+        )
+
+    # Rectangular / remaining general cross-sections: monotonic on [0, rise]
     rise: float = geometry.rise
     k_full = geometry.area_full * (geometry.hydraulic_radius_full ** (2.0 / 3.0))
 
