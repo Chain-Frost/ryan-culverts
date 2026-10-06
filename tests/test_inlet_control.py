@@ -16,6 +16,7 @@ from culvert_solver import (
     CONCRETE_PIPE,
     EXTREME_HEADWATER_RATIO,
     HDS5_LABORATORY_HW_D_MAX,
+    HorizontalEllipseGeometry,
     SMOOTH_HDPE,
     STANDARD_INLET_COEFFICIENTS,
     CircularGeometry,
@@ -27,6 +28,7 @@ from culvert_solver import (
     InletEquationForm,
     InvalidInputError,
     RectangularGeometry,
+    VerticalEllipseGeometry,
     calculate_inlet_control_headwater,
     flow_parameter,
     submerged_headwater,
@@ -68,11 +70,16 @@ def test_standard_inlet_transitions_are_monotonic_and_tangent(
     coefficients: InletCoefficients,
 ) -> None:
     """All catalogued inlet transitions remain monotonic and C1 at both bounds."""
-    geometry = (
-        CircularGeometry(diameter=1.2)
-        if coefficients.shape is GeometryShape.CIRCULAR
-        else RectangularGeometry(span=2.4, rise=1.2)
-    )
+    if coefficients.shape is GeometryShape.CIRCULAR:
+        geometry = CircularGeometry(diameter=1.2)
+    elif coefficients.shape is GeometryShape.RECTANGULAR:
+        geometry = RectangularGeometry(span=2.4, rise=1.2)
+    elif coefficients.shape is GeometryShape.HORIZONTAL_ELLIPSE:
+        geometry = HorizontalEllipseGeometry(span=2.4, rise=1.2)
+    elif coefficients.shape is GeometryShape.VERTICAL_ELLIPSE:
+        geometry = VerticalEllipseGeometry(span=1.2, rise=2.4)
+    else:  # pragma: no cover - STANDARD_INLET_COEFFICIENTS is a closed catalogue
+        raise AssertionError(f"Unsupported standard coefficient shape: {coefficients.shape}")
     barrel = CulvertBarrel(
         geometry=geometry,
         length=30.0,
