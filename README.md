@@ -5,8 +5,9 @@ analytical validation, and mixed-group crossings. The retained wheel is an alpha
 for integration testing; it is not engineering design software.
 
 The [long-term development plan](docs/work/long-term-development-plan.md) defines the scope and
-development sequence. The `culvert_solver` package contains provisional circular and box
-hydraulics through rating-curve generation, including mixed groups, constant-crest
+development sequence. The `culvert_solver` package contains provisional circular,
+horizontal/vertical elliptical, and box hydraulics through rating-curve generation,
+including mixed groups, constant-crest
 unsubmerged roadway overtopping, and road-level inventories. Geometry, numerical
 foundations, and several equation-level calculations
 have analytical or published-example tests; combined-system validation remains bounded.

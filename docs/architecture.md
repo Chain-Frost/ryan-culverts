@@ -15,11 +15,12 @@ There is no compatibility layer for the retired `culvertflow` package.
 | `constants` | Standard gravitational acceleration and water properties with source records |
 | `geometry.base` | Cross-section geometry interface and crown/closed-conduit contract |
 | `geometry.circular` | Analytical circular segment geometry |
+| `geometry.elliptical` | Exact-area horizontal/vertical ellipse geometry with deterministic numerical arc length |
 | `geometry.rectangular` | Analytical rectangular box culvert geometry |
 | `geometry.filleted_rectangular` | Rectangular boxes with equal 45-degree internal corner fillets and net area |
 | `hydraulics.primitives` | Velocity, velocity head, specific energy, Froude and Manning formulas |
 | `hydraulics.critical` | Critical depth analytical and bracketed root solvers |
-| `hydraulics.normal` | Uniform flow normal depth with circular conveyance branch selection |
+| `hydraulics.normal` | Uniform flow normal depth with circular and elliptical closed-section conveyance branch selection |
 | `hydraulics.momentum` | Hydrostatic momentum function and free-surface sequent-depth solver |
 | `models.materials` | Material records and source-traceable Manning roughness data/lookups |
 | `models.enums` | Closed control, geometry, equation, profile, and CSP-corrugation categories |
@@ -30,7 +31,7 @@ There is no compatibility layer for the retired `culvertflow` package.
 | `models.roadway` | Constant/irregular roadway crests, surface type, coefficient and source provenance |
 | `models.results` | Results, adopted parameter selections, and flow classifications |
 | `models.collection` | Road inventory, normalized summaries, and parameter catalogues |
-| `inlet_control.coefficients` | Empirical regression constants and source records from HDS-5 Table A.1 |
+| `inlet_control.coefficients` | Empirical regression constants and source records from HDS-5 Tables A.1 and A.2 |
 | `inlet_control.fhwa` | Pure SI equations for Form 1/2 unsubmerged, submerged, and transition |
 | `inlet_control.solver` | Inlet headwater, regime, headwater ratio, and high-head applicability warnings |
 | `inlet_control.modern_box` | Typed FHWA-HRT-06-138 Figure 93 configurations and bounded Table 11/12 relationships |
@@ -100,7 +101,10 @@ crossing has no unique invert or rise.
 Defaults require enough typed context to remain inspectable. Inlet and entrance-loss
 resolvers no longer treat a missing material as concrete; callers must identify the
 material or supply the relevant coefficients explicitly. Explicit overrides and
-barrel-attached values retain precedence over `SolverConfiguration` defaults.
+barrel-attached values retain precedence over `SolverConfiguration` defaults. Horizontal
+and vertical concrete ellipses use their own HDS-5 Table A.2 inlet categories rather than
+reusing circular coefficients. HDS-5 Table C.2 concrete-pipe entrance-loss values are
+represented by separately shape-tagged ellipse records so applicability remains explicit.
 
 Concrete roughness records are separated into `CONCRETE_PIPE` and `CONCRETE_BOX`, with
 the current MRWA Table 2.1 ranges and source metadata. The compatibility-level
