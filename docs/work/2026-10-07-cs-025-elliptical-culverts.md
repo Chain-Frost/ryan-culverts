@@ -61,6 +61,21 @@ only circle and box shapes, so it cannot yet generate a trustworthy ellipse proj
 version-pinned shape code, inlet-index mapping, reader/writer round trips and local HY-8
 8.0.1.2 executable probes for both ellipse orientations.
 
+## Verification status
+
+The branch was reviewed structurally after implementation. The modified Python core files
+contained no lines longer than 120 characters, and the branch was confirmed to be based
+directly on `main` with no divergence at handoff.
+
+No local Python test, Ruff, Pyright, Markdown, MkDocs, build, or installed-wheel execution
+is claimed from the GitHub-only implementation environment. The repository CI workflow
+runs for pull requests (and pushes to `main`), not for a standalone feature-branch push.
+A draft pull request should therefore be used to obtain the authoritative hosted checks
+before this implementation slice is considered ready to merge.
+
+No HY-8 ellipse executable comparison is claimed. That external validation remains blocked
+on [run-hy8 issue #5](https://github.com/Chain-Frost/run-hy8/issues/5).
+
 ## Remaining CS-025 work
 
 - research a source-backed standard profile representation for pipe-arch families before
