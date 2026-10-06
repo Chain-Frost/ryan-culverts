@@ -1220,13 +1220,20 @@ computational core.
 
 ## CS-025 - Additional shapes and materials
 
-Status: In progress. Owner: ChatGPT. Updated: 2026-10-07. Next review: 2026-10-14.
+Status: In progress. Owner: Unassigned. Updated: 2026-10-07. Next review: 2026-10-14.
 
 Tracked by [GitHub issue #3](https://github.com/Chain-Frost/ryan-culverts/issues/3).
 
 Boundary: prioritise additional standard shapes and material records from actual project
 needs, with geometry identities, coefficient applicability, source provenance, and
 analytical tests completed independently of design automation.
+
+2026-10-07 handoff: horizontal and vertical concrete ellipses are implemented on
+`feat/issue-3-elliptical-culverts`; see
+[the implementation note](2026-10-07-cs-025-elliptical-culverts.md). HY-8 executable
+comparison is blocked on [run-hy8 #5](https://github.com/Chain-Frost/run-hy8/issues/5).
+The next core step is source-backed pipe-arch/arch profile research; do not infer those
+profiles from span and rise alone.
 
 ## CS-026 - Debris and blockage scenarios
 

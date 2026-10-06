@@ -75,8 +75,8 @@ def calculate_normal_depth(
 ) -> NormalDepthResult:
     """Compute the uniform flow normal depth satisfying Manning's equation.
 
-    For circular conduits, solves strictly on the stable monotonically increasing
-    branch (y <= 0.9382 * D), avoiding the non-monotone crown region.
+    For circular and elliptical closed conduits, solves strictly on the stable
+    monotonically increasing conveyance branch, avoiding the non-monotone crown region.
     """
     q: float = finite(discharge, "discharge")
     if q < 0:
