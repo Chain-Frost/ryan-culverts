@@ -108,14 +108,21 @@ the current MRWA Table 2.1 ranges and source metadata. The compatibility-level
 resolution, but its combined roughness range is intentionally rejected as ambiguous by
 `resolve_manning_roughness`.
 
+For corrugated steel pipe, explicit project/manufacturer roughness remains highest
+priority. When both nominal diameter and corrugation are supplied, the resolver uses the
+diameter/corrugation-specific MRWA table. When detailed corrugation context is absent, the
+generic fallback is Austroads `n = 0.024` for plain or unpaved small-corrugation
+corrugated metal pipe or pipe-arch. That fallback carries a machine-readable applicability
+notice and does not imply MRWA product or construction compliance.
+
 Plastic-pipe roughness is manufacturer-led. `SMOOTH_HDPE` therefore fails closed without
 an explicit override. A caller may deliberately request the HDS-5 laboratory fallback
 with `allow_documented_fallback=True`; the returned selection then carries stable,
 source-bearing notices that manufacturer data was absent and that hydraulic roughness
-does not prove MRWA product or construction compliance. The same compliance distinction
-is attached to MRWA CSP table selections. Passing a `ManningRoughnessSelection` through
-a barrel's `roughness_selection` field preserves its basis, source, and notices in the
-solved result. No HY-8 roughness fallback is currently defined.
+does not prove MRWA product or construction compliance. Passing a
+`ManningRoughnessSelection` through a barrel's `roughness_selection` field preserves
+its basis, source, and notices in the solved result. No HY-8 roughness fallback is
+currently defined.
 
 ## Inventory and reporting boundary
 
