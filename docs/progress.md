@@ -6,12 +6,15 @@ Changed the default circular corrugated-steel arrangement from headwall to proje
 for both HDS-5 inlet-control coefficients and outlet-control entrance loss. Explicit
 barrel/user coefficient overrides remain higher priority.
 
-The CSP Manning resolver now retains the existing MRWA diameter/corrugation-specific table
-when both inputs are supplied. If detailed corrugation context is absent, it uses the
-Austroads AGRD05A-13 edition 1.2 Table 6.4 generic value `n = 0.024` for plain or
-unpaved small-corrugation corrugated metal pipe or pipe-arch. The fallback carries a typed
-selection basis, source provenance, a generic-assumption notice, and the existing
-construction-compliance limitation. HDPE defaults remain unchanged and out of scope.
+The CSP Manning resolver retains the existing MRWA diameter/corrugation-specific table
+when both inputs are supplied. With diameter alone, standard MRWA CSP adopts the current
+Specification 404 corrugation (68 x 13 mm through 1500 mm and 125 x 25 mm from 1650 to
+2100 mm) and records that assumption before using the MRWA table. If no supported MRWA
+standard context can be resolved, it uses Austroads AGRD05A-24 edition 2.2 Table 6.4
+`n = 0.024` for plain or unpaved small-corrugation corrugated metal pipe or pipe-arch.
+The generic fallback carries a typed selection basis, source provenance, an applicability
+notice, and the existing construction-compliance limitation. HDPE defaults remain
+unchanged and out of scope.
 
 Verification is recorded on PR #31.
 
