@@ -6,7 +6,7 @@ from ..inlet_control.coefficients import (
     BOX_CONCRETE_FLARED_WINGWALLS_30_75 as INLET_BOX_FLARED,
 )
 from ..inlet_control.coefficients import (
-    CIRCULAR_CMP_HEADWALL as INLET_CMP_HEADWALL,
+    CIRCULAR_CMP_PROJECTING as INLET_CMP_PROJECTING,
 )
 from ..inlet_control.coefficients import (
     CIRCULAR_CONCRETE_SQUARE_EDGE as INLET_CONCRETE_SQUARE,
@@ -16,7 +16,7 @@ from ..outlet_control.losses import (
     BOX_CONCRETE_FLARED_WINGWALLS_30_75 as LOSS_BOX_FLARED,
 )
 from ..outlet_control.losses import (
-    PIPE_CMP_HEADWALL as LOSS_CMP_HEADWALL,
+    PIPE_CMP_PROJECTING as LOSS_CMP_PROJECTING,
 )
 from ..outlet_control.losses import (
     PIPE_CONCRETE_SQUARE_EDGE as LOSS_CONCRETE_SQUARE,
@@ -34,10 +34,10 @@ class SolverConfiguration:
     """
 
     default_circular_concrete_inlet: InletCoefficients = INLET_CONCRETE_SQUARE
-    default_circular_cmp_inlet: InletCoefficients = INLET_CMP_HEADWALL
+    default_circular_cmp_inlet: InletCoefficients = INLET_CMP_PROJECTING
     default_rectangular_inlet: InletCoefficients = INLET_BOX_FLARED
     default_circular_concrete_loss: EntranceLossCoefficient = LOSS_CONCRETE_SQUARE
-    default_circular_cmp_loss: EntranceLossCoefficient = LOSS_CMP_HEADWALL
+    default_circular_cmp_loss: EntranceLossCoefficient = LOSS_CMP_PROJECTING
     default_rectangular_loss: EntranceLossCoefficient = LOSS_BOX_FLARED
 
 
