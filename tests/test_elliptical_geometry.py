@@ -150,4 +150,3 @@ def test_ellipse_normal_depth_uses_rising_conveyance_branch(
     assert not result.is_full
     assert not result.capacity_exceeded
     assert result.depth == pytest.approx(target_depth, abs=2e-6)
-
