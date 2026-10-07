@@ -141,7 +141,7 @@ def test_preliminary_roughness_resolver_reports_default_provenance() -> None:
     ]
     assert csp.notices[0].source.source_id == "MRWA-SPECIFICATION-404-2026-07-17"
 
-    generic_csp = resolve_manning_roughness(CORRUGATED_STEEL)
+    generic_csp = resolve_manning_roughness(CORRUGATED_STEEL, allow_documented_fallback=True)
     assert generic_csp.value == pytest.approx(0.024)
     assert generic_csp.basis is RoughnessSelectionBasis.AUSTROADS_CSP_GENERIC
     assert generic_csp.source is not None
@@ -218,9 +218,18 @@ def test_preliminary_roughness_resolver_prioritizes_user_override() -> None:
     assert larger_mrwa_default.value == pytest.approx(0.024)
     assert larger_mrwa_default.basis is RoughnessSelectionBasis.MRWA_CSP_TABLE
 
-    nonstandard_diameter = resolve_manning_roughness(CORRUGATED_STEEL, nominal_diameter_mm=525)
+    nonstandard_diameter = resolve_manning_roughness(
+        CORRUGATED_STEEL,
+        nominal_diameter_mm=525,
+        allow_documented_fallback=True,
+    )
     assert nonstandard_diameter.value == pytest.approx(0.024)
     assert nonstandard_diameter.basis is RoughnessSelectionBasis.AUSTROADS_CSP_GENERIC
+
+    with pytest.raises(InvalidInputError, match="allow_documented_fallback"):
+        resolve_manning_roughness(CORRUGATED_STEEL)
+    with pytest.raises(InvalidInputError, match="allow_documented_fallback"):
+        resolve_manning_roughness(CORRUGATED_STEEL, nominal_diameter_mm=525)
 
     explicit_corrugation = resolve_manning_roughness(
         CORRUGATED_STEEL,
