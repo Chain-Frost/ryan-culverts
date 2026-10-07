@@ -145,7 +145,7 @@ def test_preliminary_roughness_resolver_reports_default_provenance() -> None:
     assert generic_csp.value == pytest.approx(0.024)
     assert generic_csp.basis is RoughnessSelectionBasis.AUSTROADS_CSP_GENERIC
     assert generic_csp.source is not None
-    assert generic_csp.source.source_id == "AUSTROADS-AGRD05A-13-TABLE-6.4"
+    assert generic_csp.source.source_id == "AUSTROADS-AGRD05A-24-TABLE-6.4"
     assert [notice.code for notice in generic_csp.notices] == [
         ApplicabilityNoticeCode.GENERIC_CSP_ROUGHNESS_ASSUMPTION,
         ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
@@ -206,9 +206,32 @@ def test_preliminary_roughness_resolver_prioritizes_user_override() -> None:
     assert selection.source == CONCRETE.reference
     assert not selection.used_default
 
-    fallback = resolve_manning_roughness(CORRUGATED_STEEL, nominal_diameter_mm=1200)
-    assert fallback.value == pytest.approx(0.024)
-    assert fallback.basis is RoughnessSelectionBasis.AUSTROADS_CSP_GENERIC
+    mrwa_default = resolve_manning_roughness(CORRUGATED_STEEL, nominal_diameter_mm=1200)
+    assert mrwa_default.value == pytest.approx(0.020)
+    assert mrwa_default.basis is RoughnessSelectionBasis.MRWA_CSP_TABLE
+    assert [notice.code for notice in mrwa_default.notices] == [
+        ApplicabilityNoticeCode.MRWA_STANDARD_CSP_CORRUGATION_ASSUMPTION,
+        ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
+    ]
+
+    larger_mrwa_default = resolve_manning_roughness(CORRUGATED_STEEL, nominal_diameter_mm=1650)
+    assert larger_mrwa_default.value == pytest.approx(0.024)
+    assert larger_mrwa_default.basis is RoughnessSelectionBasis.MRWA_CSP_TABLE
+
+    nonstandard_diameter = resolve_manning_roughness(CORRUGATED_STEEL, nominal_diameter_mm=525)
+    assert nonstandard_diameter.value == pytest.approx(0.024)
+    assert nonstandard_diameter.basis is RoughnessSelectionBasis.AUSTROADS_CSP_GENERIC
+
+    explicit_corrugation = resolve_manning_roughness(
+        CORRUGATED_STEEL,
+        nominal_diameter_mm=1200,
+        csp_corrugation=CspCorrugation.PITCH_75_DEPTH_25,
+    )
+    assert explicit_corrugation.value == pytest.approx(0.023)
+    assert explicit_corrugation.basis is RoughnessSelectionBasis.MRWA_CSP_TABLE
+    assert [notice.code for notice in explicit_corrugation.notices] == [
+        ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE
+    ]
 
     with pytest.raises(InvalidInputError, match="nominal_diameter_mm"):
         resolve_manning_roughness(
