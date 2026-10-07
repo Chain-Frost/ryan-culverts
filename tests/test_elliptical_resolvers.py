@@ -20,7 +20,6 @@ from culvert_solver import (
     GeometryShape,
     HorizontalEllipseGeometry,
     InletCoefficients,
-    InletSelectionBasis,
     InvalidInputError,
     VerticalEllipseGeometry,
 )
@@ -127,6 +126,24 @@ def test_hds5_table_a2_ellipse_coefficients(
 
 
 @pytest.mark.parametrize(
+    "geometry",
+    [
+        HorizontalEllipseGeometry(span=2.4, rise=1.2),
+        VerticalEllipseGeometry(span=1.2, rise=2.4),
+    ],
+)
+def test_ellipse_requires_explicit_inlet_treatment(
+    geometry: HorizontalEllipseGeometry | VerticalEllipseGeometry,
+) -> None:
+    barrel = _barrel(geometry)
+
+    with pytest.raises(InvalidInputError, match="Elliptical inlet treatment is ambiguous"):
+        resolve_inlet_coefficients(barrel)
+    with pytest.raises(InvalidInputError, match="Elliptical entrance treatment is ambiguous"):
+        resolve_entrance_loss_coefficient(barrel)
+
+
+@pytest.mark.parametrize(
     ("geometry", "expected_inlet", "expected_loss"),
     [
         (
@@ -141,17 +158,25 @@ def test_hds5_table_a2_ellipse_coefficients(
         ),
     ],
 )
-def test_ellipse_defaults_are_shape_specific(
+def test_ellipse_explicit_coefficients_are_shape_specific(
     geometry: HorizontalEllipseGeometry | VerticalEllipseGeometry,
     expected_inlet: InletCoefficients,
     expected_loss: EntranceLossCoefficient,
 ) -> None:
-    barrel = _barrel(geometry)
+    barrel = CulvertBarrel(
+        geometry=geometry,
+        length=30.0,
+        inlet_invert=100.0,
+        outlet_invert=99.5,
+        roughness=0.012,
+        material=CONCRETE_PIPE,
+        inlet_coefficients=expected_inlet,
+        entrance_loss_coefficient=expected_loss,
+    )
 
     inlet = resolve_inlet_coefficients(barrel)
     loss = resolve_entrance_loss_coefficient(barrel)
 
-    assert inlet.basis is InletSelectionBasis.GEOMETRY_MATERIAL_DEFAULT
     assert inlet.coefficients is expected_inlet
     assert loss.ke == expected_loss.ke
     assert loss.shape is expected_loss.shape
@@ -167,13 +192,13 @@ def test_ellipse_rejects_circular_inlet_coefficients() -> None:
         )
 
 
-def test_ellipse_unsupported_material_fails_closed() -> None:
+def test_ellipse_material_does_not_bypass_explicit_treatment_requirement() -> None:
     barrel = _barrel(
         VerticalEllipseGeometry(span=1.2, rise=2.4),
         material=CORRUGATED_STEEL,
     )
 
-    with pytest.raises(InvalidInputError, match="vertical ellipse material"):
+    with pytest.raises(InvalidInputError, match="Elliptical inlet treatment is ambiguous"):
         resolve_inlet_coefficients(barrel)
-    with pytest.raises(InvalidInputError, match="vertical ellipse"):
+    with pytest.raises(InvalidInputError, match="Elliptical entrance treatment is ambiguous"):
         resolve_entrance_loss_coefficient(barrel)
