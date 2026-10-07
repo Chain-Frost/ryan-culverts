@@ -88,19 +88,9 @@ def _default_inlet_coefficients(barrel: CulvertBarrel, config: SolverConfigurati
             "provide inlet_coefficients explicitly."
         )
         raise InvalidInputError(msg)
-    if isinstance(barrel.geometry, HorizontalEllipseGeometry):
-        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
-            return config.default_horizontal_ellipse_concrete_inlet
+    if isinstance(barrel.geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry)):
         msg = (
-            "No default inlet coefficients exist for this horizontal ellipse material; "
-            "provide inlet_coefficients explicitly."
-        )
-        raise InvalidInputError(msg)
-    if isinstance(barrel.geometry, VerticalEllipseGeometry):
-        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
-            return config.default_vertical_ellipse_concrete_inlet
-        msg = (
-            "No default inlet coefficients exist for this vertical ellipse material; "
+            "Elliptical inlet treatment is ambiguous from geometry and material alone; "
             "provide inlet_coefficients explicitly."
         )
         raise InvalidInputError(msg)
@@ -307,24 +297,12 @@ def _default_entrance_loss_coefficient(
                 "No default entrance-loss coefficient exists for this circular barrel material; provide one explicitly."
             )
             raise InvalidInputError(msg)
-    elif isinstance(barrel.geometry, HorizontalEllipseGeometry):
-        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
-            default_coeff = config.default_horizontal_ellipse_concrete_loss
-        else:
-            msg = (
-                "No default entrance-loss coefficient exists for this horizontal ellipse "
-                "material; provide one explicitly."
-            )
-            raise InvalidInputError(msg)
-    elif isinstance(barrel.geometry, VerticalEllipseGeometry):
-        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
-            default_coeff = config.default_vertical_ellipse_concrete_loss
-        else:
-            msg = (
-                "No default entrance-loss coefficient exists for this vertical ellipse "
-                "material; provide one explicitly."
-            )
-            raise InvalidInputError(msg)
+    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry)):
+        msg = (
+            "Elliptical entrance treatment is ambiguous from geometry and material alone; "
+            "provide entrance_loss_coefficient explicitly."
+        )
+        raise InvalidInputError(msg)
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
             default_coeff = config.default_rectangular_loss
