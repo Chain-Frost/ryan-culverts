@@ -8,10 +8,10 @@ This file records user-visible changes. Detailed validation evidence remains in
 Source-only maintenance may exist above the retained wheel without requiring a release
 entry. User-visible package changes must be listed here before the next wheel is built.
 
-- Changed the default circular CSP inlet/entrance arrangement to projecting ends and added
-  a sourced Austroads `n = 0.024` generic CSP roughness fallback when detailed MRWA
-  diameter/corrugation context is not supplied. Explicit values and the more-specific MRWA
-  lookup retain precedence.
+- Changed the default circular CSP inlet/entrance arrangement to projecting ends. CSP
+  roughness now prefers explicit values, then the MRWA diameter/corrugation table; with
+  diameter alone it applies the standard Specification 404 corrugation, and only then
+  falls back to the sourced Austroads `n = 0.024` generic value.
 
 - Exported the `TailwaterInput` contract, corrected forward-solver tailwater and supported
   profile documentation, and added public API documentation drift checks.
