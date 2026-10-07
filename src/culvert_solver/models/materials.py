@@ -23,18 +23,16 @@ _HDS5_TABLE_B1_REF = SourceReference(
 )
 
 AUSTROADS_CSP_REFERENCE = SourceReference(
-    source_id="AUSTROADS-AGRD05A-13-TABLE-6.4",
+    source_id="AUSTROADS-AGRD05A-24-TABLE-6.4",
     publication="Guide to Road Design Part 5A: Drainage - Road Surface, Networks, Basins and Subsurface",
-    edition="Edition 1.2, February 2021; current publication page reviewed 8 October 2026",
-    locator="Section 6.6, Table 6.4: Manning's n values for closed artificial channels",
+    edition="Edition 2.2, 23 December 2024",
+    locator="Section 6.6.5, Table 6.4: Manning's n values for closed artificial channels (page 115)",
     url="https://austroads.com.au/publications/road-design/agrd05a",
     applicability="Plain or unpaved corrugated metal pipe or pipe-arch with small corrugations.",
     notes=(
-        "The inspected 2021 Table 6.4 gives Manning n = 0.024 for plain or unpaved "
-        "small-corrugation corrugated metal pipe or pipe-arch. The current Austroads "
-        "publication page lists a newer edition; this fallback remains pinned to the "
-        "inspected table until the newer full text is directly reviewed. Use project, "
-        "manufacturer, or MRWA diameter/corrugation-specific data when available."
+        "Table 6.4 gives Manning n = 0.024 for plain or unpaved small-corrugation "
+        "corrugated metal pipe or pipe-arch. Use project, manufacturer, or MRWA "
+        "diameter/corrugation-specific data when available."
     ),
 )
 
@@ -270,7 +268,9 @@ def resolve_manning_roughness(
 
     Explicit positive overrides always win and may include a manufacturer or project
     source. Concrete pipe and box records use the current MRWA ranges. CSP uses the
-    diameter/corrugation-specific MRWA table when both values are supplied; otherwise it
+    diameter/corrugation-specific MRWA table when both values are supplied. For standard
+    MRWA spirally wound CSP, diameter alone selects the Specification 404 corrugation and
+    the corresponding MRWA Manning value. Other incomplete or non-standard CSP context
     falls back to the Austroads generic n = 0.024 for plain or unpaved small-corrugation
     metal pipe. Plastic requires manufacturer data unless the caller explicitly opts into
     the documented HDS-5 fallback, which carries a notice.
@@ -332,22 +332,58 @@ def resolve_manning_roughness(
         if csp_corrugation is not None and nominal_diameter_mm is None:
             msg = "nominal_diameter_mm is required when csp_corrugation is supplied."
             raise InvalidInputError(msg)
-        if nominal_diameter_mm is not None and csp_corrugation is not None:
-            return ManningRoughnessSelection(
-                value=resolve_csp_manning_roughness(nominal_diameter_mm, csp_corrugation),
-                basis=RoughnessSelectionBasis.MRWA_CSP_TABLE,
-                material_name=material.name,
-                source=MRWA_CSP_REFERENCE,
-                notices=(
+
+        selected_corrugation = csp_corrugation
+        assumed_standard_corrugation = False
+        if nominal_diameter_mm is not None and selected_corrugation is None:
+            diameter = finite(nominal_diameter_mm, "nominal_diameter_mm")
+            if diameter <= 0:
+                msg = "nominal_diameter_mm must be strictly positive."
+                raise InvalidInputError(msg)
+            if diameter <= 1500:
+                selected_corrugation = CspCorrugation.PITCH_68_DEPTH_13
+                assumed_standard_corrugation = True
+            elif 1650 <= diameter <= 2100:
+                selected_corrugation = CspCorrugation.PITCH_125_DEPTH_25
+                assumed_standard_corrugation = True
+
+        if nominal_diameter_mm is not None and selected_corrugation is not None:
+            try:
+                value = resolve_csp_manning_roughness(nominal_diameter_mm, selected_corrugation)
+            except InvalidInputError:
+                if csp_corrugation is not None:
+                    raise
+            else:
+                notices: list[RoughnessApplicabilityNotice] = []
+                if assumed_standard_corrugation:
+                    notices.append(
+                        RoughnessApplicabilityNotice(
+                            code=ApplicabilityNoticeCode.MRWA_STANDARD_CSP_CORRUGATION_ASSUMPTION,
+                            message=(
+                                "CSP corrugation was not supplied; the MRWA Specification 404 "
+                                f"standard {selected_corrugation.value} corrugation was assumed "
+                                f"for nominal diameter {nominal_diameter_mm:g} mm."
+                            ),
+                            source=MRWA_SPEC404_REFERENCE,
+                        )
+                    )
+                notices.append(
                     RoughnessApplicabilityNotice(
                         code=ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
                         message=(
                             "The MRWA hydraulic lookup does not establish current product or construction compliance."
                         ),
                         source=MRWA_SPEC404_REFERENCE,
-                    ),
-                ),
-            )
+                    )
+                )
+                return ManningRoughnessSelection(
+                    value=value,
+                    basis=RoughnessSelectionBasis.MRWA_CSP_TABLE,
+                    material_name=material.name,
+                    source=MRWA_CSP_REFERENCE,
+                    notices=tuple(notices),
+                )
+
         return ManningRoughnessSelection(
             value=material.typical_n,
             basis=RoughnessSelectionBasis.AUSTROADS_CSP_GENERIC,
@@ -358,8 +394,8 @@ def resolve_manning_roughness(
                     code=ApplicabilityNoticeCode.GENERIC_CSP_ROUGHNESS_ASSUMPTION,
                     message=(
                         "Using Austroads n = 0.024 assumes plain or unpaved small-corrugation "
-                        "corrugated metal pipe. Supply explicit roughness or both diameter and "
-                        "corrugation to use more specific data."
+                        "corrugated metal pipe. Supply explicit roughness or supported MRWA "
+                        "diameter/corrugation context to use more specific data."
                     ),
                     source=AUSTROADS_CSP_REFERENCE,
                 ),
