@@ -30,10 +30,11 @@ The completed source review adopts the following method dispositions:
   correction's synthetic high-flow extension is also not adopted as primary evidence.
 - Austroads AGRD05B-23 supplies Australian design context, including allowable
   headwater, blockage, outlet velocity, scour, multiple-event checking, and reporting.
-  Austroads AGRD05A-13 edition 1.2 Table 6.4 also supplies the generic CSP roughness
+  Austroads AGRD05A-24 edition 2.2 Table 6.4 also supplies the generic CSP roughness
   fallback of `n = 0.024` for plain or unpaved small-corrugation corrugated metal pipe
-  or pipe-arch. The more-specific MRWA diameter/corrugation table takes precedence when
-  that context is available. Austroads does not displace the HDS-5 computational
+  or pipe-arch. The more-specific MRWA diameter/corrugation table takes precedence.
+  For diameter-only standard MRWA CSP, Specification 404 supplies the standard corrugation
+  needed to use that table. Austroads does not displace the HDS-5 computational
   baseline. Its convention of assigning a
   near-crown Froude number to full flow is rejected for the computational core: Froude
   number remains undefined for a pressurised closed section.
