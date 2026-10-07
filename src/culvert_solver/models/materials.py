@@ -455,6 +455,6 @@ CORRUGATED_STEEL = CulvertMaterial(
     name="Corrugated Steel Pipe",
     typical_n=0.024,
     range_n=(0.011, 0.027),
-    reference=AUSTROADS_CSP_REFERENCE,
+    reference=MRWA_CSP_REFERENCE,
     contextual_roughness_required=True,
 )
