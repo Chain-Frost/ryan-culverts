@@ -44,10 +44,12 @@ must never be discarded when supplied.
 
 MRWA Table 2.2 CSP values are implemented by diameter and corrugation through
 `resolve_csp_manning_roughness`. Unsupported explicitly specified combinations fail
-closed. An explicit positive override always wins. Issue #30 deliberately defines the
-Austroads Table 6.4 value `n = 0.024` for plain or unpaved small-corrugation corrugated
-metal pipe or pipe-arch as the generic fallback when detailed CSP corrugation context is
-not supplied; the selection carries its source and applicability notice.
+closed. An explicit positive override always wins. Issue #30 adds a diameter-only standard
+MRWA path using the Specification 404 corrugation (68 x 13 mm through 1500 mm and
+125 x 25 mm from 1650 to 2100 mm), with the assumption retained as an applicability
+notice. The Austroads Table 6.4 value `n = 0.024` for plain or unpaved small-corrugation
+corrugated metal pipe or pipe-arch remains the generic fallback when no supported MRWA
+standard context can be resolved.
 
 ### Enums, records, and JSON
 
