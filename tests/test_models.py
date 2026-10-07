@@ -141,6 +141,16 @@ def test_preliminary_roughness_resolver_reports_default_provenance() -> None:
     ]
     assert csp.notices[0].source.source_id == "MRWA-SPECIFICATION-404-2026-07-17"
 
+    generic_csp = resolve_manning_roughness(CORRUGATED_STEEL)
+    assert generic_csp.value == pytest.approx(0.024)
+    assert generic_csp.basis is RoughnessSelectionBasis.AUSTROADS_CSP_GENERIC
+    assert generic_csp.source is not None
+    assert generic_csp.source.source_id == "AUSTROADS-AGRD05A-13-TABLE-6.4"
+    assert [notice.code for notice in generic_csp.notices] == [
+        ApplicabilityNoticeCode.GENERIC_CSP_ROUGHNESS_ASSUMPTION,
+        ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
+    ]
+
 
 def test_roughness_resolution_requires_specific_concrete_and_manufacturer_plastic_data() -> None:
     with pytest.raises(InvalidInputError, match="CONCRETE_PIPE or CONCRETE_BOX"):
@@ -196,8 +206,15 @@ def test_preliminary_roughness_resolver_prioritizes_user_override() -> None:
     assert selection.source == CONCRETE.reference
     assert not selection.used_default
 
-    with pytest.raises(InvalidInputError, match="CSP preliminary roughness"):
-        resolve_manning_roughness(CORRUGATED_STEEL)
+    fallback = resolve_manning_roughness(CORRUGATED_STEEL, nominal_diameter_mm=1200)
+    assert fallback.value == pytest.approx(0.024)
+    assert fallback.basis is RoughnessSelectionBasis.AUSTROADS_CSP_GENERIC
+
+    with pytest.raises(InvalidInputError, match="nominal_diameter_mm"):
+        resolve_manning_roughness(
+            CORRUGATED_STEEL,
+            csp_corrugation=CspCorrugation.PITCH_68_DEPTH_13,
+        )
     with pytest.raises(InvalidInputError, match="value"):
         resolve_manning_roughness(CONCRETE, override=0.0)
     with pytest.raises(InvalidInputError, match="override_source requires"):
