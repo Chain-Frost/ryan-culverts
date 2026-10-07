@@ -48,8 +48,9 @@ closed. An explicit positive override always wins. Issue #30 adds a diameter-onl
 MRWA path using the Specification 404 corrugation (68 x 13 mm through 1500 mm and
 125 x 25 mm from 1650 to 2100 mm), with the assumption retained as an applicability
 notice. The Austroads Table 6.4 value `n = 0.024` for plain or unpaved small-corrugation
-corrugated metal pipe or pipe-arch remains the generic fallback when no supported MRWA
-standard context can be resolved.
+corrugated metal pipe or pipe-arch remains an explicitly accepted generic fallback when
+no supported MRWA standard context can be resolved; it is enabled only with
+`allow_documented_fallback=True`.
 
 ### Enums, records, and JSON
 
