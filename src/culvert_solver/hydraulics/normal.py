@@ -2,6 +2,7 @@
 
 import math
 from dataclasses import dataclass
+from functools import lru_cache
 
 from .._validation import finite
 from ..constants import GRAVITATIONAL_ACCELERATION
@@ -25,12 +26,17 @@ def _section_conveyance(geometry: CrossSectionGeometry, depth: float) -> float:
     return area * (radius ** (2.0 / 3.0))
 
 
-def _ellipse_max_conveyance_depth(
-    geometry: HorizontalEllipseGeometry | VerticalEllipseGeometry,
-) -> float:
-    """Locate the rising-branch conveyance maximum for a closed ellipse."""
+@lru_cache(maxsize=256)
+def _ellipse_max_conveyance_depth_for_dimensions(span: float, rise: float) -> float:
+    """Locate and cache the conveyance maximum for one ellipse geometry."""
+    geometry: HorizontalEllipseGeometry | VerticalEllipseGeometry
+    if span > rise:
+        geometry = HorizontalEllipseGeometry(span=span, rise=rise)
+    else:
+        geometry = VerticalEllipseGeometry(span=span, rise=rise)
+
     lower = 0.0
-    upper = geometry.rise
+    upper = rise
     for _ in range(80):
         first = lower + (upper - lower) / 3.0
         second = upper - (upper - lower) / 3.0
@@ -39,6 +45,13 @@ def _ellipse_max_conveyance_depth(
         else:
             upper = second
     return (lower + upper) / 2.0
+
+
+def _ellipse_max_conveyance_depth(
+    geometry: HorizontalEllipseGeometry | VerticalEllipseGeometry,
+) -> float:
+    """Return the cached rising-branch conveyance maximum for a closed ellipse."""
+    return _ellipse_max_conveyance_depth_for_dimensions(geometry.span, geometry.rise)
 
 
 @dataclass(frozen=True, slots=True)
