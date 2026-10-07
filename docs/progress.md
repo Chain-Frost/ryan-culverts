@@ -10,7 +10,8 @@ The CSP Manning resolver retains the existing MRWA diameter/corrugation-specific
 when both inputs are supplied. With diameter alone, standard MRWA CSP adopts the current
 Specification 404 corrugation (68 x 13 mm through 1500 mm and 125 x 25 mm from 1650 to
 2100 mm) and records that assumption before using the MRWA table. If no supported MRWA
-standard context can be resolved, it uses Austroads AGRD05A-24 edition 2.2 Table 6.4
+standard context can be resolved, the resolver fails closed unless the caller explicitly
+sets `allow_documented_fallback=True` to use Austroads AGRD05A-24 edition 2.2 Table 6.4
 `n = 0.024` for plain or unpaved small-corrugation corrugated metal pipe or pipe-arch.
 The generic fallback carries a typed selection basis, source provenance, an applicability
 notice, and the existing construction-compliance limitation. HDPE defaults remain
