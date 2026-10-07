@@ -110,10 +110,14 @@ resolution, but its combined roughness range is intentionally rejected as ambigu
 
 For corrugated steel pipe, explicit project/manufacturer roughness remains highest
 priority. When both nominal diameter and corrugation are supplied, the resolver uses the
-diameter/corrugation-specific MRWA table. When detailed corrugation context is absent, the
-generic fallback is Austroads `n = 0.024` for plain or unpaved small-corrugation
-corrugated metal pipe or pipe-arch. That fallback carries a machine-readable applicability
-notice and does not imply MRWA product or construction compliance.
+diameter/corrugation-specific MRWA table. With diameter alone, standard MRWA spirally wound
+CSP uses the Specification 404 corrugation: 68 x 13 mm through 1500 mm and 125 x 25 mm
+from 1650 to 2100 mm, then resolves the corresponding MRWA Manning value. That inferred
+corrugation is retained as a machine-readable applicability notice. If the diameter does
+not map to a supported MRWA table row, or no diameter is supplied, the generic fallback is
+Austroads `n = 0.024` for plain or unpaved small-corrugation corrugated metal pipe or
+pipe-arch. The generic fallback also carries an applicability notice and does not imply
+MRWA product or construction compliance.
 
 Plastic-pipe roughness is manufacturer-led. `SMOOTH_HDPE` therefore fails closed without
 an explicit override. A caller may deliberately request the HDS-5 laboratory fallback
