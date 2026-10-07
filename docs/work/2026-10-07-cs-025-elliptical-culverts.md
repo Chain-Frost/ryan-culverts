@@ -83,12 +83,19 @@ runs for pull requests (and pushes to `main`), not for a standalone feature-bran
 A draft pull request should therefore be used to obtain the authoritative hosted checks
 before this implementation slice is considered ready to merge.
 
-No local HY-8 ellipse comparison is claimed for this `ryan-culverts` branch.
-The companion orchestration is available in
-[run-hy8 PR #7](https://github.com/Chain-Frost/run-hy8/pull/7), but another agent with
-access to an installed HY-8 8.0.1.2 environment still needs to run the local executable
-validation and then generate/retain the corresponding `ryan-culverts` ellipse comparison
-fixture. Hosted CI and the run-hy8 hosted probes do not replace that local validation.
+No successful local HY-8 ellipse comparison is claimed for this `ryan-culverts`
+branch. A separate agent ran the companion
+[run-hy8 PR #7](https://github.com/Chain-Frost/run-hy8/pull/7) against an installed
+HY-8 8.0.1.2 environment on 7 October 2026. After correcting a zero-length test
+fixture, HY-8 still reported zero culvert discharge for both ellipse orientations and
+all three concrete inlet configurations, routing the requested flow over the roadway.
+
+That local result blocks HY-8 parity for CS-025. The `run-hy8` project-card contract is
+being corrected against a GUI-authored ellipse project before another local executable
+run is attempted. Once positive barrel discharge is demonstrated locally, the validation
+agent must generate and retain the corresponding version-pinned `ryan-culverts`
+comparison fixture/evidence. Hosted CI and hosted HY-8 probes do not replace that final
+local validation.
 
 ## Local validation repair, 2026-10-07
 
