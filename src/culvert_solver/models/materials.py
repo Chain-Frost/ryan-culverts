@@ -25,14 +25,16 @@ _HDS5_TABLE_B1_REF = SourceReference(
 AUSTROADS_CSP_REFERENCE = SourceReference(
     source_id="AUSTROADS-AGRD05A-13-TABLE-6.4",
     publication="Guide to Road Design Part 5A: Drainage - Road Surface, Networks, Basins and Subsurface",
-    edition="Edition 1.2, February 2021",
+    edition="Edition 1.2, February 2021; current publication page reviewed 8 October 2026",
     locator="Section 6.6, Table 6.4: Manning's n values for closed artificial channels",
     url="https://austroads.com.au/publications/road-design/agrd05a",
     applicability="Plain or unpaved corrugated metal pipe or pipe-arch with small corrugations.",
     notes=(
-        "Table 6.4 gives Manning n = 0.024 for plain or unpaved small-corrugation "
-        "corrugated metal pipe or pipe-arch. Use project, manufacturer, or MRWA "
-        "diameter/corrugation-specific data when available."
+        "The inspected 2021 Table 6.4 gives Manning n = 0.024 for plain or unpaved "
+        "small-corrugation corrugated metal pipe or pipe-arch. The current Austroads "
+        "publication page lists a newer edition; this fallback remains pinned to the "
+        "inspected table until the newer full text is directly reviewed. Use project, "
+        "manufacturer, or MRWA diameter/corrugation-specific data when available."
     ),
 )
 
@@ -364,7 +366,8 @@ def resolve_manning_roughness(
                 RoughnessApplicabilityNotice(
                     code=ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
                     message=(
-                        "A generic hydraulic roughness default does not establish MRWA product or construction compliance."
+                        "A generic hydraulic roughness default does not establish MRWA "
+                        "product or construction compliance."
                     ),
                     source=MRWA_SPEC404_REFERENCE,
                 ),
