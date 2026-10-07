@@ -46,6 +46,7 @@ class ApplicabilityNoticeCode(StrEnum):
     MANUFACTURER_DATA_NOT_SUPPLIED = "manufacturer_data_not_supplied"
     HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE = "hydraulic_value_not_construction_compliance"
     GENERIC_CSP_ROUGHNESS_ASSUMPTION = "generic_csp_roughness_assumption"
+    MRWA_STANDARD_CSP_CORRUGATION_ASSUMPTION = "mrwa_standard_csp_corrugation_assumption"
     REPRESENTATIVE_BARREL_EQUAL_FLOW = "representative_barrel_equal_flow"
 
 
