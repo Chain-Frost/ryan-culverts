@@ -83,8 +83,12 @@ runs for pull requests (and pushes to `main`), not for a standalone feature-bran
 A draft pull request should therefore be used to obtain the authoritative hosted checks
 before this implementation slice is considered ready to merge.
 
-No HY-8 ellipse executable comparison is claimed. That external validation remains blocked
-on [run-hy8 issue #5](https://github.com/Chain-Frost/run-hy8/issues/5).
+No local HY-8 ellipse comparison is claimed for this `ryan-culverts` branch.
+The companion orchestration is available in
+[run-hy8 PR #7](https://github.com/Chain-Frost/run-hy8/pull/7), but another agent with
+access to an installed HY-8 8.0.1.2 environment still needs to run the local executable
+validation and then generate/retain the corresponding `ryan-culverts` ellipse comparison
+fixture. Hosted CI and the run-hy8 hosted probes do not replace that local validation.
 
 ## Local validation repair, 2026-10-07
 
