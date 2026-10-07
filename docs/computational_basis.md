@@ -175,8 +175,11 @@ ranges; Table 2.2 supplies diameter/corrugation-specific CSP values. The MRWA Pa
 supplement requires plastic-pipe Manning roughness from the applicable manufacturer.
 Accordingly, generic concrete roughness and missing material context fail explicitly,
 while a plastic HDS-5 laboratory value is available only through a deliberate fallback
-flag with structured applicability notices. Hydraulic defaults and construction
-compliance remain separate decisions. No HY-8 fallback value has been adopted.
+flag with structured applicability notices. Elliptical inlet-control and entrance-loss
+records are source-backed catalogue choices, not geometry/material defaults: the actual
+ellipse inlet treatment must be supplied explicitly because square-edge, groove-ended,
+and projecting configurations are hydraulically distinct. Hydraulic defaults and
+construction compliance remain separate decisions. No HY-8 fallback value has been adopted.
 
 The repository implements circular, horizontal/vertical elliptical, and rectangular geometry,
 hydraulic primitives,
