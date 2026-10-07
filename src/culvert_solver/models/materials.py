@@ -335,7 +335,7 @@ def resolve_manning_roughness(
             raise InvalidInputError(msg)
 
         selected_corrugation = csp_corrugation
-        assumed_standard_corrugation = False
+        assumed_standard_corrugation: CspCorrugation | None = None
         if nominal_diameter_mm is not None and selected_corrugation is None:
             diameter = finite(nominal_diameter_mm, "nominal_diameter_mm")
             if diameter <= 0:
@@ -343,10 +343,10 @@ def resolve_manning_roughness(
                 raise InvalidInputError(msg)
             if diameter <= 1500:
                 selected_corrugation = CspCorrugation.PITCH_68_DEPTH_13
-                assumed_standard_corrugation = True
+                assumed_standard_corrugation = CspCorrugation.PITCH_68_DEPTH_13
             elif 1650 <= diameter <= 2100:
                 selected_corrugation = CspCorrugation.PITCH_125_DEPTH_25
-                assumed_standard_corrugation = True
+                assumed_standard_corrugation = CspCorrugation.PITCH_125_DEPTH_25
 
         if nominal_diameter_mm is not None and selected_corrugation is not None:
             try:
@@ -356,13 +356,13 @@ def resolve_manning_roughness(
                     raise
             else:
                 notices: list[RoughnessApplicabilityNotice] = []
-                if assumed_standard_corrugation:
+                if assumed_standard_corrugation is not None:
                     notices.append(
                         RoughnessApplicabilityNotice(
                             code=ApplicabilityNoticeCode.MRWA_STANDARD_CSP_CORRUGATION_ASSUMPTION,
                             message=(
                                 "CSP corrugation was not supplied; the MRWA Specification 404 "
-                                f"standard {selected_corrugation.value} corrugation was assumed "
+                                f"standard {assumed_standard_corrugation.value} corrugation was assumed "
                                 f"for nominal diameter {nominal_diameter_mm:g} mm."
                             ),
                             source=MRWA_SPEC404_REFERENCE,
