@@ -103,8 +103,11 @@ resolvers no longer treat a missing material as concrete; callers must identify 
 material or supply the relevant coefficients explicitly. Explicit overrides and
 barrel-attached values retain precedence over `SolverConfiguration` defaults. Horizontal
 and vertical concrete ellipses use their own HDS-5 Table A.2 inlet categories rather than
-reusing circular coefficients. HDS-5 Table C.2 concrete-pipe entrance-loss values are
-represented by separately shape-tagged ellipse records so applicability remains explicit.
+reusing circular coefficients. Because HDS-5 lists multiple valid ellipse inlet treatments,
+geometry and material alone are insufficient to choose one: ellipse inlet-control and
+entrance-loss resolution therefore require explicit barrel-attached or user-supplied
+coefficients. HDS-5 Table C.2 concrete-pipe entrance-loss values are represented by
+shape-tagged ellipse records where supported so applicability remains explicit.
 
 Concrete roughness records are separated into `CONCRETE_PIPE` and `CONCRETE_BOX`, with
 the current MRWA Table 2.1 ranges and source metadata. The compatibility-level
