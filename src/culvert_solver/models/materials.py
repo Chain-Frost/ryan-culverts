@@ -22,6 +22,20 @@ _HDS5_TABLE_B1_REF = SourceReference(
     ),
 )
 
+AUSTROADS_CSP_REFERENCE = SourceReference(
+    source_id="AUSTROADS-AGRD05A-13-TABLE-6.4",
+    publication="Guide to Road Design Part 5A: Drainage - Road Surface, Networks, Basins and Subsurface",
+    edition="Edition 1.2, February 2021",
+    locator="Section 6.6, Table 6.4: Manning's n values for closed artificial channels",
+    url="https://austroads.com.au/publications/road-design/agrd05a",
+    applicability="Plain or unpaved corrugated metal pipe or pipe-arch with small corrugations.",
+    notes=(
+        "Table 6.4 gives Manning n = 0.024 for plain or unpaved small-corrugation "
+        "corrugated metal pipe or pipe-arch. Use project, manufacturer, or MRWA "
+        "diameter/corrugation-specific data when available."
+    ),
+)
+
 MRWA_CSP_REFERENCE = SourceReference(
     source_id="MRWA-CULVERT-DESIGN-PROCEDURE-TABLE-2.2",
     publication="Design Procedure - Culverts",
@@ -253,9 +267,11 @@ def resolve_manning_roughness(
     """Resolve an overridable preliminary Manning value for hydraulic calculations.
 
     Explicit positive overrides always win and may include a manufacturer or project
-    source. Concrete pipe and box records use the current MRWA ranges. Context-dependent
-    CSP requires diameter and corrugation. Plastic requires manufacturer data unless the
-    caller explicitly opts into the documented HDS-5 fallback, which carries a notice.
+    source. Concrete pipe and box records use the current MRWA ranges. CSP uses the
+    diameter/corrugation-specific MRWA table when both values are supplied; otherwise it
+    falls back to the Austroads generic n = 0.024 for plain or unpaved small-corrugation
+    metal pipe. Plastic requires manufacturer data unless the caller explicitly opts into
+    the documented HDS-5 fallback, which carries a notice.
     """
     if override is not None:
         return ManningRoughnessSelection(
@@ -311,19 +327,44 @@ def resolve_manning_roughness(
         if material != CORRUGATED_STEEL:
             msg = f"No contextual roughness resolver is registered for material {material.name!r}."
             raise InvalidInputError(msg)
-        if nominal_diameter_mm is None or csp_corrugation is None:
-            msg = "CSP preliminary roughness requires nominal_diameter_mm and csp_corrugation, or an explicit override."
+        if csp_corrugation is not None and nominal_diameter_mm is None:
+            msg = "nominal_diameter_mm is required when csp_corrugation is supplied."
             raise InvalidInputError(msg)
+        if nominal_diameter_mm is not None and csp_corrugation is not None:
+            return ManningRoughnessSelection(
+                value=resolve_csp_manning_roughness(nominal_diameter_mm, csp_corrugation),
+                basis=RoughnessSelectionBasis.MRWA_CSP_TABLE,
+                material_name=material.name,
+                source=MRWA_CSP_REFERENCE,
+                notices=(
+                    RoughnessApplicabilityNotice(
+                        code=ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
+                        message=(
+                            "The MRWA hydraulic lookup does not establish current product or construction compliance."
+                        ),
+                        source=MRWA_SPEC404_REFERENCE,
+                    ),
+                ),
+            )
         return ManningRoughnessSelection(
-            value=resolve_csp_manning_roughness(nominal_diameter_mm, csp_corrugation),
-            basis=RoughnessSelectionBasis.MRWA_CSP_TABLE,
+            value=material.typical_n,
+            basis=RoughnessSelectionBasis.AUSTROADS_CSP_GENERIC,
             material_name=material.name,
-            source=MRWA_CSP_REFERENCE,
+            source=AUSTROADS_CSP_REFERENCE,
             notices=(
+                RoughnessApplicabilityNotice(
+                    code=ApplicabilityNoticeCode.GENERIC_CSP_ROUGHNESS_ASSUMPTION,
+                    message=(
+                        "Using Austroads n = 0.024 assumes plain or unpaved small-corrugation "
+                        "corrugated metal pipe. Supply explicit roughness or both diameter and "
+                        "corrugation to use more specific data."
+                    ),
+                    source=AUSTROADS_CSP_REFERENCE,
+                ),
                 RoughnessApplicabilityNotice(
                     code=ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
                     message=(
-                        "The MRWA hydraulic lookup does not establish current product or construction compliance."
+                        "A generic hydraulic roughness default does not establish MRWA product or construction compliance."
                     ),
                     source=MRWA_SPEC404_REFERENCE,
                 ),
@@ -372,10 +413,9 @@ SMOOTH_HDPE = CulvertMaterial(
 )
 
 CORRUGATED_STEEL = CulvertMaterial(
-    name="Corrugated Steel Pipe (diameter/corrugation-specific n required)",
-    # Catalog value retained for compatibility; do not use it as an automatic CSP default.
+    name="Corrugated Steel Pipe",
     typical_n=0.024,
     range_n=(0.011, 0.027),
-    reference=MRWA_CSP_REFERENCE,
+    reference=AUSTROADS_CSP_REFERENCE,
     contextual_roughness_required=True,
 )
