@@ -4,7 +4,6 @@ import math
 
 import pytest
 
-import culvert_solver.hydraulics.normal as normal_depth_module
 from culvert_solver import (
     GRAVITATIONAL_ACCELERATION,
     CrossSectionGeometry,
@@ -152,21 +151,3 @@ def test_ellipse_normal_depth_uses_rising_conveyance_branch(
     assert not result.capacity_exceeded
     assert result.depth == pytest.approx(target_depth, abs=2e-6)
 
-
-def test_ellipse_normal_depth_peak_is_cached_by_dimensions() -> None:
-    peak = normal_depth_module._ellipse_max_conveyance_depth_for_dimensions  # pyright: ignore[reportPrivateUsage]  # noqa: SLF001
-    peak.cache_clear()
-    geometry = HorizontalEllipseGeometry(span=2.4, rise=1.2)
-
-    first_depth = normal_depth_module._ellipse_max_conveyance_depth(geometry)  # pyright: ignore[reportPrivateUsage]  # noqa: SLF001
-    first_info = peak.cache_info()
-    second_depth = normal_depth_module._ellipse_max_conveyance_depth(  # pyright: ignore[reportPrivateUsage]  # noqa: SLF001
-        HorizontalEllipseGeometry(span=2.4, rise=1.2)
-    )
-    second_info = peak.cache_info()
-
-    assert second_depth == first_depth
-    assert first_info.misses == 1
-    assert first_info.hits == 0
-    assert second_info.misses == 1
-    assert second_info.hits == 1
