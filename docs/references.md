@@ -186,12 +186,11 @@ Neither its HTML equation text nor a software result replaces a typeset source.
 
 ### Australian application guidance
 
-[Austroads AGRD05A-13][austroads-5a]: *Guide to Road Design Part 5A: Drainage – Road
-Surface, Networks, Basins and Subsurface*, edition 1.2, February 2021. Table 6.4 gives
-Manning `n = 0.024` for plain or unpaved corrugated metal pipe or pipe-arch with small
-corrugations. The library uses this only as the generic CSP fallback when a user has not
-supplied project/manufacturer roughness and the diameter/corrugation context needed for
-the more-specific MRWA lookup is absent.
+[Austroads AGRD05A-24][austroads-5a]: *Guide to Road Design Part 5A: Drainage – Road
+Surface, Networks, Basins and Subsurface*, edition 2.2, 23 December 2024. Section 6.6.5,
+Table 6.4 (page 115) gives Manning `n = 0.024` for plain or unpaved corrugated metal
+pipe or pipe-arch with small corrugations. The library uses this only as the generic CSP
+fallback after explicit data and an applicable MRWA standard diameter/corrugation lookup.
 
 [Austroads AGRD05B-23][austroads]: *Guide to Road Design Part 5B: Drainage – Open
 Channels, Culverts and Floodway Crossings*, edition 1.2, 30 January 2023.
@@ -222,9 +221,13 @@ distinct smooth concrete-pipe and concrete-box ranges. Table 2.2 gives
 diameter- and corrugation-specific Manning values for helically wound CSP and attributes
 them to AISI (1999). The Part 5B supplement directs designers to manufacturer information
 first and Table 3.1 (the same values) when it is absent. The typed CSP lookup uses
-these values and rejects combinations marked unavailable. When detailed CSP corrugation
-context is not supplied, the resolver falls back to the sourced Austroads small-corrugation
-value of `n = 0.024` with an explicit applicability notice. Plastic-pipe values must
+these values and rejects explicitly supplied combinations marked unavailable. With
+diameter alone, current Specification 404 defines the standard spirally wound CSP
+corrugation as 68 x 13 mm through 1500 mm and 125 x 25 mm from 1650 to 2100 mm; the
+resolver uses that standard corrugation to select the MRWA table value and records the
+assumption. Where no supported MRWA standard context can be resolved, it falls back to
+the Austroads small-corrugation value of `n = 0.024` with an explicit applicability
+notice. Plastic-pipe values must
 come from the applicable manufacturer; any future HY-8 plastic value is a documented
 fallback, not an MRWA value. The implemented resolver separates concrete pipe and box,
 requires manufacturer plastic data by default, and attaches source-bearing notices to an
