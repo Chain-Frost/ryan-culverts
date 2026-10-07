@@ -114,10 +114,11 @@ diameter/corrugation-specific MRWA table. With diameter alone, standard MRWA spi
 CSP uses the Specification 404 corrugation: 68 x 13 mm through 1500 mm and 125 x 25 mm
 from 1650 to 2100 mm, then resolves the corresponding MRWA Manning value. That inferred
 corrugation is retained as a machine-readable applicability notice. If the diameter does
-not map to a supported MRWA table row, or no diameter is supplied, the generic fallback is
-Austroads `n = 0.024` for plain or unpaved small-corrugation corrugated metal pipe or
-pipe-arch. The generic fallback also carries an applicability notice and does not imply
-MRWA product or construction compliance.
+not map to a supported MRWA table row, or no diameter is supplied, the resolver fails
+closed unless `allow_documented_fallback=True` explicitly accepts Austroads `n = 0.024`
+for plain or unpaved small-corrugation corrugated metal pipe or pipe-arch. The generic
+fallback carries an applicability notice and does not imply MRWA product or construction
+compliance.
 
 Plastic-pipe roughness is manufacturer-led. `SMOOTH_HDPE` therefore fails closed without
 an explicit override. A caller may deliberately request the HDS-5 laboratory fallback
