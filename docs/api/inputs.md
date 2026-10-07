@@ -9,6 +9,25 @@ rating-curve solvers. It accepts either an absolute water-surface elevation in m
 increasing discharge and nondecreasing absolute elevation. It returns exact tabulated
 stages or linear interpolation inside the supplied range and rejects extrapolation.
 
+## Standard culvert defaults
+
+When inlet-control coefficients and entrance-loss coefficients are omitted, the default
+solver configuration resolves the following common physical arrangements from geometry and
+material:
+
+| Geometry/material | Default arrangement | Entrance loss |
+| --- | --- | ---: |
+| Circular `CORRUGATED_STEEL` | CSP projecting from fill | `Ke = 0.9` |
+| Circular `CONCRETE_PIPE` | Square-edge headwall or headwall with wingwalls | `Ke = 0.5` |
+| Rectangular `CONCRETE_BOX` | Square top edge with 30–75° flared wingwalls, including 45° | `Ke = 0.4` |
+
+Explicit barrel or resolver values override these defaults. For CSP roughness, an explicit
+project/manufacturer value wins; otherwise an explicit diameter/corrugation pair uses the
+MRWA table. Diameter-only standard MRWA CSP uses the Specification 404 corrugation before
+the MRWA table. Other unresolved CSP context falls back to Austroads `n = 0.024` for
+plain or unpaved small-corrugation corrugated metal pipe, with an applicability notice.
+HDPE does not receive an automatic inlet/loss arrangement.
+
 Roadway overtopping accepts either a constant-elevation `RoadwayWeir` or an irregular
 `RoadwayProfileWeir`. Irregular profiles use a `RoadwayCrestProfile` of strictly increasing
 `RoadwayCrestPoint` station/elevation coordinates. Free overflow does not require a surface
