@@ -271,9 +271,10 @@ def resolve_manning_roughness(
     diameter/corrugation-specific MRWA table when both values are supplied. For standard
     MRWA spirally wound CSP, diameter alone selects the Specification 404 corrugation and
     the corresponding MRWA Manning value. Other incomplete or non-standard CSP context
-    falls back to the Austroads generic n = 0.024 for plain or unpaved small-corrugation
-    metal pipe. Plastic requires manufacturer data unless the caller explicitly opts into
-    the documented HDS-5 fallback, which carries a notice.
+    fails closed unless ``allow_documented_fallback=True`` explicitly accepts the Austroads
+    generic n = 0.024 for plain or unpaved small-corrugation metal pipe. Plastic likewise
+    requires manufacturer data unless the caller explicitly opts into the documented HDS-5
+    fallback, which carries a notice.
     """
     if override is not None:
         return ManningRoughnessSelection(
@@ -383,6 +384,15 @@ def resolve_manning_roughness(
                     source=MRWA_CSP_REFERENCE,
                     notices=tuple(notices),
                 )
+
+        if not allow_documented_fallback:
+            msg = (
+                "No applicable MRWA CSP roughness default could be resolved. Supply project/manufacturer "
+                "roughness, supported nominal diameter/corrugation context, or set "
+                "allow_documented_fallback=True to explicitly adopt the Austroads n = 0.024 "
+                "plain/unpaved small-corrugation fallback."
+            )
+            raise InvalidInputError(msg)
 
         return ManningRoughnessSelection(
             value=material.typical_n,
