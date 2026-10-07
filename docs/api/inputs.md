@@ -24,8 +24,9 @@ material:
 Explicit barrel or resolver values override these defaults. For CSP roughness, an explicit
 project/manufacturer value wins; otherwise an explicit diameter/corrugation pair uses the
 MRWA table. Diameter-only standard MRWA CSP uses the Specification 404 corrugation before
-the MRWA table. Other unresolved CSP context falls back to Austroads `n = 0.024` for
-plain or unpaved small-corrugation corrugated metal pipe, with an applicability notice.
+the MRWA table. Other unresolved CSP context fails closed unless `allow_documented_fallback=True`
+explicitly accepts Austroads `n = 0.024` for plain or unpaved small-corrugation
+corrugated metal pipe; the selection then carries an applicability notice.
 HDPE does not receive an automatic inlet/loss arrangement.
 
 Roadway overtopping accepts either a constant-elevation `RoadwayWeir` or an irregular
