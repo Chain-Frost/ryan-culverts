@@ -36,9 +36,11 @@ high-precision perimeter ordinates at quarter depth and analytical area/symmetry
 
 Closed ellipses, like circular conduits, reach maximum Manning conveyance below the crown.
 The normal-depth solver therefore locates the ellipse conveyance maximum and solves only on
-the rising branch. A regression constructs discharge from a 0.90-rise target depth, where
-conveyance is already greater than the full-section value, to prevent regression to the
-previous full-capacity shortcut.
+the rising branch. The geometry-only peak search is cached by ellipse span/rise so repeated
+rating-curve and inverse-solver evaluations do not rerun the numerical maximisation. A
+regression constructs discharge from a 0.90-rise target depth, where conveyance is already
+greater than the full-section value, to prevent regression to the previous full-capacity
+shortcut.
 
 ## Empirical applicability
 
@@ -53,13 +55,21 @@ records rather than broadening the existing circular record. The existing source
 `CONCRETE_PIPE` material remains applicable; this slice does not invent new material
 records simply to satisfy the issue heading.
 
+Ellipse coefficient resolution deliberately has no geometry/material default. HDS-5
+catalogues several inlet treatments with different empirical constants, so selecting
+square-edge/headwall merely because a culvert is a concrete ellipse would be ambiguous.
+Callers must explicitly attach or override the applicable inlet-control coefficient set and
+entrance-loss coefficient. This is stricter than the legacy circular/box default behaviour
+and follows the repository fail-closed policy.
+
 ## External validation boundary
 
-The independent analytical tests do not claim HY-8 parity. `run-hy8` currently exposes
-only circle and box shapes, so it cannot yet generate a trustworthy ellipse project.
-[run-hy8 issue #5](https://github.com/Chain-Frost/run-hy8/issues/5) tracks the required
-version-pinned shape code, inlet-index mapping, reader/writer round trips and local HY-8
-8.0.1.2 executable probes for both ellipse orientations.
+The independent analytical tests do not by themselves claim HY-8 parity. The companion
+`run-hy8` work is now implemented in
+[run-hy8 PR #7](https://github.com/Chain-Frost/run-hy8/pull/7), with version-pinned
+HY-8 8.0.1.2 shape/inlet mappings and executable probes for both ellipse orientations.
+That PR is not yet merged, and this `ryan-culverts` branch has not yet retained a fresh
+ellipse comparison fixture, so external parity remains a separate validation step.
 
 ## Verification status
 
