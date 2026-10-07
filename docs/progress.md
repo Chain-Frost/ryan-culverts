@@ -1,5 +1,20 @@
 # Development progress
 
+## 2026-10-08 - Issue #30 CSP default arrangement and roughness fallback
+
+Changed the default circular corrugated-steel arrangement from headwall to projecting ends
+for both HDS-5 inlet-control coefficients and outlet-control entrance loss. Explicit
+barrel/user coefficient overrides remain higher priority.
+
+The CSP Manning resolver now retains the existing MRWA diameter/corrugation-specific table
+when both inputs are supplied. If detailed corrugation context is absent, it uses the
+Austroads AGRD05A-13 edition 1.2 Table 6.4 generic value `n = 0.024` for plain or
+unpaved small-corrugation corrugated metal pipe or pipe-arch. The fallback carries a typed
+selection basis, source provenance, a generic-assumption notice, and the existing
+construction-compliance limitation. HDPE defaults remain unchanged and out of scope.
+
+Verification is recorded on PR #31.
+
 ## 2026-10-06 - CS-015 Austroads worked-example velocity
 
 Resolved the AGRD05B-23 edition 1.2 Section 3.15.1 full-flow velocity inconsistency
