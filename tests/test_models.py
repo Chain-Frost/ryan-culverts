@@ -152,7 +152,6 @@ def test_preliminary_roughness_resolver_reports_default_provenance() -> None:
     ]
 
 
-
 @pytest.mark.parametrize(
     ("diameter_mm", "expected_n"),
     [
@@ -228,6 +227,7 @@ def test_explicit_csp_roughness_override_precedes_invalid_context() -> None:
     assert selection.value == pytest.approx(0.019)
     assert selection.basis is RoughnessSelectionBasis.USER_OVERRIDE
     assert not selection.notices
+
 
 def test_roughness_resolution_requires_specific_concrete_and_manufacturer_plastic_data() -> None:
     with pytest.raises(InvalidInputError, match="CONCRETE_PIPE or CONCRETE_BOX"):
