@@ -10,8 +10,8 @@ that HY-8 uses identical interior-section numerical methods.
 
 import math
 from collections.abc import Callable
-from typing import Self
 from functools import lru_cache
+from typing import Self
 
 from .._validation import finite
 from ..exceptions import InvalidInputError
