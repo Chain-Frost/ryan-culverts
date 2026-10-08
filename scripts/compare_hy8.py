@@ -55,7 +55,6 @@ from culvert_solver import (
     CulvertBarrel,
     CulvertCrossing,
     CulvertGroup,
-    HorizontalEllipseGeometry,
     Hy8ConcreteOvalGeometry,
     RectangularGeometry,
     solve_barrel_hydraulics,
