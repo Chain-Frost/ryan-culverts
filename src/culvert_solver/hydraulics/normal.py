@@ -137,7 +137,9 @@ def calculate_normal_depth(
     k_req: float = (n * q) / math.sqrt(s0)
 
     # Closed circles and ellipses reach maximum conveyance before the crown.
-    if isinstance(geometry, (CircularGeometry, HorizontalEllipseGeometry, VerticalEllipseGeometry, Hy8ConcreteOvalGeometry)):
+    if isinstance(
+        geometry, (CircularGeometry, HorizontalEllipseGeometry, VerticalEllipseGeometry, Hy8ConcreteOvalGeometry)
+    ):
         y_peak = _closed_section_max_conveyance_depth(geometry)
         k_max = _section_conveyance(geometry, y_peak)
         k_full = _section_conveyance(geometry, geometry.rise)
