@@ -62,40 +62,79 @@ Callers must explicitly attach or override the applicable inlet-control coeffici
 entrance-loss coefficient. This is stricter than the legacy circular/box default behaviour
 and follows the repository fail-closed policy.
 
-## External validation boundary
+## External validation boundary (updated 2026-10-08)
 
-The independent analytical tests do not by themselves claim HY-8 parity. The companion
-`run-hy8` work is now implemented in
-[run-hy8 PR #7](https://github.com/Chain-Frost/run-hy8/pull/7), with version-pinned
-HY-8 8.0.1.2 shape/inlet mappings and executable probes for both ellipse orientations.
-That PR is not yet merged, and this `ryan-culverts` branch has not yet retained a fresh
-ellipse comparison fixture, so external parity remains a separate validation step.
+The companion [run-hy8 PR #7](https://github.com/Chain-Frost/run-hy8/pull/7)
+was merged on 8 October 2026. This branch's optional `external-validation`
+dependency is now pinned to the merged `run-hy8` commit
+`28e7909afd5ae53c4357380ef70c5f2e482c917d`. The HY-8 v8.0.1.2
+ShapeDB-backed adapter supports 23 concrete and 40 steel-or-aluminum
+**catalogue sizes** and rejects arbitrary/reversed dimension pairs.
+Its ellipse catalogue does not expose a generic vertical-orientation switch.
+Consequently, the `VerticalEllipseGeometry` mathematical geometry introduced
+here does not currently have an equivalent runnable HY-8 catalogue case.
 
-## Verification status
+### Critical distinction: nominal size is not identical geometry
 
-The branch was reviewed structurally after implementation. The modified Python core files
-contained no lines longer than 120 characters, and the branch was confirmed to be based
-directly on `main` with no divergence at handoff.
+`HorizontalEllipseGeometry` and `VerticalEllipseGeometry` in this PR
+represent **mathematically exact ellipses**. HY-8's v8.0.1.2 ShapeDB
+represents its nominal elliptical products using a standard-profile record
+(`Br/Tr/Cr/B`) with a separate authoritative area. Even when nominal
+span/rise agree, full-section areas do not necessarily agree:
 
-No local Python test, Ruff, Pyright, Markdown, MkDocs, build, or installed-wheel execution
-is claimed from the GitHub-only implementation environment. The repository CI workflow
-runs for pull requests (and pushes to `main`), not for a standalone feature-branch push.
-A draft pull request should therefore be used to obtain the authoritative hosted checks
-before this implementation slice is considered ready to merge.
+| Concrete catalogue (inch) | Exact ellipse area (ft²) | ShapeDB area (ft²) | ShapeDB vs exact |
+| --- | ---: | ---: | ---: |
+| 23 × 14 | 1.756238 | 1.820000 | +3.63% |
+| 60 × 38 | 12.435471 | 12.850000 | +3.33% |
+| 68 × 43 | 15.947946 | 16.490000 | +3.40% |
+| 121 × 77 | 50.816352 | 52.470001 | +3.25% |
 
-No successful local HY-8 ellipse comparison is claimed for this `ryan-culverts`
-branch. A separate agent ran the companion
-[run-hy8 PR #7](https://github.com/Chain-Frost/run-hy8/pull/7) against an installed
-HY-8 8.0.1.2 environment on 7 October 2026. After correcting a zero-length test
-fixture, HY-8 still reported zero culvert discharge for both ellipse orientations and
-all three concrete inlet configurations, routing the requested flow over the roadway.
+The full 23-entry concrete catalogue has a nonzero area discrepancy at
+every size; observed differences range from approximately +0.50% to +4.14%.
+Calculation: `A_exact = pi * span_in * rise_in / (4 * 144)` ft²,
+compared with `run_hy8.CONCRETE_ELLIPSE_CATALOGUE[*].area_ft2` at the pinned commit.
+The source of the ShapeDB data is HY-8 8.0.1.2 `ShapeDB.dat` with SHA-256
+`2479e9444feaff529313e18a1b26fc2de4f6b6c541db58477da6bebc602164a7`.
 
-That local result blocks HY-8 parity for CS-025. The `run-hy8` project-card contract is
-being corrected against a GUI-authored ellipse project before another local executable
-run is attempted. Once positive barrel discharge is demonstrated locally, the validation
-agent must generate and retain the corresponding version-pinned `ryan-culverts`
-comparison fixture/evidence. Hosted CI and hosted HY-8 probes do not replace that final
-local validation.
+This is a **model-geometry difference**, not a permissible calibration
+residual. It prevents claiming geometric parity or treating headwater
+differences as solely numerical/solver defects. Exact mathematical ellipses
+remain useful independent geometries, but native HY-8 product-profile parity
+requires a separate source-backed standard-profile geometry implementation.
+Do not silently replace the existing mathematical geometry or tune empirical
+inlet coefficients to conceal the area difference.
+
+### Verification status and next validation gate
+
+- The earlier local HY-8 run of 7 October produced zero elliptical barrel
+  discharge. Its generated projects were subsequently corrected in
+  `run-hy8` by populating HY-8's ShapeDB `BARRELGEOMETRY` fields; positive
+  flow is now reported by its hosted executable probes. The earlier failed
+  project is **historical**, not a current-head validation result.
+- The 8 October `run-hy8` merge does not supply an independent
+  `ryan-culverts` comparison fixture. The `ryan-culverts` ellipse geometry,
+  inlet/output regimes, velocity and headwater are not yet HY-8-validated.
+- Retain **version-pinned local Windows HY-8 8.0.1.2** concrete cases at
+  exact catalogue sizes, multiple flows and physical inlets, with raw
+  `.hy8`, `.rst`, `.rsql`, measured executable version/path, and
+  a quantitative comparison CSV.
+- Record discharge partition, headwater, outlet velocity, control state,
+  nominal geometry and both full-section areas. Reject unrequested
+  roadway overtopping and incomplete/zero barrel discharge.
+- Classify geometry mismatch separately from inlet/profile/control-method
+  discrepancies. Seek independent shape/profile evidence for vertical
+  ellipses; do not invent a reversed HY-8 catalogue size.
+- The previously recorded hosted Python 3.14 CI passed on the original
+  review-adjusted branch. Recheck CI on the new dependency-pin commit before
+  asserting a final status. Hosted Python CI is not a substitute for the
+  executable comparison.
+
+## Verification status (historical)
+
+The original implementation was reviewed structurally in a GitHub-only
+environment without a locally executed suite. Subsequent local repair and
+hosted CI ran after that review; see the section below. The historical
+checks do not establish HY-8 engineering parity.
 
 ## Local validation repair, 2026-10-07
 
