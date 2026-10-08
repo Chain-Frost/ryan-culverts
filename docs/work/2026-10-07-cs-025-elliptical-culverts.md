@@ -103,12 +103,45 @@ The source of the ShapeDB data is HY-8 8.0.1.2 `ShapeDB.dat` with SHA-256
 `2479e9444feaff529313e18a1b26fc2de4f6b6c541db58477da6bebc602164a7`.
 
 This is a **model-geometry difference**, not a permissible calibration
-residual. It prevents claiming geometric parity or treating headwater
-differences as solely numerical/solver defects. Exact mathematical ellipses
-remain useful independent geometries, but native HY-8 product-profile parity
-requires a separate source-backed standard-profile geometry implementation.
-Do not silently replace the existing mathematical geometry or tune empirical
-inlet coefficients to conceal the area difference.
+residual. Exact mathematical ellipses remain useful independent geometries.
+Do not silently replace their mathematics or tune empirical inlet coefficients
+to conceal the difference.
+
+### Four-arc HY-8 profile reconstruction (2026-10-08)
+
+The new `Hy8ConcreteOvalGeometry` represents a **separate, explicit**
+catalogued concrete oval rather than changing `HorizontalEllipseGeometry`.
+The source-pinned, dependency-free catalogue is
+`src/culvert_solver/geometry/hy8_oval_catalogue.py`. It retains ShapeDB
+top/bottom/corner radii, half rise, nominal dimensions, tabulated full area,
+and Manning roughness. Source: HY-8 8.0.1.2 / `run-hy8` merge commit
+`28e7909afd5ae53c4357380ef70c5f2e482c917d` plus FHWA HEC-10
+Section VII.C (the standard oval is constructed from two pairs of arcs,
+not a mathematical ellipse).
+
+`Hy8ConcreteOvalGeometry.from_mm(span_mm, rise_mm)` requires a matching
+catalogue entry, without nearest-size substitution or rotation. The
+reconstructed profile uses the long and short radii for tangent arcs and
+scales the horizontal coordinate to the catalogue's nominal span.
+Arc-area integrals are analytical; wetted arcs use smooth angle-domain
+Simpson integration. The library verifies the resulting full area against
+the **separate** ShapeDB full area, failing closed above a 0.5% internal
+data-reconciliation difference. This is a *source consistency criterion*,
+not a headwater accuracy claim.
+
+Concrete rows 2 (34 × 22 in; about +2.28%) and 22 (180 × 116 in; about
+-0.87%) cannot yet be reconciled from the rounded source radii and are
+rejected for hydraulic use. The remaining 21 entries may be selected;
+their partial-depth geometry has numerical/contract tests, but **HY-8
+executable parity remains unverified**. The library does not force its
+calculated full area to the ShapeDB value by changing Manning's `n` or
+inlet coefficients. Steel-or-aluminum profile support is not implied by
+this concrete-only class.
+
+The opt-in six-case comparison now builds its local sections from
+`Hy8ConcreteOvalGeometry` rather than mathematically exact ellipses.
+Users needing an arbitrary mathematical elliptical cross-section can
+still select `HorizontalEllipseGeometry` or `VerticalEllipseGeometry`.
 
 ### Verification status and next validation gate
 
@@ -126,8 +159,9 @@ catalogue sizes, each at 0.5, 1.0 and 2.0 m³/s). The default legacy
 circular/CSP/box comparison matrix is unchanged. The mode writes
 headwater, velocity, control/regime, per-culvert flow and diagnostics
 and retains the native HY-8 outputs when `--workspace` is set.
-Its comparison CSV must be read together with the geometry audit;
-this is **quantitative discrepancy evidence**, not geometric parity.
+Its comparison CSV must be read together with the ShapeDB catalogue and
+arc-reconstruction area discrepancies; it is **quantitative comparison
+instrumentation**, not a claim of HY-8 parity.
 
 With `run-hy8` installed from the pinned `external-validation` extra,
 run the following on Windows with HY-8 8.0.1.2 installed:
