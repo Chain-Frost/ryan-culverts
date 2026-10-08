@@ -29,7 +29,6 @@ explicitly accepts Austroads `n = 0.024` for plain or unpaved small-corrugation
 corrugated metal pipe; the selection then carries an applicability notice.
 HDPE does not receive an automatic inlet/loss arrangement.
 
-
 ### Canonical CSP barrel construction
 
 `CulvertBarrel.roughness` remains an explicit SI input. The core barrel dataclass does
