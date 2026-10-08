@@ -7,6 +7,7 @@ from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
 from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.critical import CriticalDepthResult, calculate_critical_depth
@@ -98,7 +99,7 @@ def _default_coefficients_for_barrel(barrel: CulvertBarrel) -> InletCoefficients
             "provide inlet_coefficients explicitly."
         )
         raise InvalidInputError(msg)
-    if isinstance(barrel.geometry, HorizontalEllipseGeometry):
+    if isinstance(barrel.geometry, (HorizontalEllipseGeometry, Hy8ConcreteOvalGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_PIPE}:
             return HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE
         msg = (
@@ -130,7 +131,7 @@ def _validate_coefficient_shape(barrel: CulvertBarrel, coefficients: InletCoeffi
     """Reject empirical coefficients that do not apply to the barrel geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape: GeometryShape = GeometryShape.CIRCULAR
-    elif isinstance(barrel.geometry, HorizontalEllipseGeometry):
+    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, Hy8ConcreteOvalGeometry)):
         barrel_shape = GeometryShape.HORIZONTAL_ELLIPSE
     elif isinstance(barrel.geometry, VerticalEllipseGeometry):
         barrel_shape = GeometryShape.VERTICAL_ELLIPSE
