@@ -55,6 +55,17 @@ def _ellipse_max_conveyance_depth(
     return _ellipse_max_conveyance_depth_for_dimensions(geometry.span, geometry.rise)
 
 
+def _closed_section_max_conveyance_depth(
+    geometry: CircularGeometry | HorizontalEllipseGeometry | VerticalEllipseGeometry | Hy8ConcreteOvalGeometry,
+) -> float:
+    """Select a shape-specific stable open-channel conveyance peak."""
+    if isinstance(geometry, CircularGeometry):
+        return _CIRCULAR_MAX_CONVEYANCE_DEPTH_RATIO * geometry.diameter
+    if isinstance(geometry, Hy8ConcreteOvalGeometry):
+        return hy8_oval_max_conveyance_depth(geometry.catalogue_index)
+    return _ellipse_max_conveyance_depth(geometry)
+
+
 @dataclass(frozen=True, slots=True)
 class NormalDepthResult:
     """Normal depth calculation outcome and associated hydraulic terms.
@@ -127,12 +138,7 @@ def calculate_normal_depth(
 
     # Closed circles and ellipses reach maximum conveyance before the crown.
     if isinstance(geometry, (CircularGeometry, HorizontalEllipseGeometry, VerticalEllipseGeometry, Hy8ConcreteOvalGeometry)):
-        if isinstance(geometry, CircularGeometry):
-            y_peak = _CIRCULAR_MAX_CONVEYANCE_DEPTH_RATIO * geometry.diameter
-        elif isinstance(geometry, Hy8ConcreteOvalGeometry):
-            y_peak = hy8_oval_max_conveyance_depth(geometry.catalogue_index)
-        else:
-            y_peak = _ellipse_max_conveyance_depth(geometry)
+        y_peak = _closed_section_max_conveyance_depth(geometry)
         k_max = _section_conveyance(geometry, y_peak)
         k_full = _section_conveyance(geometry, geometry.rise)
 
