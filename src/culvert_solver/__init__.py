@@ -22,6 +22,8 @@ from .geometry.base import CrossSectionGeometry
 from .geometry.circular import CircularGeometry
 from .geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
 from .geometry.filleted_rectangular import FilletedRectangularGeometry
+from .geometry.hy8_oval import Hy8ConcreteOvalGeometry
+from .geometry.hy8_oval_catalogue import HY8_CONCRETE_OVALS, Hy8ConcreteOvalSize
 from .geometry.rectangular import RectangularGeometry
 from .hydraulics.critical import CriticalDepthResult, calculate_critical_depth
 from .hydraulics.momentum import (
