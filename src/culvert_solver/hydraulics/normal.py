@@ -10,6 +10,7 @@ from ..exceptions import InvalidInputError
 from ..geometry.base import CrossSectionGeometry
 from ..geometry.circular import CircularGeometry
 from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry, hy8_oval_max_conveyance_depth
 from ..numerical.roots import RootResult, solve_brent
 from ..numerical.tolerances import RootTolerances
 from .primitives import froude_number
@@ -125,12 +126,13 @@ def calculate_normal_depth(
     k_req: float = (n * q) / math.sqrt(s0)
 
     # Closed circles and ellipses reach maximum conveyance before the crown.
-    if isinstance(geometry, (CircularGeometry, HorizontalEllipseGeometry, VerticalEllipseGeometry)):
-        y_peak = (
-            _CIRCULAR_MAX_CONVEYANCE_DEPTH_RATIO * geometry.diameter
-            if isinstance(geometry, CircularGeometry)
-            else _ellipse_max_conveyance_depth(geometry)
-        )
+    if isinstance(geometry, (CircularGeometry, HorizontalEllipseGeometry, VerticalEllipseGeometry, Hy8ConcreteOvalGeometry)):
+        if isinstance(geometry, CircularGeometry):
+            y_peak = _CIRCULAR_MAX_CONVEYANCE_DEPTH_RATIO * geometry.diameter
+        elif isinstance(geometry, Hy8ConcreteOvalGeometry):
+            y_peak = hy8_oval_max_conveyance_depth(geometry.catalogue_index)
+        else:
+            y_peak = _ellipse_max_conveyance_depth(geometry)
         k_max = _section_conveyance(geometry, y_peak)
         k_full = _section_conveyance(geometry, geometry.rise)
 
