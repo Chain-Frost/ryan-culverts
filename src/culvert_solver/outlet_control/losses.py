@@ -5,7 +5,9 @@ from dataclasses import dataclass
 from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
+from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.primitives import friction_head_loss, minor_head_loss
 from ..models.barrel import CulvertBarrel
@@ -55,7 +57,7 @@ class EntranceLossCoefficient:
         try:
             shape_val = GeometryShape(self.shape)
         except (TypeError, ValueError) as exc:
-            msg = "shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY."
+            msg = "shape must be a recognized GeometryShape value."
             raise InvalidInputError(msg) from exc
         object.__setattr__(self, "ke", ke_val)
         object.__setattr__(self, "shape", shape_val)
@@ -117,6 +119,10 @@ def validate_entrance_loss_shape(barrel: CulvertBarrel, coefficient: EntranceLos
     """Reject an entrance-loss coefficient for a different geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape: GeometryShape = GeometryShape.CIRCULAR
+    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, Hy8ConcreteOvalGeometry)):
+        barrel_shape = GeometryShape.HORIZONTAL_ELLIPSE
+    elif isinstance(barrel.geometry, VerticalEllipseGeometry):
+        barrel_shape = GeometryShape.VERTICAL_ELLIPSE
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         barrel_shape = GeometryShape.RECTANGULAR
     else:
@@ -191,6 +197,18 @@ PIPE_CMP_BEVELED = EntranceLossCoefficient(
     name="Pipe, CMP: Beveled edges, 33.7 deg or 45 deg bevels",
     ke=0.2,
     shape=GeometryShape.CIRCULAR,
+)
+
+# HDS-5 Table C.2 groups these values under concrete pipe, not a circular-only shape.
+HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE = EntranceLossCoefficient(
+    name="Horizontal ellipse, concrete pipe: Headwall square-edge",
+    ke=0.5,
+    shape=GeometryShape.HORIZONTAL_ELLIPSE,
+)
+VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE = EntranceLossCoefficient(
+    name="Vertical ellipse, concrete pipe: Headwall square-edge",
+    ke=0.5,
+    shape=GeometryShape.VERTICAL_ELLIPSE,
 )
 
 # Reinforced concrete box culvert entrance loss coefficients (HDS-5 Table C.2)

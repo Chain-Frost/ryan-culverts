@@ -17,6 +17,19 @@ _HDS5_TABLE_A1_INLET_REF = SourceReference(
     notes="Adopted from NBS research (French, Bossy) and published in FHWA HDS-5 Appendix A.",
 )
 
+_HDS5_TABLE_A2_INLET_REF = SourceReference(
+    source_id="FHWA-HDS5-2012-TABLE-A2",
+    publication="Hydraulic Design of Highway Culverts",
+    edition="Third Edition, April 2012",
+    locator="Appendix A, Table A.2: Constants for Inlet Control Equations for Discontinued Charts",
+    url="https://www.fhwa.dot.gov/engineering/hydraulics/pubs/12026/hif12026.pdf",
+    applicability=(
+        "Empirical constants K, M, c, Y for horizontal- and vertical-ellipse concrete "
+        "inlet configurations from discontinued Charts 29 and 30."
+    ),
+    notes="Table A.2 cites FHWA 1974 for the horizontal- and vertical-ellipse entries.",
+)
+
 
 @dataclass(frozen=True, slots=True)
 class InletCoefficients:
@@ -65,7 +78,7 @@ class InletCoefficients:
         try:
             shape_val = GeometryShape(self.shape)
         except (TypeError, ValueError) as exc:
-            msg = "shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY."
+            msg = "shape must be a recognized GeometryShape value."
             raise InvalidInputError(msg) from exc
 
         object.__setattr__(self, "chart", chart_val)
@@ -189,6 +202,84 @@ BOX_CONCRETE_BEVEL_45_HEADWALL = InletCoefficients(
     shape=GeometryShape.RECTANGULAR,
 )
 
+# Concrete ellipse coefficients from FHWA HDS-5 Table A.2 (Charts 29 and 30)
+HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE = InletCoefficients(
+    name="Horizontal Ellipse Concrete, Square edge with headwall",
+    chart=29,
+    scale=1,
+    form=InletEquationForm.SPECIFIC_HEAD,
+    k=0.0100,
+    m=2.0,
+    c=0.0398,
+    y=0.67,
+    shape=GeometryShape.HORIZONTAL_ELLIPSE,
+    reference=_HDS5_TABLE_A2_INLET_REF,
+)
+
+HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END = InletCoefficients(
+    name="Horizontal Ellipse Concrete, Groove end with headwall",
+    chart=29,
+    scale=2,
+    form=InletEquationForm.SPECIFIC_HEAD,
+    k=0.0018,
+    m=2.5,
+    c=0.0292,
+    y=0.74,
+    shape=GeometryShape.HORIZONTAL_ELLIPSE,
+    reference=_HDS5_TABLE_A2_INLET_REF,
+)
+
+HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING = InletCoefficients(
+    name="Horizontal Ellipse Concrete, Groove end projecting",
+    chart=29,
+    scale=3,
+    form=InletEquationForm.SPECIFIC_HEAD,
+    k=0.0045,
+    m=2.0,
+    c=0.0317,
+    y=0.69,
+    shape=GeometryShape.HORIZONTAL_ELLIPSE,
+    reference=_HDS5_TABLE_A2_INLET_REF,
+)
+
+VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE = InletCoefficients(
+    name="Vertical Ellipse Concrete, Square edge with headwall",
+    chart=30,
+    scale=1,
+    form=InletEquationForm.SPECIFIC_HEAD,
+    k=0.0100,
+    m=2.0,
+    c=0.0398,
+    y=0.67,
+    shape=GeometryShape.VERTICAL_ELLIPSE,
+    reference=_HDS5_TABLE_A2_INLET_REF,
+)
+
+VERTICAL_ELLIPSE_CONCRETE_GROOVE_END = InletCoefficients(
+    name="Vertical Ellipse Concrete, Groove end with headwall",
+    chart=30,
+    scale=2,
+    form=InletEquationForm.SPECIFIC_HEAD,
+    k=0.0018,
+    m=2.5,
+    c=0.0292,
+    y=0.74,
+    shape=GeometryShape.VERTICAL_ELLIPSE,
+    reference=_HDS5_TABLE_A2_INLET_REF,
+)
+
+VERTICAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING = InletCoefficients(
+    name="Vertical Ellipse Concrete, Groove end projecting",
+    chart=30,
+    scale=3,
+    form=InletEquationForm.SPECIFIC_HEAD,
+    k=0.0095,
+    m=2.0,
+    c=0.0317,
+    y=0.69,
+    shape=GeometryShape.VERTICAL_ELLIPSE,
+    reference=_HDS5_TABLE_A2_INLET_REF,
+)
 
 STANDARD_INLET_COEFFICIENTS: tuple[InletCoefficients, ...] = (
     CIRCULAR_CONCRETE_SQUARE_EDGE,
@@ -196,6 +287,12 @@ STANDARD_INLET_COEFFICIENTS: tuple[InletCoefficients, ...] = (
     CIRCULAR_CMP_HEADWALL,
     CIRCULAR_CMP_MITERED,
     CIRCULAR_CMP_PROJECTING,
+    HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
+    HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END,
+    HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING,
+    VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
+    VERTICAL_ELLIPSE_CONCRETE_GROOVE_END,
+    VERTICAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING,
     BOX_CONCRETE_FLARED_WINGWALLS_30_75,
     BOX_CONCRETE_PARALLEL_WINGWALLS_0,
     BOX_CONCRETE_CHAMFER_90_HEADWALL,

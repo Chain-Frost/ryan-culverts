@@ -18,7 +18,9 @@ from dataclasses import dataclass
 from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
+from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..inlet_control.coefficients import InletCoefficients
 from ..models.barrel import CulvertBarrel
@@ -59,6 +61,10 @@ def _validate_inlet_shape(barrel: CulvertBarrel, coefficients: InletCoefficients
     """Reject inlet coefficients for a different geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape = GeometryShape.CIRCULAR
+    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, Hy8ConcreteOvalGeometry)):
+        barrel_shape = GeometryShape.HORIZONTAL_ELLIPSE
+    elif isinstance(barrel.geometry, VerticalEllipseGeometry):
+        barrel_shape = GeometryShape.VERTICAL_ELLIPSE
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         barrel_shape = GeometryShape.RECTANGULAR
     else:
@@ -80,6 +86,12 @@ def _default_inlet_coefficients(barrel: CulvertBarrel, config: SolverConfigurati
             return config.default_circular_concrete_inlet
         msg = (
             "No default inlet coefficients exist for this circular barrel material; "
+            "provide inlet_coefficients explicitly."
+        )
+        raise InvalidInputError(msg)
+    if isinstance(barrel.geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry, Hy8ConcreteOvalGeometry)):
+        msg = (
+            "Elliptical inlet treatment is ambiguous from geometry and material alone; "
             "provide inlet_coefficients explicitly."
         )
         raise InvalidInputError(msg)
@@ -258,6 +270,23 @@ def resolve_entrance_loss_coefficient(
             shape=GeometryShape.ANY,
         )
 
+    default_coeff = _default_entrance_loss_coefficient(barrel, config)
+
+    validate_entrance_loss_shape(barrel, default_coeff)
+    return EntranceLossSelection(
+        ke=default_coeff.ke,
+        name=default_coeff.name,
+        basis=EntranceLossSelectionBasis.GEOMETRY_DEFAULT,
+        source=default_coeff.reference,
+        shape=default_coeff.shape,
+    )
+
+
+def _default_entrance_loss_coefficient(
+    barrel: CulvertBarrel,
+    config: SolverConfiguration,
+) -> EntranceLossCoefficient:
+    """Select a source-bearing default for the explicit geometry and material."""
     # 3. Geometry/material-based library default
     if isinstance(barrel.geometry, CircularGeometry):
         if barrel.material == CORRUGATED_STEEL:
@@ -269,6 +298,12 @@ def resolve_entrance_loss_coefficient(
                 "No default entrance-loss coefficient exists for this circular barrel material; provide one explicitly."
             )
             raise InvalidInputError(msg)
+    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry, Hy8ConcreteOvalGeometry)):
+        msg = (
+            "Elliptical entrance treatment is ambiguous from geometry and material alone; "
+            "provide entrance_loss_coefficient explicitly."
+        )
+        raise InvalidInputError(msg)
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
             default_coeff = config.default_rectangular_loss
@@ -282,11 +317,4 @@ def resolve_entrance_loss_coefficient(
         msg = "No default entrance-loss coefficient exists for this geometry; provide one explicitly."
         raise InvalidInputError(msg)
 
-    validate_entrance_loss_shape(barrel, default_coeff)
-    return EntranceLossSelection(
-        ke=default_coeff.ke,
-        name=default_coeff.name,
-        basis=EntranceLossSelectionBasis.GEOMETRY_DEFAULT,
-        source=default_coeff.reference,
-        shape=default_coeff.shape,
-    )
+    return default_coeff

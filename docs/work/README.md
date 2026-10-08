@@ -17,6 +17,13 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+Issue #3 ellipse validation repair (2026-10-07): Owner: Unassigned. Status: verified locally.
+Boundary: repair local test and quality-check failures in the ellipse implementation
+slice without changing sourced coefficients or HY-8 baselines.
+See [the implementation note](2026-10-07-cs-025-elliptical-culverts.md) for exact checks
+and the remaining Chart 30 Scale 3 transition applicability limit. Changes are uncommitted
+and unpushed; the broader issue remains open.
+
 Local and CI validation (2026-10-08): Owner: Unassigned. Status: local checks passed;
 hosted CI needs the local repair committed and pushed.
 Validated `fix/issue-30-csp-defaults` at `3debf677` on Python 3.14.6.

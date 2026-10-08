@@ -42,7 +42,8 @@ dev = [
 ]
 external-validation = [
   # Local HY-8 tooling only; GitHub CI installs dev without this extra.
-  "run-hy8 @ git+https://github.com/Chain-Frost/run-hy8.git@0baaa2ac83e38aaad1a0419dc6e39c40445cb98d",
+  # Pin merged PR #7 rather than floating main; validate locally with HY-8 8.0.1.2.
+  "run-hy8 @ git+https://github.com/Chain-Frost/run-hy8.git@28e7909afd5ae53c4357380ef70c5f2e482c917d",
 ]
 
 [tool.hatch.metadata]
