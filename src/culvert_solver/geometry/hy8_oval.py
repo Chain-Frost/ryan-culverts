@@ -61,7 +61,7 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
     )
 
     def __init__(self, catalogue_index: int) -> None:
-        if isinstance(catalogue_index, bool) or not isinstance(catalogue_index, int):
+        if type(catalogue_index) is not int:
             msg = "HY-8 oval catalogue_index must be an integer."
             raise InvalidInputError(msg)
         if not 0 <= catalogue_index < len(HY8_CONCRETE_OVALS):
