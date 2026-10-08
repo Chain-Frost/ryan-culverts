@@ -160,9 +160,7 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
     def _top_area_primitive(self, z: float) -> float:
         r = self._long_radius
         u = z + self._vertical_shift
-        return 0.5 * (
-            u * math.sqrt(max(0.0, r * r - u * u)) + r * r * math.asin(min(1.0, u / r))
-        )
+        return 0.5 * (u * math.sqrt(max(0.0, r * r - u * u)) + r * r * math.asin(min(1.0, u / r)))
 
     def _integrated_half_width(self, lower: float, upper: float) -> float:
         """Integrate raw right-hand half width on z in [0, half_rise]."""
