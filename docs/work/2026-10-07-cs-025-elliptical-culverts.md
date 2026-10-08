@@ -120,6 +120,33 @@ inlet coefficients to conceal the area difference.
 - The 8 October `run-hy8` merge does not supply an independent
   `ryan-culverts` comparison fixture. The `ryan-culverts` ellipse geometry,
   inlet/output regimes, velocity and headwater are not yet HY-8-validated.
+The existing `scripts/compare_hy8.py` now has an **opt-in**
+`--elliptical` mode with six cases (60 × 38 and 68 × 43 inch concrete
+catalogue sizes, each at 0.5, 1.0 and 2.0 m³/s). The default legacy
+circular/CSP/box comparison matrix is unchanged. The mode writes
+headwater, velocity, control/regime, per-culvert flow and diagnostics
+and retains the native HY-8 outputs when `--workspace` is set.
+Its comparison CSV must be read together with the geometry audit;
+this is **quantitative discrepancy evidence**, not geometric parity.
+
+With `run-hy8` installed from the pinned `external-validation` extra,
+run the following on Windows with HY-8 8.0.1.2 installed:
+
+```powershell
+$env:PYTHONPATH = 'src'
+python -B scripts/compare_hy8.py `
+  --elliptical `
+  --hy8 'C:\Path\To\HY864.exe' `
+  --workspace validation_artifacts/hy8-ellipse `
+  --output docs/validation_data/hy8_8_0_1_2_ellipse_comparison.csv
+```
+
+Preserve the executable's actual version/path and the case-level
+`.hy8`, `.rst`, `.rsql` alongside the resulting CSV. Run into a fresh
+workspace to avoid conflating old results with the current pinned version.
+The executable comparison has **not been run from this GitHub-only
+environment**; no numerical findings are yet claimed.
+
 - Retain **version-pinned local Windows HY-8 8.0.1.2** concrete cases at
   exact catalogue sizes, multiple flows and physical inlets, with raw
   `.hy8`, `.rst`, `.rsql`, measured executable version/path, and
