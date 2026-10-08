@@ -23,7 +23,7 @@ from culvert_solver.solver.resolvers import (
 )
 
 
-@pytest.mark.parametrize("span_mm,rise_mm", [(1524, 965.2), (1727.2, 1092.2)])
+@pytest.mark.parametrize(("span_mm", "rise_mm"), [(1524, 965.2), (1727.2, 1092.2)])
 def test_hy8_source_oval_matches_nominal_dimensions_and_area(
     span_mm: float, rise_mm: float
 ) -> None:
