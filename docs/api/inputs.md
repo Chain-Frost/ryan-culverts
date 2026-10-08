@@ -81,6 +81,9 @@ requested discharge below the minimum evaluable submerged-roadway capacity.
       members:
         - CircularGeometry
         - HorizontalEllipseGeometry
+        - Hy8ConcreteOvalGeometry
+        - HY8_CONCRETE_OVALS
+        - Hy8ConcreteOvalSize
         - VerticalEllipseGeometry
         - RectangularGeometry
         - FilletedRectangularGeometry
