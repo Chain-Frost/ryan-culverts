@@ -511,3 +511,35 @@ def test_solver_preserves_plastic_fallback_applicability_notices() -> None:
     assert result.roughness_selection_basis is roughness.basis
     assert result.roughness_source is roughness.source
     assert result.roughness_notices == roughness.notices
+
+
+def test_solver_preserves_standard_csp_roughness_provenance() -> None:
+    """A diameter-derived MRWA CSP roughness selection remains auditable end to end."""
+    roughness = resolve_manning_roughness(
+        CORRUGATED_STEEL,
+        nominal_diameter_mm=1200,
+    )
+    barrel = CulvertBarrel(
+        geometry=CircularGeometry.from_mm(diameter_mm=1200.0),
+        length=20.0,
+        inlet_invert=10.0,
+        outlet_invert=9.8,
+        roughness=roughness.value,
+        material=CORRUGATED_STEEL,
+        roughness_selection=roughness,
+    )
+
+    result = solve_barrel_hydraulics(
+        barrel,
+        1.0,
+        9.8,
+    )
+
+    assert result.adopted_roughness == pytest.approx(0.020)
+    assert result.roughness_selection_basis is roughness.basis
+    assert result.roughness_source is roughness.source
+    assert result.roughness_notices == roughness.notices
+    assert result.inlet_coefficient_selection is not None
+    assert "Projecting" in result.inlet_coefficient_selection.coefficients.name
+    assert result.entrance_loss_selection is not None
+    assert result.entrance_loss_selection.ke == pytest.approx(0.9)
