@@ -19,6 +19,7 @@ from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
 from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..inlet_control.coefficients import InletCoefficients
@@ -60,7 +61,7 @@ def _validate_inlet_shape(barrel: CulvertBarrel, coefficients: InletCoefficients
     """Reject inlet coefficients for a different geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape = GeometryShape.CIRCULAR
-    elif isinstance(barrel.geometry, HorizontalEllipseGeometry):
+    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, Hy8ConcreteOvalGeometry)):
         barrel_shape = GeometryShape.HORIZONTAL_ELLIPSE
     elif isinstance(barrel.geometry, VerticalEllipseGeometry):
         barrel_shape = GeometryShape.VERTICAL_ELLIPSE
@@ -88,7 +89,7 @@ def _default_inlet_coefficients(barrel: CulvertBarrel, config: SolverConfigurati
             "provide inlet_coefficients explicitly."
         )
         raise InvalidInputError(msg)
-    if isinstance(barrel.geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry)):
+    if isinstance(barrel.geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry, Hy8ConcreteOvalGeometry)):
         msg = (
             "Elliptical inlet treatment is ambiguous from geometry and material alone; "
             "provide inlet_coefficients explicitly."
@@ -297,7 +298,7 @@ def _default_entrance_loss_coefficient(
                 "No default entrance-loss coefficient exists for this circular barrel material; provide one explicitly."
             )
             raise InvalidInputError(msg)
-    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry)):
+    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry, Hy8ConcreteOvalGeometry)):
         msg = (
             "Elliptical entrance treatment is ambiguous from geometry and material alone; "
             "provide entrance_loss_coefficient explicitly."
