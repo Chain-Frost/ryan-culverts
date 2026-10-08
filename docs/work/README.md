@@ -24,6 +24,47 @@ See [the implementation note](2026-10-07-cs-025-elliptical-culverts.md) for exac
 and the remaining Chart 30 Scale 3 transition applicability limit. Changes are uncommitted
 and unpushed; the broader issue remains open.
 
+Local and CI validation (2026-10-08): Owner: Unassigned. Status: local checks passed;
+hosted CI needs the local repair committed and pushed.
+Validated `fix/issue-30-csp-defaults` at `3debf677` on Python 3.14.6.
+Removed one extra blank line in `docs/api/inputs.md` that caused MD012/MD022.
+
+- `python -m pytest -q`: 511 passed in 25.12 seconds, no skips or deselections.
+- `python -m ruff check .`: passed.
+- `python -m ruff format --check .`: passed, 138 files already formatted.
+- `python -m pyright`: zero errors, warnings or information messages.
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`: passed after repair.
+- `python -m mkdocs build --strict`: passed after repair.
+- `git diff --check`: passed.
+- `python scripts/verify_wheel.py`: passed before and after rebuild.
+- `python scripts/build_package.py --no-bump`: passed, version unchanged.
+- `python scripts/smoke_test_installed_wheel.py`: passed using a temporary virtual
+  environment with the rebuilt wheel installed and execution outside the checkout;
+  confirmed the import resolved inside that environment.
+- Vendored fixture: `python -m build --wheel --outdir <temporary-wheelhouse>
+  <fixture>` and isolated installation passed.
+  `python scripts/smoke_test_vendored_wheel.py --expected-root <temporary-install>
+  --expected-version 26.9.10.2 --unrelated-version 1.2.3` passed outside the checkout.
+
+Retained wheel SHA-256 after rebuild:
+`a141a620a472ebfc0411f87525a7041ff7c887af818814151500cc2b4ca90734`.
+The retained artifact changed from 94,209 to 112,782 bytes.
+
+Retried failed jobs in [Python CI run 37717359615](https://github.com/Chain-Frost/ryan-culverts/actions/runs/37717359615).
+All four jobs are terminal: three installed-wheel platform jobs passed; `verify`
+passed lint, formatting, typing and all 511 tests on Python 3.14.7, then failed
+on the same Markdown blank line in the committed PR #31 merge checkout.
+Strict docs, whitespace and retained-wheel build/verification steps were skipped
+in that hosted job; their local equivalents passed above.
+The local fix is absent from hosted CI until committed and pushed.
+
+HY-8 executable comparison and optional external-harness typing were not run;
+ordinary CI excludes those local integration checks. GitHub Pages deployment
+was not triggered. No hydraulic behaviour or tracked comparison baseline changed.
+These checks provide regression evidence, not engineering acceptance.
+The documentation fix, validation record and rebuilt retained wheel remain unstaged
+and uncommitted; no push or publication was performed.
+
 PR #27 review and CI repair (2026-10-06): Owner: Unassigned. Status: verified locally.
 Clarified the source regression's inlet-velocity basis and its conversion to the
 full-barrel velocity basis. Checked Sellevold et al. Equations 4/5 (page

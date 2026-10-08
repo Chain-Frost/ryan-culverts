@@ -5,6 +5,7 @@ import pytest
 from culvert_solver import (
     BOX_CONCRETE_FLARED_WINGWALLS_30_75,
     CIRCULAR_CMP_HEADWALL,
+    CIRCULAR_CMP_PROJECTING,
     CIRCULAR_CONCRETE_SQUARE_EDGE,
     CONCRETE,
     CONCRETE_BOX,
@@ -111,7 +112,7 @@ class TestResolveInletCoefficients:
         barrel = _circular_barrel(material=CORRUGATED_STEEL)
         result = resolve_inlet_coefficients(barrel)
         assert result.basis is InletSelectionBasis.GEOMETRY_MATERIAL_DEFAULT
-        assert result.coefficients is CIRCULAR_CMP_HEADWALL
+        assert result.coefficients is CIRCULAR_CMP_PROJECTING
 
     def test_geometry_material_default_circular_requires_material(self) -> None:
         barrel = _circular_barrel(material=None)
@@ -269,12 +270,12 @@ class TestResolveEntranceLossCoefficient:
         assert result.basis is EntranceLossSelectionBasis.GEOMETRY_DEFAULT
         assert result.ke == pytest.approx(LOSS_BOX_FLARED.ke)
 
-    def test_geometry_default_csp_uses_cmp_headwall(self) -> None:
+    def test_geometry_default_csp_uses_projecting_end(self) -> None:
         barrel = _circular_barrel(material=CORRUGATED_STEEL)
         result = resolve_entrance_loss_coefficient(barrel)
         assert result.basis is EntranceLossSelectionBasis.GEOMETRY_DEFAULT
-        assert result.ke == pytest.approx(0.5)
-        assert "CMP" in result.name
+        assert result.ke == pytest.approx(PIPE_CMP_PROJECTING.ke)
+        assert "Projecting" in result.name
 
     def test_geometry_default_requires_explicit_material_context(self) -> None:
         with pytest.raises(InvalidInputError, match="material"):

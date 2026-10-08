@@ -38,6 +38,7 @@ class RoughnessSelectionBasis(StrEnum):
     MATERIAL_TYPICAL = "material_typical"
     MRWA_CONCRETE_TABLE = "mrwa_concrete_table"
     MRWA_CSP_TABLE = "mrwa_csp_table"
+    AUSTROADS_CSP_GENERIC = "austroads_csp_generic"
     HDS5_DOCUMENTED_FALLBACK = "hds5_documented_fallback"
 
 
@@ -46,6 +47,8 @@ class ApplicabilityNoticeCode(StrEnum):
 
     MANUFACTURER_DATA_NOT_SUPPLIED = "manufacturer_data_not_supplied"
     HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE = "hydraulic_value_not_construction_compliance"
+    GENERIC_CSP_ROUGHNESS_ASSUMPTION = "generic_csp_roughness_assumption"
+    MRWA_STANDARD_CSP_CORRUGATION_ASSUMPTION = "mrwa_standard_csp_corrugation_assumption"
     REPRESENTATIVE_BARREL_EQUAL_FLOW = "representative_barrel_equal_flow"
 
 

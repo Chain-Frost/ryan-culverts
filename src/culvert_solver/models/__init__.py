@@ -15,6 +15,7 @@ from .enums import (
 )
 from .group import CulvertGroup
 from .materials import (
+    AUSTROADS_CSP_REFERENCE,
     CONCRETE,
     CONCRETE_BOX,
     CONCRETE_PIPE,
@@ -67,6 +68,7 @@ from .tailwater import (
 )
 
 __all__: list[str] = [
+    "AUSTROADS_CSP_REFERENCE",
     "CONCRETE",
     "CONCRETE_BOX",
     "CONCRETE_PIPE",

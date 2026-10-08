@@ -112,6 +112,7 @@ from .models.enums import (
 )
 from .models.group import CulvertGroup
 from .models.materials import (
+    AUSTROADS_CSP_REFERENCE,
     CONCRETE,
     CONCRETE_BOX,
     CONCRETE_PIPE,
@@ -274,6 +275,7 @@ from .uncertainty import (
 from .units.conversion import dimension_mm_to_m
 
 __all__: list[str] = [
+    "AUSTROADS_CSP_REFERENCE",
     "BOX_CONCRETE_BEVEL_45_HEADWALL",
     "BOX_CONCRETE_CHAMFER_90_HEADWALL",
     "BOX_CONCRETE_FLARED_WINGWALLS_30_75",

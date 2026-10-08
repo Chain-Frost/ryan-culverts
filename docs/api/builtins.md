@@ -48,6 +48,7 @@ applicability limits remain part of the engineering contract.
         - EXTREME_HEADWATER_RATIO
         - FHWA_MODERN_BOX_HW_D_MIN
         - FHWA_MODERN_BOX_HW_D_MAX
+        - AUSTROADS_CSP_REFERENCE
         - MRWA_CSP_REFERENCE
         - MRWA_CONCRETE_REFERENCE
         - MRWA_PART5B_REFERENCE
