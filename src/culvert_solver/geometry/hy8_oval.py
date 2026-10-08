@@ -9,6 +9,7 @@ that HY-8 uses identical interior-section numerical methods.
 """
 
 import math
+from collections.abc import Callable
 from functools import lru_cache
 
 from .._validation import finite
@@ -26,18 +27,14 @@ _MAX_CATALOGUE_AREA_DIFFERENCE = 0.005
 _ARC_PANELS = 128
 
 
-def _simpson(function: object, start: float, end: float) -> float:
+def _simpson(function: Callable[[float], float], start: float, end: float) -> float:
     """Integrate a smooth parameterised arc (no endpoint singularities)."""
-    from collections.abc import Callable
-    from typing import cast
-
-    f = cast("Callable[[float], float]", function)
     if end <= start:
         return 0.0
     step = (end - start) / _ARC_PANELS
-    total = f(start) + f(end)
-    total += 4.0 * sum(f(start + index * step) for index in range(1, _ARC_PANELS, 2))
-    total += 2.0 * sum(f(start + index * step) for index in range(2, _ARC_PANELS, 2))
+    total = function(start) + function(end)
+    total += 4.0 * sum(function(start + index * step) for index in range(1, _ARC_PANELS, 2))
+    total += 2.0 * sum(function(start + index * step) for index in range(2, _ARC_PANELS, 2))
     return total * step / 3.0
 
 
