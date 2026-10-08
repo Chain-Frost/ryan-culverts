@@ -10,6 +10,7 @@ that HY-8 uses identical interior-section numerical methods.
 
 import math
 from collections.abc import Callable
+from typing import Self
 from functools import lru_cache
 
 from .._validation import finite
@@ -112,7 +113,7 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
             raise InvalidInputError(msg)
 
     @classmethod
-    def from_mm(cls, span_mm: float, rise_mm: float) -> "Hy8ConcreteOvalGeometry":
+    def from_mm(cls, span_mm: float, rise_mm: float) -> Self:
         """Select an exact catalogue pair supplied in millimetres."""
         span = finite(span_mm, "span_mm") * 0.001
         rise = finite(rise_mm, "rise_mm") * 0.001
