@@ -19,8 +19,8 @@ from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
 from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
-from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..inlet_control.coefficients import InletCoefficients
 from ..models.barrel import CulvertBarrel
