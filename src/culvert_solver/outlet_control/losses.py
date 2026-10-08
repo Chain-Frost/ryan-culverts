@@ -6,8 +6,8 @@ from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
 from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
-from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.primitives import friction_head_loss, minor_head_loss
 from ..models.barrel import CulvertBarrel
