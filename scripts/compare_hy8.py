@@ -20,6 +20,7 @@ from run_hy8 import (
     CircularConcreteInlet,
     CircularCorrugatedSteelInlet,
     ConcreteBoxInlet,
+    EllipticalConcreteInlet,
     Hy8CulvertResult,
     Hy8Executable,
     RoadwayProfile,
@@ -44,13 +45,17 @@ from culvert_solver import (
     CIRCULAR_CMP_HEADWALL,
     CIRCULAR_CONCRETE_SQUARE_EDGE,
     CONCRETE,
+    CONCRETE_PIPE,
     CORRUGATED_STEEL,
+    HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
+    HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE,
     PIPE_CMP_LOSS_HEADWALL,
     PIPE_LOSS_SQUARE_EDGE,
     CircularGeometry,
     CulvertBarrel,
     CulvertCrossing,
     CulvertGroup,
+    HorizontalEllipseGeometry,
     RectangularGeometry,
     solve_barrel_hydraulics,
     solve_crossing_hydraulics,
@@ -100,6 +105,7 @@ class CaseKind(StrEnum):
     CIRCULAR_CONCRETE = "circular_concrete"
     CIRCULAR_CSP = "circular_csp"
     CONCRETE_BOX = "concrete_box"
+    CONCRETE_HORIZONTAL_ELLIPSE = "concrete_horizontal_ellipse"
 
 
 CASES: tuple[ComparisonCase, ...] = (
@@ -343,6 +349,80 @@ CASES: tuple[ComparisonCase, ...] = (
         21.2,
         6.00,
     ),
+    # HY-8 8.0.1.2 Concrete ShapeDB catalogue sizes, not arbitrary ellipses.
+    # Compared against the local *mathematically exact* ellipse; areas differ.
+    ComparisonCase(
+        "ellipse-60x38-low",
+        CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
+        1.524,
+        0.9652,
+        30.0,
+        10.0,
+        9.5,
+        0.012,
+        9.7,
+        0.5,
+    ),
+    ComparisonCase(
+        "ellipse-60x38-mid",
+        CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
+        1.524,
+        0.9652,
+        30.0,
+        10.0,
+        9.5,
+        0.012,
+        9.7,
+        1.0,
+    ),
+    ComparisonCase(
+        "ellipse-60x38-high",
+        CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
+        1.524,
+        0.9652,
+        30.0,
+        10.0,
+        9.5,
+        0.012,
+        9.7,
+        2.0,
+    ),
+    ComparisonCase(
+        "ellipse-68x43-low",
+        CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
+        1.7272,
+        1.0922,
+        30.0,
+        10.0,
+        9.5,
+        0.012,
+        9.7,
+        0.5,
+    ),
+    ComparisonCase(
+        "ellipse-68x43-mid",
+        CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
+        1.7272,
+        1.0922,
+        30.0,
+        10.0,
+        9.5,
+        0.012,
+        9.7,
+        1.0,
+    ),
+    ComparisonCase(
+        "ellipse-68x43-high",
+        CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
+        1.7272,
+        1.0922,
+        30.0,
+        10.0,
+        9.5,
+        0.012,
+        9.7,
+        2.0,
+    ),
 )
 
 DISCREPANCY_SWEEP_DISCHARGES: dict[str, tuple[float, ...]] = {
@@ -380,6 +460,10 @@ def _hy8_crossing(case: ComparisonCase) -> Hy8Crossing:
         shape = Hy8Shape.CIRCLE
         material = Hy8Material.CORRUGATED_STEEL
         inlet = CircularCorrugatedSteelInlet.SQUARE_EDGE_WITH_HEADWALL
+    elif case.kind is CaseKind.CONCRETE_HORIZONTAL_ELLIPSE:
+        shape = Hy8Shape.ELLIPTICAL
+        material = Hy8Material.CONCRETE
+        inlet = EllipticalConcreteInlet.SQUARE_EDGE_WITH_HEADWALL
     else:
         shape = Hy8Shape.BOX
         material = Hy8Material.CONCRETE
@@ -503,6 +587,11 @@ def _local_result(case: ComparisonCase) -> LocalComparisonResult:
         material = CORRUGATED_STEEL
         inlet = CIRCULAR_CMP_HEADWALL
         entrance_loss = PIPE_CMP_LOSS_HEADWALL
+    elif case.kind is CaseKind.CONCRETE_HORIZONTAL_ELLIPSE:
+        geometry = HorizontalEllipseGeometry(span=case.span, rise=case.rise)
+        material = CONCRETE_PIPE
+        inlet = HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE
+        entrance_loss = HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE
     else:
         geometry = RectangularGeometry(span=case.span, rise=case.rise)
         material = CONCRETE
@@ -605,13 +694,20 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Run the mixed circular/box crossing and regime-transition rating fixture",
     )
+    mode.add_argument(
+        "--elliptical",
+        action="store_true",
+        help="Run the pinned HY-8 catalogue concrete ellipse comparison only",
+    )
     return parser.parse_args()
 
 
 def _selected_cases(args: argparse.Namespace) -> tuple[ComparisonCase, ...]:
     """Return the standard matrix or the two focused discrepancy sweeps."""
+    if args.elliptical:
+        return tuple(case for case in CASES if case.kind is CaseKind.CONCRETE_HORIZONTAL_ELLIPSE)
     if not args.discrepancy_sweep:
-        return CASES
+        return tuple(case for case in CASES if case.kind is not CaseKind.CONCRETE_HORIZONTAL_ELLIPSE)
     cases_by_id = {case.case_id: case for case in CASES}
     return tuple(
         replace(
