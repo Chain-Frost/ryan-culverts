@@ -17,6 +17,14 @@ The generic fallback carries a typed selection basis, source provenance, an appl
 notice, and the existing construction-compliance limitation. HDPE defaults remain
 unchanged and out of scope.
 
+Review follow-up on 8 October 2026 refactored CSP roughness resolution into
+focused helpers so Ruff complexity checks are enforceable, split Ruff lint and format into
+separate CI steps so a later command cannot mask lint failure, added MRWA schedule boundary
+and precedence regressions, and added an end-to-end barrel solve proving that adopted CSP
+roughness provenance and notices survive into hydraulic results. The public API documentation
+now gives the canonical resolve-roughness-then-construct-barrel workflow. Broader CSP product
+schedules or typed presets remain outside PR #31.
+
 Verification is recorded on PR #31.
 
 ## 2026-10-06 - CS-015 Austroads worked-example velocity
