@@ -6,6 +6,7 @@ from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
 from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.primitives import friction_head_loss, minor_head_loss
@@ -118,7 +119,7 @@ def validate_entrance_loss_shape(barrel: CulvertBarrel, coefficient: EntranceLos
     """Reject an entrance-loss coefficient for a different geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape: GeometryShape = GeometryShape.CIRCULAR
-    elif isinstance(barrel.geometry, HorizontalEllipseGeometry):
+    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, Hy8ConcreteOvalGeometry)):
         barrel_shape = GeometryShape.HORIZONTAL_ELLIPSE
     elif isinstance(barrel.geometry, VerticalEllipseGeometry):
         barrel_shape = GeometryShape.VERTICAL_ELLIPSE
