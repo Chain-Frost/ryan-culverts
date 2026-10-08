@@ -7,8 +7,8 @@ from ..constants import GRAVITATIONAL_ACCELERATION
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
 from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
-from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.critical import CriticalDepthResult, calculate_critical_depth
 from ..models.barrel import CulvertBarrel
