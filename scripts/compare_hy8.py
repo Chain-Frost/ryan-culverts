@@ -56,6 +56,7 @@ from culvert_solver import (
     CulvertCrossing,
     CulvertGroup,
     HorizontalEllipseGeometry,
+    Hy8ConcreteOvalGeometry,
     RectangularGeometry,
     solve_barrel_hydraulics,
     solve_crossing_hydraulics,
@@ -588,7 +589,7 @@ def _local_result(case: ComparisonCase) -> LocalComparisonResult:
         inlet = CIRCULAR_CMP_HEADWALL
         entrance_loss = PIPE_CMP_LOSS_HEADWALL
     elif case.kind is CaseKind.CONCRETE_HORIZONTAL_ELLIPSE:
-        geometry = HorizontalEllipseGeometry(span=case.span, rise=case.rise)
+        geometry = Hy8ConcreteOvalGeometry.from_mm(span_mm=case.span * 1000.0, rise_mm=case.rise * 1000.0)
         material = CONCRETE_PIPE
         inlet = HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE
         entrance_loss = HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE
