@@ -48,16 +48,16 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
     """
 
     __slots__ = (
-        "catalogue_index",
-        "_span",
-        "_rise",
-        "_long_radius",
         "_corner_radius",
         "_half_rise",
-        "_vertical_shift",
-        "_side_offset",
-        "_join_height",
         "_horizontal_scale",
+        "_join_height",
+        "_long_radius",
+        "_rise",
+        "_side_offset",
+        "_span",
+        "_vertical_shift",
+        "catalogue_index",
     )
 
     def __init__(self, catalogue_index: int) -> None:
