@@ -325,7 +325,9 @@ def _austroads_csp_fallback(material: CulvertMaterial) -> ManningRoughnessSelect
             ),
             RoughnessApplicabilityNotice(
                 code=ApplicabilityNoticeCode.HYDRAULIC_VALUE_NOT_CONSTRUCTION_COMPLIANCE,
-                message=("A generic hydraulic roughness default does not establish MRWA product or construction compliance."),
+                message=(
+                    "A generic hydraulic roughness default does not establish MRWA product or construction compliance."
+                ),
                 source=MRWA_SPEC404_REFERENCE,
             ),
         ),
