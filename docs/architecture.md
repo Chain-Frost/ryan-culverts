@@ -108,14 +108,26 @@ the current MRWA Table 2.1 ranges and source metadata. The compatibility-level
 resolution, but its combined roughness range is intentionally rejected as ambiguous by
 `resolve_manning_roughness`.
 
+For corrugated steel pipe, explicit project/manufacturer roughness remains highest
+priority. When both nominal diameter and corrugation are supplied, the resolver uses the
+diameter/corrugation-specific MRWA table. With diameter alone, standard MRWA spirally wound
+CSP uses the Specification 404 corrugation: 68 x 13 mm through 1500 mm and 125 x 25 mm
+from 1650 to 2100 mm, then resolves the corresponding MRWA Manning value. That inferred
+corrugation is retained as a machine-readable applicability notice. If the diameter does
+not map to a supported MRWA table row, or no diameter is supplied, the resolver fails
+closed unless `allow_documented_fallback=True` explicitly accepts Austroads `n = 0.024`
+for plain or unpaved small-corrugation corrugated metal pipe or pipe-arch. The generic
+fallback carries an applicability notice and does not imply MRWA product or construction
+compliance.
+
 Plastic-pipe roughness is manufacturer-led. `SMOOTH_HDPE` therefore fails closed without
 an explicit override. A caller may deliberately request the HDS-5 laboratory fallback
 with `allow_documented_fallback=True`; the returned selection then carries stable,
 source-bearing notices that manufacturer data was absent and that hydraulic roughness
-does not prove MRWA product or construction compliance. The same compliance distinction
-is attached to MRWA CSP table selections. Passing a `ManningRoughnessSelection` through
-a barrel's `roughness_selection` field preserves its basis, source, and notices in the
-solved result. No HY-8 roughness fallback is currently defined.
+does not prove MRWA product or construction compliance. Passing a
+`ManningRoughnessSelection` through a barrel's `roughness_selection` field preserves
+its basis, source, and notices in the solved result. No HY-8 roughness fallback is
+currently defined.
 
 ## Inventory and reporting boundary
 

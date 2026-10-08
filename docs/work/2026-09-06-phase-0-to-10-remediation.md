@@ -30,8 +30,9 @@ Defaults are conveniences, not hidden design assumptions. Use this precedence:
 1. an explicit user value;
 2. project-specific or manufacturer data supplied by the user;
 3. an applicable MRWA value;
-4. a version-pinned HY-8 default when MRWA has no applicable value;
-5. an explicit error when the context is insufficient or unsupported.
+4. an applicable sourced Australian generic fallback where deliberately defined;
+5. a version-pinned HY-8 default when neither MRWA nor an adopted Australian fallback applies;
+6. an explicit error when the context is insufficient or unsupported.
 
 Every default must be inspectable and carry source/applicability metadata. Every
 default must be replaceable at the public input boundary. Partial overrides must
@@ -42,9 +43,14 @@ specification or project design basis; provenance is optional for an override bu
 must never be discarded when supplied.
 
 MRWA Table 2.2 CSP values are implemented by diameter and corrugation through
-`resolve_csp_manning_roughness`. Unsupported combinations fail closed. An explicit
-positive override always wins. `CORRUGATED_STEEL.contextual_roughness_required` is
-true; its retained `typical_n` catalog value is not a substitute for the typed lookup.
+`resolve_csp_manning_roughness`. Unsupported explicitly specified combinations fail
+closed. An explicit positive override always wins. Issue #30 adds a diameter-only standard
+MRWA path using the Specification 404 corrugation (68 x 13 mm through 1500 mm and
+125 x 25 mm from 1650 to 2100 mm), with the assumption retained as an applicability
+notice. The Austroads Table 6.4 value `n = 0.024` for plain or unpaved small-corrugation
+corrugated metal pipe or pipe-arch remains an explicitly accepted generic fallback when
+no supported MRWA standard context can be resolved; it is enabled only with
+`allow_documented_fallback=True`.
 
 ### Enums, records, and JSON
 
