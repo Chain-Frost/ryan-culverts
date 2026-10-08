@@ -12,10 +12,7 @@ import pytest
 from culvert_solver import HorizontalEllipseGeometry
 
 _AUDIT = (
-    Path(__file__).resolve().parents[1]
-    / "docs"
-    / "validation_data"
-    / "hy8_8_0_1_2_concrete_ellipse_area_audit.csv"
+    Path(__file__).resolve().parents[1] / "docs" / "validation_data" / "hy8_8_0_1_2_concrete_ellipse_area_audit.csv"
 )
 _SHAPE_DB_SHA256 = "2479e9444feaff529313e18a1b26fc2de4f6b6c541db58477da6bebc602164a7"
 _RUN_HY8_COMMIT = "28e7909afd5ae53c4357380ef70c5f2e482c917d"
