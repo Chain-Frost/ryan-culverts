@@ -89,6 +89,12 @@ span/rise agree, full-section areas do not necessarily agree:
 | 68 × 43 | 15.947946 | 16.490000 | +3.40% |
 | 121 × 77 | 50.816352 | 52.470001 | +3.25% |
 
+The complete retained audit is
+[`hy8_8_0_1_2_concrete_ellipse_area_audit.csv`](../validation_data/hy8_8_0_1_2_concrete_ellipse_area_audit.csv),
+checked by `tests/test_hy8_ellipse_geometry_audit.py` without requiring
+HY-8 or the optional `run-hy8` dependency. This regression checks the
+provenance and arithmetic; it is **not** an executable parity test.
+
 The full 23-entry concrete catalogue has a nonzero area discrepancy at
 every size; observed differences range from approximately +0.50% to +4.14%.
 Calculation: `A_exact = pi * span_in * rise_in / (4 * 144)` ft²,
