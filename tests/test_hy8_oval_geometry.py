@@ -24,9 +24,7 @@ from culvert_solver.solver.resolvers import (
 
 
 @pytest.mark.parametrize(("span_mm", "rise_mm"), [(1524, 965.2), (1727.2, 1092.2)])
-def test_hy8_source_oval_matches_nominal_dimensions_and_area(
-    span_mm: float, rise_mm: float
-) -> None:
+def test_hy8_source_oval_matches_nominal_dimensions_and_area(span_mm: float, rise_mm: float) -> None:
     """The catalogue-based section is not interchangeable with an exact ellipse."""
     oval = Hy8ConcreteOvalGeometry.from_mm(span_mm, rise_mm)
     exact_ellipse = HorizontalEllipseGeometry.from_mm(span_mm, rise_mm)
@@ -36,9 +34,7 @@ def test_hy8_source_oval_matches_nominal_dimensions_and_area(
     assert oval.area_full > exact_ellipse.area_full
     assert abs(oval.shape_db_area_difference_percent) < 0.1
     assert oval.area_full == pytest.approx(2 * oval.area(oval.rise / 2), rel=1e-12)
-    assert oval.wetted_perimeter_full == pytest.approx(
-        2 * oval.wetted_perimeter(oval.rise / 2), rel=1e-12
-    )
+    assert oval.wetted_perimeter_full == pytest.approx(2 * oval.wetted_perimeter(oval.rise / 2), rel=1e-12)
 
 
 @pytest.mark.parametrize("row_index", [0, 1, 7, 8, 9, 16, 21])
@@ -94,8 +90,7 @@ def test_hy8_oval_inlet_and_loss_are_explicit_and_shape_checked() -> None:
     """Catalogue identity must never imply a physical inlet/entrance configuration."""
     oval = Hy8ConcreteOvalGeometry.from_mm(1524, 965.2)
     bare = CulvertBarrel(
-        geometry=oval, length=30, inlet_invert=10, outlet_invert=9.5,
-        roughness=0.012, material=CONCRETE_PIPE
+        geometry=oval, length=30, inlet_invert=10, outlet_invert=9.5, roughness=0.012, material=CONCRETE_PIPE
     )
     with pytest.raises(InvalidInputError, match="Elliptical inlet treatment is ambiguous"):
         resolve_inlet_coefficients(bare)
@@ -103,8 +98,12 @@ def test_hy8_oval_inlet_and_loss_are_explicit_and_shape_checked() -> None:
         resolve_entrance_loss_coefficient(bare)
 
     barrel = CulvertBarrel(
-        geometry=oval, length=30, inlet_invert=10, outlet_invert=9.5,
-        roughness=0.012, material=CONCRETE_PIPE,
+        geometry=oval,
+        length=30,
+        inlet_invert=10,
+        outlet_invert=9.5,
+        roughness=0.012,
+        material=CONCRETE_PIPE,
         inlet_coefficients=HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
         entrance_loss_coefficient=HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE,
     )
