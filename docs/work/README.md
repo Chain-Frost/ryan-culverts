@@ -20,7 +20,7 @@ context unless the issue explicitly says otherwise.
 PyPI release automation (2026-10-16): Owner: Unassigned. Status: Ready for review.
 User-selected task: consistent release preparation, verified publication and focused
 CI improvements, delivered as a new PR. No hydraulic methods or comparison baselines
-will change. The PR will own current review status; see the
+will change. [PR #32](https://github.com/Chain-Frost/ryan-culverts/pull/32) owns current review status; see the
 [release setup handoff](2026-10-16-pypi-release-automation.md) for validation and next actions.
 
 Local and CI validation (2026-10-08): Owner: Unassigned. Status: local checks passed;
