@@ -17,7 +17,7 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
-PyPI release automation (2026-10-16): Owner: Unassigned. Status: Ready for review.
+PyPI release automation (2026-10-16): Owner: ChatGPT. Status: Active.
 User-selected task: consistent release preparation, verified publication and focused
 CI improvements, delivered as a new PR. No hydraulic methods or comparison baselines
 will change. [PR #32](https://github.com/Chain-Frost/ryan-culverts/pull/32) owns current review status; see the
