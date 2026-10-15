@@ -19,7 +19,7 @@ license-files = ["LICENSE"]
 name = "ryan-culverts"
 readme = "README.md"
 requires-python = ">=3.14"
-version = "26.9.10.2"
+version = "26.10.16.1"
 # Runtime dependencies only; the current foundation uses the standard library.
 dependencies = []
 
