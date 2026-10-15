@@ -17,6 +17,12 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+PyPI release automation (2026-10-16): Owner: ChatGPT. Status: Active.
+User-selected task: consistent release preparation, verified publication and focused
+CI improvements, delivered as a new PR. No hydraulic methods or comparison baselines
+will change. [PR #32](https://github.com/Chain-Frost/ryan-culverts/pull/32) owns current review status; see the
+[release setup handoff](2026-10-16-pypi-release-automation.md) for validation and next actions.
+
 Local and CI validation (2026-10-08): Owner: Unassigned. Status: local checks passed;
 hosted CI needs the local repair committed and pushed.
 Validated `fix/issue-30-csp-defaults` at `3debf677` on Python 3.14.6.
@@ -107,7 +113,7 @@ repair. HY-8 executable comparison was not run. The repair is committed locally;
 next action is to push the branch and confirm the new CI run completes. No release
 or publication was performed.
 
-- [External validation of advanced roadway overtopping](2026-10-05-roadway-overtopping-external-validation.md) — [47 discharge cases and seven boundary investigations recorded](2026-10-06-roadway-overtopping-comparison-results.md); irregular differences and submerged-method parity remain unresolved.
+- [External validation of advanced roadway overtopping](2026-10-05-roadway-overtopping-external-validation.md) â€” [47 discharge cases and seven boundary investigations recorded](2026-10-06-roadway-overtopping-comparison-results.md); irregular differences and submerged-method parity remain unresolved.
 
 Before handoff, run focused tests for edited modules and record the exact commands and
 results in the issue/PR or maintained engineering documentation as appropriate. The

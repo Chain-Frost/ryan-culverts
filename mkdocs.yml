@@ -60,6 +60,7 @@ nav:
   - Home: index.md
   - User guide:
       - Packaging and installation: packaging.md
+      - PyPI publishing: pypi_publishing.md
       - Public API policy: public_api.md
       - Uncertainty primitives: uncertainty.md
       - API reference:
@@ -89,6 +90,7 @@ nav:
   - Development:
       - Progress: progress.md
       - Work register: work/README.md
+      - PyPI release handoff: work/2026-10-16-pypi-release-automation.md
       - Uncertainty CI repair: work/2026-10-06-uncertainty-ci-fix.md
       - CS-028 roadway overtopping handoff: work/2026-09-13-cs-028-handoff.md
       - Roadway external validation handoff: work/2026-10-05-roadway-overtopping-external-validation.md
