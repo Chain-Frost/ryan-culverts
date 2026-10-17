@@ -10,7 +10,8 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-# /dist/
+# Locally generated distributions are published by CI, not stored in Git
+dist/
 downloads/
 eggs/
 .eggs/
