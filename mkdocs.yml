@@ -61,6 +61,7 @@ nav:
   - User guide:
       - Packaging and installation: packaging.md
       - PyPI publishing: pypi_publishing.md
+      - Automatic releases: AUTO_PYPI_RELEASES.md
       - Public API policy: public_api.md
       - Uncertainty primitives: uncertainty.md
       - API reference:
