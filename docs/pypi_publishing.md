@@ -14,9 +14,7 @@ Enable two-factor authentication on your PyPI account.
 | Workflow filename | `pypi-publish.yml` |
 | Environment | `pypi` |
 
-The GitHub `pypi` environment allows `v*` tags without a required reviewer, so publication
-is automatic after release validation. Actions must be allowed to create PRs; the
-workflows request write permissions only in the preparation/finalization jobs.
+The GitHub `pypi` environment allows `v*` tags without a required reviewer. The reconciler needs permission to create tags, GitHub Releases and dispatch tag-scoped publisher workflows; the publisher uses PyPI Trusted Publishing.
 No PyPI API token or GitHub personal access token is stored.
 A pending publisher does not reserve the project name.
 
@@ -35,7 +33,7 @@ version bump, tag creation or Actions dispatch is required.
 The publisher compares every historical PyPI version and Git tag with the
 source version before allocating the next strictly greater Perth-calendar
 version. Same-day releases increment the revision, and publication is
-serialized using GitHub Actions `queue: max`. Version conflicts, unknown
+serialized by a durable first-parent reconciler, with hourly recovery. Version conflicts, unknown
 historical schemes and PyPI access failures stop publication rather than
 silently downgrading or reusing a version.
 
@@ -51,28 +49,26 @@ smoke and OIDC Trusted Publishing gates remain.
 Details and recovery procedures are recorded in
 [automatic release policy](AUTO_PYPI_RELEASES.md).
 
-## Recovery and legacy manual releases
+## Recovery and manual publishing
 
-The older `Actions > Release to PyPI > Run workflow` preparation workflow
-remains available, but it is no longer needed for ordinary releases. It
-creates a release PR; the legacy finalizer handles that specific merge, and
-the new publisher deliberately skips its automatic main-merge path.
+The legacy release-PR preparation and finalization workflows have been retired.
+Successful main CI wakes `Reconcile automatic PyPI releases`, which walks all
+first-parent commits in order, skips completed CI failures, waits for pending CI
+and confirms one PyPI publication before advancing to the next release. The
+hourly schedule recovers missed notifications. A reserved Git tag whose GitHub
+Release creation failed is recovered by the same workflow.
 
-A manually published stable GitHub Release may also trigger publication,
-provided the tag identifies a `main` ancestor, metadata is stamped from
-the tag during the publication build and PyPI has no equal or newer version.
-Never move a release tag or overwrite an already published distribution.
-On failure, inspect the reserved GitHub tag and release and rerun only if its
-version remains newer than every PyPI version.
+To recover a failed upload, correct the underlying error and rerun the
+`Publish to PyPI` workflow on the existing `v<version>` tag. Never reuse
+an already published PyPI version or move a release tag.
 
-After publication, install or upgrade with:
+After publication, upgrade with:
 
 ```powershell
 python -m pip install --upgrade ryan-culverts
 ```
 
-The Python import remains `culvert_solver`. An automated wheel smoke test
-does not replace engineering verification or executable HY-8 validation.
+Published wheel verification is not engineering verification.
 
 ## CI scope
 
@@ -96,10 +92,9 @@ Publication also rejects direct URL dependencies, including optional extras, bef
 upload. Publish run-hy8 before testing the optional ryan-culverts external-validation
 extra; that extra now resolves run-hy8 from PyPI rather than from Git.
 
-## Finalization retries
+## Reconciliation retries
 
-Finalization checks PyPI before dispatching publication. If the version already exists,
-it skips dispatch; if publication for that SHA is active, it also skips duplicate work.
-A missing version with no active run can be dispatched again after a failed attempt.
-Unexpected PyPI responses or lookup timeouts fail visibly rather than guessing. Existing
-tag/SHA and stable-release checks still apply before these recovery decisions.
+Inspect the existing tagged release if publication fails. The scheduled
+reconciler retries incomplete tag/release creation but does not overwrite
+published distributions or publish a later source commit ahead of a failed
+release.
