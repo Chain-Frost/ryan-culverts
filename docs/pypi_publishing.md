@@ -26,43 +26,44 @@ maintainer bypass is limited to PRs. Release tags require CI and cannot normally
 updated or deleted; tag creation remains permitted for the workflow token. Merged
 branches are automatically deleted. The PR records live configuration and validation.
 
-## Automated release
+## Automatic release after successful main CI
 
-1. Run **Actions > Release to PyPI > Run workflow** on `main`.
-2. The shared release-preparation helper selects the next Perth calendar version,
-   updates metadata, and invokes the existing verified builder. A builder failure
-   restores metadata and preserves the builder's retained-artifact safeguards.
-3. Review the generated `release/pypi-<version>` PR. Approve its PR-event workflows
-   if GitHub displays **Approve workflows to run**. Dispatched CI cannot substitute
-   for the required PR checks.
-4. Squash merge after every required check passes. Main push CI is preserved per run,
-   even when later merges arrive. Successful CI at that exact merge SHA triggers
-   **Finalize PyPI release**, which parses the merged TOML version and creates
-   `v<version>` and a stable GitHub Release.
-5. Finalization explicitly dispatches **Publish to PyPI** on the tag. Publication
-   requires an existing published, non-draft, non-prerelease release, matching version
-   and a commit reachable from main. It rebuilds without bumping, runs the repository
-   verifier and Twine, smoke-tests the exact wheel, and uploads that artifact through OIDC.
-6. Check the publication run and [PyPI project](https://pypi.org/project/ryan-culverts/).
+Every approved code merge that passes `Python CI` on `main` triggers a
+fresh, **automatically versioned** PyPI release. No manual release PR,
+version bump, tag creation or Actions dispatch is required.
 
-Ordinary PR merges do not publish. Preparing the release PR is a deliberate manual start;
-merge is the human review boundary. No additional publication approval is required.
-The version scheme remains `yy.m.d.revision` so existing version ordering is preserved.
-Release preparation uses Perth time (UTC+08:00), independent of the runner's timezone.
-Normal local build behaviour remains documented in [packaging](packaging.md).
+The publisher compares every historical PyPI version and Git tag with the
+source version before allocating the next strictly greater Perth-calendar
+version. Same-day releases increment the revision, and publication is
+serialized using GitHub Actions `queue: max`. Version conflicts, unknown
+historical schemes and PyPI access failures stop publication rather than
+silently downgrading or reusing a version.
 
-## Recovery and manual releases
+The release Git tag points to the exact CI-verified `main` source commit.
+Its version is stamped into **both** `pyproject.toml` and
+`src/culvert_solver/_version.py` in the isolated publication checkout.
+The tagged source commit can retain an older baseline version. The source
+is never pushed back to protected `main`; the generated wheel metadata and
+release tag carry the published version. Rebuild through the tag-aware
+workflow to reproduce it. The existing build verification, installed-wheel
+smoke and OIDC Trusted Publishing gates remain.
 
-Only one release PR may be open at a time. If preparation fails after pushing a branch,
-inspect it and any PR before retrying. Rerun failed CI at the exact release merge SHA;
-a later successful SHA does not finalize an earlier release. Finalization is safe to retry
-when the existing tag points to the same SHA; it refuses a conflicting tag or prerelease.
-After correcting a publication failure, rerun the publisher on the same stable release tag.
-Do not move release tags or reuse a version already uploaded to PyPI.
+Details and recovery procedures are recorded in
+[automatic release policy](AUTO_PYPI_RELEASES.md).
 
-A manually published stable GitHub Release also triggers publication. Its tag must exactly
-match `v` plus the declared version and point to a commit on main. A bare tag or draft does
-not publish; a prerelease cannot bypass the stable-release gate through manual dispatch.
+## Recovery and legacy manual releases
+
+The older `Actions > Release to PyPI > Run workflow` preparation workflow
+remains available, but it is no longer needed for ordinary releases. It
+creates a release PR; the legacy finalizer handles that specific merge, and
+the new publisher deliberately skips its automatic main-merge path.
+
+A manually published stable GitHub Release may also trigger publication,
+provided the tag identifies a `main` ancestor, metadata is stamped from
+the tag during the publication build and PyPI has no equal or newer version.
+Never move a release tag or overwrite an already published distribution.
+On failure, inspect the reserved GitHub tag and release and rerun only if its
+version remains newer than every PyPI version.
 
 After publication, install or upgrade with:
 
@@ -70,9 +71,8 @@ After publication, install or upgrade with:
 python -m pip install --upgrade ryan-culverts
 ```
 
-The Python import remains `culvert_solver`. A publication or packaging smoke check is not
-new engineering validation and does not run HY-8. Hydraulic validation limitations and
-optional local executable checks remain unchanged.
+The Python import remains `culvert_solver`. An automated wheel smoke test
+does not replace engineering verification or executable HY-8 validation.
 
 ## CI scope
 
