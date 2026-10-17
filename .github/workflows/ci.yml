@@ -83,12 +83,12 @@ jobs:
         shell: pwsh
         run: git diff --check
 
-      - name: Build and verify wheel
+      - name: Build and verify fresh wheel
         shell: pwsh
         run: |
-          python scripts/verify_wheel.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python scripts/build_package.py --no-bump
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/verify_wheel.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
   installed-wheel:
