@@ -17,6 +17,10 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+Issue #3 / PR #29 critical-depth diagnostic (2026-10-18): Owner: ChatGPT. Status: Active.
+Boundary: execute five new high-flow cases, retain native curves, compare critical
+and profile depths with unchanged geometry/equations, and report independent-review limits.
+
 Issue #3 / PR #29 higher-flow executable sweep (2026-10-18): Owner: Unassigned. Status: executed; engineering review outstanding.
 Boundary: execute the requested 18-case diagnostic matrix in a fresh workspace,
 preserve native/version/hash evidence, and assess discrepancies without changing

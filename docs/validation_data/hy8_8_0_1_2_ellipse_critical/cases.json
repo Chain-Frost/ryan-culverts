@@ -1,0 +1,62 @@
+[
+  {
+    "case_id": "ellipse-128x82-q28.00",
+    "kind": "concrete_horizontal_ellipse",
+    "span": 3.2512,
+    "rise": 2.0828,
+    "length": 30.0,
+    "inlet_invert": 10.0,
+    "outlet_invert": 9.5,
+    "roughness": 0.012,
+    "tailwater": 9.7,
+    "discharge": 28.0
+  },
+  {
+    "case_id": "ellipse-128x82-q30.00",
+    "kind": "concrete_horizontal_ellipse",
+    "span": 3.2512,
+    "rise": 2.0828,
+    "length": 30.0,
+    "inlet_invert": 10.0,
+    "outlet_invert": 9.5,
+    "roughness": 0.012,
+    "tailwater": 9.7,
+    "discharge": 30.0
+  },
+  {
+    "case_id": "ellipse-128x82-q32.00",
+    "kind": "concrete_horizontal_ellipse",
+    "span": 3.2512,
+    "rise": 2.0828,
+    "length": 30.0,
+    "inlet_invert": 10.0,
+    "outlet_invert": 9.5,
+    "roughness": 0.012,
+    "tailwater": 9.7,
+    "discharge": 32.0
+  },
+  {
+    "case_id": "ellipse-128x82-q34.00",
+    "kind": "concrete_horizontal_ellipse",
+    "span": 3.2512,
+    "rise": 2.0828,
+    "length": 30.0,
+    "inlet_invert": 10.0,
+    "outlet_invert": 9.5,
+    "roughness": 0.012,
+    "tailwater": 9.7,
+    "discharge": 34.0
+  },
+  {
+    "case_id": "ellipse-128x82-q36.00",
+    "kind": "concrete_horizontal_ellipse",
+    "span": 3.2512,
+    "rise": 2.0828,
+    "length": 30.0,
+    "inlet_invert": 10.0,
+    "outlet_invert": 9.5,
+    "roughness": 0.012,
+    "tailwater": 9.7,
+    "discharge": 36.0
+  }
+]

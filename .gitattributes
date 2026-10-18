@@ -15,3 +15,6 @@ docs/validation_data/hy8_8_0_1_2_ellipse_sweep/**/*.rsql -text -diff
 docs/validation_data/hy8_8_0_1_2_ellipse_sweep/**/*.plt -text -diff
 docs/validation_data/hy8_8_0_1_2_ellipse_sweep/comparison.csv -text
 docs/validation_data/hy8_8_0_1_2_ellipse_sweep/manifest.json text eol=lf
+
+# Separate targeted high-flow evidence and checksum inputs.
+docs/validation_data/hy8_8_0_1_2_ellipse_critical/** -text
