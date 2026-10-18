@@ -417,3 +417,66 @@ Fresh hosted CI must be checked after delivery. No merge, release or publication
 part of this work. No new Linux/macOS local execution or GUI inspection was performed.
 The owner is returned to Unassigned; final acceptance review remains deferred until
 the hydraulic discrepancies have a defensible disposition.
+
+
+## Optional larger-discharge HY-8 diagnostic matrix, 2026-10-18
+
+A separate `--elliptical-sweep` flag retains the original six-case
+`--elliptical` baseline **unchanged** and adds 12 higher-flow cases,
+giving **18 comparisons total**. It is for diagnosis and does not
+replace the version-pinned six-case acceptance evidence.
+
+| Concrete catalogue size | Retained flows (m³/s) | Added flows (m³/s) |
+| --- | --- | --- |
+| 83 × 53 inch | 0.5, 1.0, 2.0 | 3, 5, 6, 8, 12 |
+| 128 × 82 inch | 0.5, 1.0, 2.0 | 3, 5, 10, 15, 18, 25, 35 |
+
+The extra flows straddle the **ryan-culverts** dimensionless inlet-control
+transition interval `3.5 < Q* < 4.0`: approximately 5.16–5.90 m³/s
+for 83 × 53 inch and 15.31–17.50 m³/s for 128 × 82 inch. These are
+**not** claimed HY-8 inlet-method transition flows. Large-flow cases
+can enter different flow regimes; inspect the reported control, profile
+and full/free length before assessing headwater differences.
+
+In addition to the original geometry and discharge-partition columns,
+this mode adds local/HY-8 headwater *depths above the inlet invert*,
+signed percentage difference in those depths, signed percentage difference
+in outlet velocity, both `HW/rise` ratios and the local dimensionless
+flow parameter `Q*`. Signed percentages are calculated as
+`100 × (local − HY-8) / HY-8`; an invalid/nonpositive HY-8
+reference is reported blank rather than dividing by zero.
+The HY-8 CSV values are rounded by the external report. The percentages
+are **diagnostic comparisons**, not design tolerances.
+
+### Windows run instructions
+
+Use the repository branch at the intended commit and Python 3.14.
+The original retained six-case CSV must not be overwritten.
+Use a **fresh, distinct workspace** for each new executable run.
+To reproduce the prior HY-8 evidence environment, install the previously
+verified adapter version:
+
+```powershell
+py -3.14 -m pip install -e ".[dev,external-validation]" "run-hy8==2026.10.18.2"
+py -3.14 -m pip show run-hy8
+
+$env:PYTHONPATH = 'src'
+py -3.14 -B scripts/compare_hy8.py `
+  --elliptical-sweep `
+  --hy8 'C:\Program Files\HY-8 8.00\HY864.exe' `
+  --workspace 'validation_artifacts/hy8-ellipse-sweep-run01' `
+  --output 'validation_artifacts/hy8-ellipse-sweep-run01.csv'
+```
+
+Retain the resulting CSV plus per-case `.hy8`, `.rst`, `.rsql`
+and `.plt` files, HY-8 executable version/hash and installed adapter
+version. Review the 12 new comparisons alongside the repeated six base
+cases. **Do not treat an invalid fixture (wrong flow, unexpected overtopping,
+zero culvert flow) as a valid percentage result**; the comparison harness
+raises on these cases. If a larger flow triggers a genuine change of
+hydraulic control, preserve that finding rather than adjusting input
+parameters or empirical coefficients to force a match.
+
+This optional high-flow diagnostic has **not yet been executed against
+the Windows HY-8 executable**. Current validation boundaries and
+engineering-acceptance requirements remain unchanged.
