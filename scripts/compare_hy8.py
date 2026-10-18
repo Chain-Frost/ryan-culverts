@@ -824,6 +824,7 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
     for case in _selected_cases(args):
         local = _local_result(case)
         oval_data: tuple[float, ...] = ()
+        oval: Hy8ConcreteOvalGeometry | None = None
         if args.elliptical or args.elliptical_sweep:
             oval = Hy8ConcreteOvalGeometry.from_mm(case.span * 1000.0, case.rise * 1000.0)
             oval_data = (
@@ -865,6 +866,9 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
         )
         sweep_data: tuple[float | None, ...] = ()
         if args.elliptical_sweep:
+            if oval is None:
+                msg = "The high-flow ellipse sweep requires a source-backed oval geometry."
+                raise RuntimeError(msg)
             local_depth = local.headwater - case.inlet_invert
             hy8_depth = row.headwater_elevation - case.inlet_invert
             sweep_data = (
