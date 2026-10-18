@@ -234,7 +234,7 @@ until its own commit's CI completes.
 ## Evidence and primary reference links
 
 - [Original six-case comparison](../validation_data/hy8_8_0_1_2_ellipse_comparison.csv)
-  and [native six-case evidence](../validation_data/hy8_8_0_1_2_ellipse/).
+  and [native six-case evidence manifest](../validation_data/hy8_8_0_1_2_ellipse/manifest.json).
 - [18-case sweep CSV](../validation_data/hy8_8_0_1_2_ellipse_sweep/comparison.csv)
   and [manifest](../validation_data/hy8_8_0_1_2_ellipse_sweep/manifest.json).
 - [Targeted seven-row critical/profile diagnostics](../validation_data/hy8_8_0_1_2_ellipse_critical/diagnostics.csv),
