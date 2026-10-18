@@ -45,13 +45,16 @@ Verification on Windows, Python 3.13.15 and 3.14.6:
 HY-8 executable comparisons, hosted CI, Linux/macOS execution, Python 3.15 or later,
 and local Actionlint were not run. Newer interpreters are permitted by metadata;
 local compatibility evidence covers 3.13/3.14. This is regression evidence, not
-engineering acceptance. Changes remain uncommitted and unpushed; nothing was published.
+engineering acceptance. The compatibility change is committed on `feat/python-313-support`; no publication
+was performed. The latest `main` was merged before PR validation. Its removal of the
+tracked wheel is preserved; build artifacts are local validation evidence only.
 
-PyPI release automation (2026-10-16): Owner: ChatGPT. Status: Active.
-User-selected task: consistent release preparation, verified publication and focused
-CI improvements, delivered as a new PR. No hydraulic methods or comparison baselines
-will change. [PR #32](https://github.com/Chain-Frost/ryan-culverts/pull/32) owns current review status; see the
-[release setup handoff](2026-10-16-pypi-release-automation.md) for validation and next actions.
+PyPI release policy (2026-10-18): Owner: Unassigned. Status: Needs review.
+Port run-hy8 PR #17's verified merge-only release opt-out, preserving repository-specific
+builds and publisher identity. Local validation passes, including 561 tests and isolated
+wheel smoke. [PR #38](https://github.com/Chain-Frost/ryan-culverts/pull/38) is open
+on `ci/merge-only-release-policy`; the PR owns live CI status. No merge authorized. Next review: 2026-10-19. See the
+[release handoff](2026-10-16-pypi-release-automation.md) for scope and validation.
 
 Local and CI validation (2026-10-08): Owner: Unassigned. Status: local checks passed;
 hosted CI needs the local repair committed and pushed.
