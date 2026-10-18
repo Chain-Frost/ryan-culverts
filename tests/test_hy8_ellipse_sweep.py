@@ -41,7 +41,8 @@ def _load_comparator(monkeypatch: pytest.MonkeyPatch) -> ModuleType:
     monkeypatch.setitem(sys.modules, "run_hy8", adapter)
     spec = importlib.util.spec_from_file_location("_test_compare_hy8", SCRIPT)
     if spec is None or spec.loader is None:
-        raise AssertionError("Cannot import the comparison script.")
+        msg = "Cannot import the comparison script."
+        raise AssertionError(msg)
     module = importlib.util.module_from_spec(spec)
     monkeypatch.setitem(sys.modules, spec.name, module)
     spec.loader.exec_module(module)
@@ -49,7 +50,7 @@ def _load_comparator(monkeypatch: pytest.MonkeyPatch) -> ModuleType:
 
 
 def _cases(module: ModuleType, **kwargs: bool) -> tuple[ComparisonCaseProtocol, ...]:
-    defaults = dict(elliptical=False, elliptical_sweep=False, discrepancy_sweep=False)
+    defaults = {"elliptical": False, "elliptical_sweep": False, "discrepancy_sweep": False}
     defaults.update(kwargs)
     select = cast(
         "Callable[[argparse.Namespace], tuple[ComparisonCaseProtocol, ...]]",
