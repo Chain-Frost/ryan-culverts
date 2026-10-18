@@ -34,8 +34,8 @@ Development records: [progress](docs/progress.md),
 [architecture](docs/architecture.md), [validation](docs/validation.md) and
 [HY-8 capability matrix](docs/hy8_feature_parity.md).
 
-Use your selected Python installation. Python 3.14 is the current tested and metadata
-baseline. See the
+Use your selected Python installation. Python 3.13 and 3.14 are supported; Python 3.13 is the minimum
+installation version. See the
 [Python support policy](docs/packaging.md#python-support-policy).
 
 ```powershell
