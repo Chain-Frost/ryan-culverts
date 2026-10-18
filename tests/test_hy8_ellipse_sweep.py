@@ -2,6 +2,7 @@
 
 import argparse
 import importlib.util
+import math
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -18,6 +19,14 @@ class ComparisonCaseProtocol(Protocol):
 
     case_id: str
     discharge: float
+
+
+class ComparisonResultProtocol(Protocol):
+    """Locally calculated fields needed for the high-flow preflight."""
+
+    headwater: float
+    velocity: float
+    outlet_depth: float
 
 
 def _load_comparator(monkeypatch: pytest.MonkeyPatch) -> ModuleType:
@@ -114,3 +123,18 @@ def test_elliptical_flags_are_mutually_exclusive(monkeypatch: pytest.MonkeyPatch
     with pytest.raises(SystemExit) as error:
         parse()
     assert error.value.code == 2
+
+
+def test_all_sweep_cases_run_in_local_hydraulic_solver(monkeypatch: pytest.MonkeyPatch) -> None:
+    """All 18 local sides must be computable before asking for Windows HY-8."""
+    module = _load_comparator(monkeypatch)
+    local_result = cast(
+        "Callable[[ComparisonCaseProtocol], ComparisonResultProtocol]",
+        module.__dict__["_local_result"],
+    )
+    for case in _cases(module, elliptical_sweep=True):
+        result = local_result(case)
+        assert math.isfinite(result.headwater), case.case_id
+        assert math.isfinite(result.velocity), case.case_id
+        assert result.velocity > 0.0, case.case_id
+        assert math.isfinite(result.outlet_depth), case.case_id
