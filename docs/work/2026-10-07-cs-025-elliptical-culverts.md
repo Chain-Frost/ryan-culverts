@@ -6,6 +6,9 @@ This note records the first implementation slice of
 [issue #3](https://github.com/Chain-Frost/ryan-culverts/issues/3). It does not close the
 broader additional-shapes/materials issue.
 
+Current validation: the [18 October executable assessment](#local-six-case-executable-assessment-2026-10-18)
+supersedes the historical statements below that the six-case comparison has not run.
+
 ## Shape priority
 
 1. **Horizontal and vertical ellipses — implemented.** Span and rise define an exact ellipse,
@@ -277,4 +280,140 @@ The full suite, Pyright, MkDocs, packaging, and HY-8 were not rerun for this ren
 - do the same for arch families;
 - add new material/roughness records only when a primary or manufacturer source provides
   values and applicability not already represented by the current material catalogue;
-- after `run-hy8` #5 is implemented, add retained ellipse comparison fixtures here.
+- review and resolve the retained ellipse discrepancies described below before claiming
+  bounded external hydraulic acceptance.
+
+## Local six-case executable assessment, 2026-10-18
+
+Owner: Unassigned. Status: comparison evidence captured; engineering acceptance open.
+Boundary: PR #29 comparison and evidence review, not new geometry or calibrated equations.
+
+The branch already incorporates main through `55f912c8f7f9d3f5683bf34ced2dd675a97b8db3`;
+GitHub reports it mergeable. No additional conflict resolution was necessary.
+
+Executed all six requested cases on Python 3.14.6 with HY-8 file version **8.0.1.2**
+at `C:/Program Files/HY-8 8.00/HY864.exe`, using the public **run-hy8 2026.10.18.2**
+wheel in an isolated environment with system site packages enabled. The global
+adapter was not changed by this task. Executable and ShapeDB hashes, exact source head,
+working-tree harness changes, and all retained artifact hashes are recorded in
+[`manifest.json`](../validation_data/hy8_8_0_1_2_ellipse/manifest.json).
+
+The first attempt failed adapter input validation before execution: the harness supplied
+three points for a constant roadway. Corrected this to the required two equal-elevation
+endpoints, preserving width, crest and non-overtopping intent. The completed final run
+returned exit code 0 in a fresh
+`validation_artifacts/ellipse-2026-10-18/run-04-adapter-2026.10.18.2` workspace.
+The ellipse CSV now explicitly retains crossing, barrel and roadway discharge.
+The initial completed run used 2026.10.16.1. After the user updated run-hy8, installed
+2026.10.18.2 into the isolated environment and reran all six cases. The comparison CSV
+is byte-identical across both adapter versions. Retained native files are from the final
+installed-wheel rerun after the provenance fix, also using 2026.10.18.2. Earlier runs
+remain separately preserved in ignored workspaces.
+
+Retained evidence:
+
+- [Six-case comparison CSV](../validation_data/hy8_8_0_1_2_ellipse_comparison.csv).
+- Native `.hy8`, `.rst`, `.rsql` and `.plt` files for every case in
+  `docs/validation_data/hy8_8_0_1_2_ellipse/`, alongside the hash manifest.
+- Byte-preserving Git attributes protect these checksum inputs from line-ending conversion.
+  Native files retain HY-8's generated whitespace and use binary diffs; the CSV and
+  provenance manifest remain directly reviewable text.
+- Offline tests verify hashes and compare CSV flow/headwater/velocity/type with native
+  report columns. These are evidence-integrity checks, not new executable runs in CI.
+
+### Quantitative assessment criteria
+
+Use the existing source-reconciliation limits and report-precision checks; do not choose
+a larger tolerance to encompass the observed differences. These are diagnostic gates,
+not design tolerances or an assertion that HY-8 defines correctness.
+
+1. Fixture validity: finite positive barrel flow equal to requested crossing flow within
+   the existing `0.0051 m3/s` report tolerance; roadway flow zero within that tolerance;
+   full/free lengths nonnegative and summing to 30 m within `0.011 m`. All six pass.
+2. Source geometry: independently reconstructed span and area each within the established
+   0.5% ShapeDB reconciliation gates. Both sizes pass; this does not establish identical
+   depth-dependent section properties inside HY-8.
+3. Rounding-only hydraulic agreement: absolute headwater difference at most `0.0051 m`
+   and velocity difference at most `0.0051 m/s`, reflecting two-decimal native reports.
+   Differences above this need method/geometry explanation, not automatic acceptance.
+4. Regime evidence: consistent inlet control, S2 profile and zero full-flow length.
+   All six agree. HY-8's `0.0*` outlet-control depth is qualified, not an independent
+   physical outlet-control depth or a value against which to calibrate the core.
+5. Final engineering review: assess independent equation/profile evidence and explain
+   residual differences before accepting this bounded comparison. Vertical mathematical
+   ellipses and other regimes remain outside its coverage.
+
+Signed differences below are local minus HY-8:
+
+| Case | HW difference (m) | Velocity difference (m/s) | Rounding-only agreement |
+| --- | ---: | ---: | --- |
+| 83 x 53 inch, 0.5 m3/s | -0.001188 | +0.011830 | Velocity exceeds |
+| 83 x 53 inch, 1.0 m3/s | +0.002976 | +0.013830 | Velocity exceeds |
+| 83 x 53 inch, 2.0 m3/s | +0.007268 | +0.005062 | Headwater exceeds |
+| 128 x 82 inch, 0.5 m3/s | -0.022632 | +0.006101 | Both exceed |
+| 128 x 82 inch, 1.0 m3/s | -0.009647 | +0.024171 | Both exceed |
+| 128 x 82 inch, 2.0 m3/s | -0.007162 | +0.020660 | Both exceed |
+
+Two of six headwater values and one of six velocities meet the rounding-only gate;
+no case meets both. All requested barrel flows are exactly 0.5, 1.0 or 2.0 m3/s in the
+reports, with zero roadway flow. All local cases are unsubmerged inlet control with S2
+profiles; HY-8 reports `1-S2n`, 0 m full and 30 m free length.
+
+### Difference classification and disposition
+
+The 83 x 53 profile reconstructs nominal span at +0.009636% and area at -0.003694%;
+128 x 82 has approximately zero span discrepancy and area -0.185753%. The CSV retains
+exact values. These source-geometry residuals are separate from hydraulic residuals;
+full-area agreement cannot establish partial-depth area/perimeter equivalence.
+
+The local inlet calculation uses HDS-5 Table A.2 Chart 29 Scale 1 and Equation A.1
+with computed critical specific energy. The retained reports establish that the
+headwater differences occur on the unsubmerged inlet-control branch, so they are not
+evidence of a submerged transition or full-flow outlet-loss error. Outlet velocity
+also depends on partial-depth geometry and the normal/outlet profile. A quantitative
+attribution between HY-8's internal geometry and inlet/profile implementation remains
+unresolved; do not claim the area residual alone explains the discrepancy.
+
+No hydraulic equations, coefficients, source-reconciliation gates or historical
+comparison baselines were adjusted. This new fixture records discrepancies faithfully.
+The six-case execution requirement is satisfied; numerical equivalence and engineering
+acceptance are not. Keep PR #29 draft and defer the requested final acceptance review
+until the residuals have independent evidence and a reviewed disposition. Do not merge.
+
+### Verification and delivery
+
+Checks on the final implementation and retained evidence, Python 3.14.6:
+
+- `python -m pytest -q`: **643 passed** in 20.12 s, no skips or deselections.
+- `python -m ruff check .`: passed.
+- `python -m ruff format --check .`: passed, 157 files already formatted.
+- `python -m pyright`: zero errors, warnings or information messages.
+- `python -m pyright scripts/compare_hy8.py`: zero diagnostics with the updated adapter.
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`: passed.
+- `python -m mkdocs build --strict`: passed.
+- `git diff --check`: passed.
+- `python scripts/build_package.py --no-bump` and `python scripts/verify_wheel.py`:
+  passed; wheel version unchanged at 26.10.16.1, 121,661 bytes, SHA-256
+  `1a769421147a8c26d5d5ba855601d67c27d53d758f9e8c7086398b7ef99b4594`.
+- Installed that wheel in the isolated environment; `python -I
+  scripts/smoke_test_installed_wheel.py` passed. The first isolated external comparison
+  found that `-I` excludes dependencies inherited from user site packages. Installed
+  adapter dependencies inside the environment and repeated successfully.
+- Repeated the full six-case executable matrix against the installed wheel using `-I`,
+  with run-hy8 2026.10.18.2, in fresh workspace
+  `validation_artifacts/ellipse-2026-10-18/run-07-final-wheel`. Exit code 0;
+  CSV SHA-256 matches the source-tree run exactly:
+  `6a6c527907e7b440b53689ddd57be02f45ed52b4135d35b1431fca3483f42361`.
+
+PR #29 was restored to draft because the independent acceptance gate remains open.
+The new P2 review finding about mutable catalogue identity was repaired: the index is
+stored privately and exposed through a read-only property. Reassignment/deletion now
+raise `AttributeError`, preserving the source row and precomputed profile together.
+A regression checks this contract. The final rebuilt wheel's full matrix reproduces
+the earlier CSV exactly, so the provenance repair did not change these hydraulics.
+The four jobs in hosted [run 39106984351](https://github.com/Chain-Frost/ryan-culverts/actions/runs/39106984351)
+passed at base head `55f912c`; that run does not verify these subsequent evidence changes.
+Fresh hosted CI must be checked after delivery. No merge, release or publication is
+part of this work. No new Linux/macOS local execution or GUI inspection was performed.
+The owner is returned to Unassigned; final acceptance review remains deferred until
+the hydraulic discrepancies have a defensible disposition.

@@ -36,6 +36,7 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
     """
 
     __slots__ = (
+        "_catalogue_index",
         "_corner_radius",
         "_half_rise",
         "_join_height",
@@ -44,7 +45,6 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
         "_side_offset",
         "_span",
         "_vertical_shift",
-        "catalogue_index",
     )
 
     def __init__(self, catalogue_index: int) -> None:
@@ -88,7 +88,7 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
             )
             raise InvalidInputError(msg)
 
-        self.catalogue_index = catalogue_index
+        self._catalogue_index = catalogue_index
         self._span = actual_span
         self._rise = 2.0 * half_rise
         self._half_rise = half_rise
@@ -120,6 +120,11 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
                 return cls(size.row_index)
         msg = "The requested HY-8 concrete oval is not an exact ShapeDB catalogue size."
         raise InvalidInputError(msg)
+
+    @property
+    def catalogue_index(self) -> int:
+        """Read-only source row used to construct the hydraulic profile."""
+        return self._catalogue_index
 
     @property
     def catalogue_size(self) -> Hy8ConcreteOvalSize:

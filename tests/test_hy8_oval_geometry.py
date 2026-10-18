@@ -58,6 +58,23 @@ def test_oval_area_depth_perimeter_and_width_consistency(row_index: int) -> None
         )
 
 
+def test_catalogue_identity_cannot_be_reassigned_or_deleted() -> None:
+    """Source provenance must remain tied to the precomputed hydraulic profile."""
+    oval = Hy8ConcreteOvalGeometry.from_mm(2108.2, 1346.2)
+    original_index = oval.catalogue_index
+    original_size = oval.catalogue_size
+    original_area = oval.area_full
+    original_source_area = oval.shape_db_area_full
+    with pytest.raises(AttributeError):
+        setattr(oval, "catalogue_index", 20)  # noqa: B010 - exercise runtime rejection of a read-only property
+    with pytest.raises(AttributeError):
+        delattr(oval, "catalogue_index")
+    assert oval.catalogue_index == original_index
+    assert oval.catalogue_size is original_size
+    assert oval.area_full == original_area
+    assert oval.shape_db_area_full == original_source_area
+
+
 def test_catalogue_selection_and_area_reconciliation_fail_closed() -> None:
     """No substitution, rotation or knowingly inconsistent catalogue geometry."""
     assert len(HY8_CONCRETE_OVALS) == 23

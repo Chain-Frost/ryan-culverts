@@ -17,6 +17,13 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+Issue #3 / PR #29 six-case executable validation (2026-10-18): Owner: Unassigned. Status: Needs review.
+Boundary: preserve fresh HY-8 ellipse evidence, assess hydraulic discrepancies against
+explicit comparison criteria, and record validation and review readiness.
+The six positive-flow cases are retained; hydraulic differences exceed report rounding.
+See [the current assessment](2026-10-07-cs-025-elliptical-culverts.md#local-six-case-executable-assessment-2026-10-18).
+Engineering acceptance and final review remain gated; next review: 2026-10-19.
+
 Issue #3 ellipse validation repair (2026-10-07): Owner: Unassigned. Status: verified locally.
 Boundary: repair local test and quality-check failures in the ellipse implementation
 slice without changing sourced coefficients or HY-8 baselines.

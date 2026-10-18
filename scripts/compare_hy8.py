@@ -480,8 +480,8 @@ def _hy8_crossing(case: ComparisonCase) -> Hy8Crossing:
     roadway_crest = max(case.inlet_invert, case.tailwater) + 10.0
     crossing.roadway = RoadwayProfile(
         width=10.0,
-        stations=[-10.0, 0.0, 10.0],
-        elevations=[roadway_crest, roadway_crest, roadway_crest],
+        stations=[-10.0, 10.0],
+        elevations=[roadway_crest, roadway_crest],
     )
     crossing.culverts.append(
         Hy8Barrel(
@@ -733,6 +733,9 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
             "reconstructed_area_m2",
             "shape_db_area_m2",
             "area_difference_percent",
+            "hy8_total_discharge_m3s",
+            "hy8_culvert_discharge_m3s",
+            "hy8_roadway_discharge_m3s",
         )
         if args.elliptical
         else ()
@@ -847,6 +850,7 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
                 ),
                 local.full_flow_length - hy8_culvert.full_length,
                 *oval_data,
+                *((row.flow, hy8_culvert.discharge, row.roadway_discharge) if args.elliptical else ()),
             )
         )
 
