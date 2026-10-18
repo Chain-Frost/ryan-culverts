@@ -17,10 +17,11 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
-Python 3.13 support (2026-10-18): Owner: Unassigned. Status: Complete locally.
+Python 3.13 support (2026-10-18): Owner: Unassigned. Status: CI simplification validated locally.
 User-selected compatibility task within the CS-019 packaging boundary. Installation
-requires Python `>=3.13`, with no upper bound. CI now covers full checks on 3.13/3.14
-and installed/vendored wheels on Windows, Linux, and macOS for both versions.
+requires Python `>=3.13`, with no upper bound. CI runs full checks once on 3.13 under the required name `verify`, plus lightweight
+installed/vendored wheel checks on 3.14 across Windows, Linux, and macOS.
+This reduces eight jobs to four and preserves all existing required check names.
 Ruff and Pyright target 3.13. Restored exception tuple parentheses and deferred barrel
 annotations for 3.13 imports; hydraulic equations and comparison baselines are unchanged.
 Adjusted the invalid-date test for the different standard-library error wording on 3.13.
@@ -42,8 +43,11 @@ Verification on Windows, Python 3.13.15 and 3.14.6:
   `scripts/smoke_test_vendored_wheel.py` outside the checkout with unrelated stale
   distribution metadata present.
 
-HY-8 executable comparisons, hosted CI, Linux/macOS execution, Python 3.15 or later,
-were not run. Actionlint 1.7.12 passed after checksum verification. Newer interpreters are permitted by metadata;
+The initial eight-job hosted CI run 39131100873 passed on head `fc20229`, including
+Linux/macOS wheel checks. The subsequent four-job CI simplification is tracked in
+[PR #39](https://github.com/Chain-Frost/ryan-culverts/pull/39). Actionlint, Markdown lint,
+strict MkDocs, and whitespace were rerun locally for the workflow/documentation edits.
+HY-8 executable comparisons and Python 3.15 or later were not run. Actionlint 1.7.12 passed after checksum verification. Newer interpreters are permitted by metadata;
 local compatibility evidence covers 3.13/3.14. This is regression evidence, not
 engineering acceptance. The compatibility change is committed on `feat/python-313-support`; no publication
 was performed. The latest `main` was merged before PR validation. Its removal of the

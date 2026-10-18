@@ -6,7 +6,7 @@ This file records user-visible changes. Detailed validation evidence remains in
 ## Unreleased
 
 - Added Python 3.13 support alongside 3.14, including package metadata, minimum-version
-  tooling targets, and full-check and installed-wheel CI coverage.
+  tooling targets, full checks on 3.13, and lightweight installed-wheel checks on 3.14.
 
 Source-only maintenance may exist above the retained wheel without requiring a release
 entry. User-visible package changes must be listed here before the next wheel is built.

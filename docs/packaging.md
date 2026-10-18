@@ -35,9 +35,10 @@ Python 3.13 and 3.14 are supported. Metadata declares `requires-python >=3.13`.
 Ruff and Pyright target the minimum supported version so maintenance does not
 accidentally introduce a requirement for a newer interpreter.
 
-CI runs the full repository checks on both versions and builds and installs the
-universal wheel outside the source tree on Windows, Linux, and macOS with both
-versions. Installed checks exercise public version discovery and a smoke calculation.
+CI runs the full repository checks once, on Python 3.13, in the required `verify` job.
+Lightweight jobs build and install the universal wheel outside the source tree on
+Windows, Linux, and macOS with Python 3.14. These retain the existing required check
+names and exercise public version discovery and a smoke calculation.
 A successful wheel build alone is not a compatibility claim.
 
 The Pyright and Ruff version targets describe the supported development baseline;
@@ -129,7 +130,7 @@ Outputs go into `dist/`. The wheel contains the import package,
 typed marker and package metadata/licence. Tests, development documentation, research PDFs,
 historical fixtures, caches, and generated reports are excluded. The `py3-none-any` tag
 identifies pure Python 3 code with no platform-specific ABI, so the same wheel can be used
-on Windows, Linux, and macOS. Python 3.13 and 3.14 are covered by the CI matrix.
+on Windows, Linux, and macOS. Full checks cover Python 3.13; installed-wheel smoke checks cover Python 3.14.
 
 Install a built wheel directly by passing its actual path to pip. For the current version:
 

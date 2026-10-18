@@ -17,10 +17,6 @@ jobs:
   verify:
     runs-on: windows-latest
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.13", "3.14"]
 
     steps:
       - name: Checkout repository
@@ -28,10 +24,10 @@ jobs:
         with:
           lfs: true
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.13
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.13"
           cache: pip
 
       - name: Check GitHub Actions workflows
@@ -96,23 +92,22 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
   installed-wheel:
-    name: Installed wheel (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    name: Installed wheel (${{ matrix.os }}, Python 3.14)
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        python-version: ["3.13", "3.14"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.14
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.14"
           cache: pip
 
       - name: Build wheel
