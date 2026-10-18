@@ -238,7 +238,7 @@ def resolve_csp_manning_roughness(
         raise InvalidInputError(msg)
     try:
         selected_corrugation = CspCorrugation(corrugation)
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         msg = "corrugation must be a recognized CspCorrugation value."
         raise InvalidInputError(msg) from None
 

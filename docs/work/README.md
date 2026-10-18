@@ -17,6 +17,42 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+Python 3.13 support (2026-10-18): Owner: Unassigned. Status: CI simplification validated locally.
+User-selected compatibility task within the CS-019 packaging boundary. Installation
+requires Python `>=3.13`, with no upper bound. CI runs full checks once on 3.13 under the required name `verify`, plus lightweight
+installed/vendored wheel checks on 3.14 across Windows, Linux, and macOS.
+This reduces eight jobs to four and preserves all existing required check names.
+Ruff and Pyright target 3.13. Restored exception tuple parentheses and deferred barrel
+annotations for 3.13 imports; hydraulic equations and comparison baselines are unchanged.
+Adjusted the invalid-date test for the different standard-library error wording on 3.13.
+
+Verification on Windows, Python 3.13.15 and 3.14.6:
+
+- Full `python -m pytest -q`: 560 passed on each version, no skips or deselections.
+- Python 3.13: `python -m ruff check .`, `python -m ruff format --check .`
+  (148 files), and `python -m pyright` (zero diagnostics) passed.
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`,
+  `python -m mkdocs build --strict`, and `git diff --check` passed.
+- Python 3.13: `python scripts/build_package.py --no-bump` and
+  `python scripts/verify_wheel.py` passed. Rebuilt local version `26.10.16.1`,
+  113181 bytes, SHA-256
+  `8de9b889e79bb5af8046b24bcbdaf12187caf0c7c9f2ac5c46a7d26a0534523c`.
+- Rebuilt wheel installed and passed `scripts/smoke_test_installed_wheel.py`
+  outside the checkout in separate clean 3.13 and 3.14 virtual environments.
+- Python 3.13 vendored fixture built, installed into a temporary target, and passed
+  `scripts/smoke_test_vendored_wheel.py` outside the checkout with unrelated stale
+  distribution metadata present.
+
+The initial eight-job hosted CI run 39131100873 passed on head `fc20229`, including
+Linux/macOS wheel checks. The subsequent four-job CI simplification is tracked in
+[PR #39](https://github.com/Chain-Frost/ryan-culverts/pull/39). Actionlint, Markdown lint,
+strict MkDocs, and whitespace were rerun locally for the workflow/documentation edits.
+HY-8 executable comparisons and Python 3.15 or later were not run. Actionlint 1.7.12 passed after checksum verification. Newer interpreters are permitted by metadata;
+local compatibility evidence covers 3.13/3.14. This is regression evidence, not
+engineering acceptance. The compatibility change is committed on `feat/python-313-support`; no publication
+was performed. The latest `main` was merged before PR validation. Its removal of the
+tracked wheel is preserved; build artifacts are local validation evidence only.
+
 PyPI release policy (2026-10-18): Owner: Unassigned. Status: Needs review.
 Port run-hy8 PR #17's verified merge-only release opt-out, preserving repository-specific
 builds and publisher identity. Local validation passes, including 561 tests and isolated

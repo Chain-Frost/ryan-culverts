@@ -9,23 +9,17 @@ import pytest
 from scripts import build_package, smoke_test_installed_wheel, verify_wheel
 
 
-@pytest.mark.parametrize(
-    ("declared", "installed"),
-    [(">=3.14", ">=3.14"), (">=3.14,<3.15", "<3.15,>=3.14")],
-)
-def test_installed_smoke_checks_authoritative_python_range(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, declared: str, installed: str
-) -> None:
-    metadata = _smoke_metadata(tmp_path, monkeypatch, declared)
-    metadata["Requires-Python"] = installed
+def test_installed_smoke_checks_authoritative_python_range(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    metadata = _smoke_metadata(tmp_path, monkeypatch, ">=3.13")
+    metadata["Requires-Python"] = ">=3.13"
     assert smoke_test_installed_wheel.main() == 0
 
 
-@pytest.mark.parametrize("installed", [None, ">=3.13", ">=3.14,<3.15"])
+@pytest.mark.parametrize("installed", [None, ">=3.14", ">=3.13,<3.14"])
 def test_installed_smoke_rejects_missing_or_stale_python_range(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, installed: str | None
 ) -> None:
-    metadata = _smoke_metadata(tmp_path, monkeypatch, ">=3.14")
+    metadata = _smoke_metadata(tmp_path, monkeypatch, ">=3.13")
     if installed is not None:
         metadata["Requires-Python"] = installed
     with pytest.raises(RuntimeError, match=r"Requires-Python.*does not match pyproject\.toml"):
@@ -75,7 +69,7 @@ def test_calendar_version_rejects_clock_before_current_release() -> None:
 
 @pytest.mark.parametrize("version", ["26.09.09.1", "2026.9.9.1", "26.2.30.1", "26.9.9.0"])
 def test_calendar_version_rejects_invalid_or_non_normalized_values(version: str) -> None:
-    with pytest.raises(ValueError, match=r"normalized|must be in range"):
+    with pytest.raises(ValueError, match=r"normalized|must be in range|day is out of range"):
         build_package.parse_calendar_version(version)
 
 

@@ -62,9 +62,9 @@ boundary is deliberately changed.
 
 ## Implementation conventions
 
-- The supported and tested interpreter baseline is Python 3.14. If the cloud environment
-  lacks it, do not relax `requires-python`; run the available checks and report the gap so
-  CI or a local Python 3.14 checkout can finish verification.
+- Support Python 3.13 and 3.14, with Python 3.13 as the minimum interpreter. If the cloud
+  environment lacks either version, do not relax `requires-python`; run the available
+  checks and report the gap so CI or a local checkout can finish verification.
 - Use SI units in the hydraulic core. Keep unit conversion at explicit boundaries.
 - `pyproject.toml` is the dependency authority. Do not add silent fallback dependencies.
 - Import public names from `culvert_solver`. Add intentional new public names to

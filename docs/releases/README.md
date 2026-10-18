@@ -5,8 +5,8 @@
 `pyproject.toml` identifies the current packaged version. It remains an alpha package, is
 not engineering design software, and has not been published to a package index. The
 artifact of record is the sole pure-Python `py3-none-any` wheel under `dist/`; its filename
-and embedded version metadata must match `pyproject.toml`. Python 3.14 is its tested
-interpreter baseline.
+and embedded version metadata must match `pyproject.toml`. Wheels built from the current source require Python `>=3.13` with no upper bound,
+and have passed isolated installed-wheel checks on Python 3.13 and 3.14.
 
 The current `main` source may contain changes listed as [unreleased](../changelog.md) that
 are not in this wheel. Creating the next wheel must increment the calendar version.
