@@ -9,6 +9,11 @@ broader additional-shapes/materials issue.
 Current validation: the [18 October executable assessment](#local-six-case-executable-assessment-2026-10-18)
 supersedes the historical statements below that the six-case comparison has not run.
 
+The [PR #29 hydraulic review and disposition](2026-10-18-pr29-hydraulic-review.md)
+summarises all retained comparisons, the near-crown diagnostic, resolved review
+findings and the limits of acceptance. This closes the present review round
+without claiming HY-8 equivalence or authorising a release.
+
 ## Shape priority
 
 1. **Horizontal and vertical ellipses — implemented.** Span and rise define an exact ellipse,
