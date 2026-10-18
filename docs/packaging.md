@@ -5,6 +5,13 @@
 `pyproject.toml` is authoritative. No `requirements.txt`, `setup.py`, Poetry
 configuration or Hatch environment is required.
 
+The optional `external-validation` extra obtains `run-hy8>=2026.10.5.1` from
+PyPI instead of a Git URL, which PyPI would reject in published dependency metadata.
+Publish run-hy8 first: this extra cannot be installed from PyPI until that project
+has a compatible release. Ordinary CI and core installation do not need the extra.
+Historical HY-8 comparison evidence remains tied to its recorded source commit;
+the version constraint is not new executable or compatibility validation.
+
 | Setting | Purpose |
 | --- | --- |
 | `[project].dependencies` | Runtime dependencies; currently empty |
@@ -180,3 +187,8 @@ The configuration follows the [PyPA project metadata guide][pypa] and
 
 [pypa]: https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
 [hatch]: https://hatch.pypa.io/latest/config/build/
+
+## PyPI publication
+
+See [publishing](pypi_publishing.md) for the automated release PR, stable GitHub Release,
+verified-wheel smoke check and Trusted Publishing setup.

@@ -73,6 +73,8 @@ universal wheel, then replaces the previous project wheel only after success.
 `.\force-reinstall.bat` for the existing wheel or `.\package_and_force_install.bat` to
 rebuild before forcing replacement of the installed package.
 
+For PyPI release setup and automation, see [publishing](docs/pypi_publishing.md).
+
 ## License
 
 This project is licensed under the [Sustainable Use License v1.0](LICENSE)

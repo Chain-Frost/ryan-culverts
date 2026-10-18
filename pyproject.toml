@@ -19,7 +19,7 @@ license-files = ["LICENSE"]
 name = "ryan-culverts"
 readme = "README.md"
 requires-python = ">=3.14"
-version = "26.9.10.2"
+version = "26.10.16.1"
 # Runtime dependencies only; the current foundation uses the standard library.
 dependencies = []
 
@@ -40,14 +40,9 @@ dev = [
   "pytest>=9",
   "ruff==0.16.6",
 ]
-external-validation = [
-  # Local HY-8 tooling only; GitHub CI installs dev without this extra.
-  # Pin merged PR #7 rather than floating main; validate locally with HY-8 8.0.1.2.
-  "run-hy8 @ git+https://github.com/Chain-Frost/run-hy8.git@28e7909afd5ae53c4357380ef70c5f2e482c917d",
-]
-
-[tool.hatch.metadata]
-allow-direct-references = true
+# Local executable validation only; ordinary CI installs dev without this extra.
+# Publish run-hy8 to PyPI before installing this optional integration.
+external-validation = ["run-hy8>=2026.10.5.1"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/culvert_solver"]
