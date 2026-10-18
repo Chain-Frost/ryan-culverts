@@ -13,6 +13,8 @@ from culvert_solver import (
     CIRCULAR_CMP_HEADWALL,
     CIRCULAR_CMP_MITERED,
     CIRCULAR_CONCRETE_SQUARE_EDGE,
+    HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
+    VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
     CONCRETE_PIPE,
     EXTREME_HEADWATER_RATIO,
     HDS5_LABORATORY_HW_D_MAX,
@@ -24,6 +26,7 @@ from culvert_solver import (
     FlowRegime,
     GeometryShape,
     HorizontalEllipseGeometry,
+    Hy8ConcreteOvalGeometry,
     HydraulicWarningCode,
     InletCoefficients,
     InletEquationForm,
@@ -411,3 +414,47 @@ def test_inlet_coefficients_immutability_and_validation() -> None:
             y=0.7,
             shape=cast("GeometryShape", "invalid_shape"),
         )
+
+
+@pytest.mark.parametrize(
+    ("geometry", "expected_coefficients"),
+    [
+        (HorizontalEllipseGeometry(span=2.4, rise=1.2), HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE),
+        (VerticalEllipseGeometry(span=1.2, rise=2.4), VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE),
+        (Hy8ConcreteOvalGeometry.from_mm(2108.2, 1346.2), HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE),
+    ],
+)
+@pytest.mark.parametrize("discharge", [0.0, 0.5])
+def test_direct_inlet_api_requires_explicit_ellipse_inlet_treatment(
+    geometry: HorizontalEllipseGeometry | VerticalEllipseGeometry | Hy8ConcreteOvalGeometry,
+    expected_coefficients: InletCoefficients,
+    discharge: float,
+) -> None:
+    """The public direct API must not silently select square-edge coefficients."""
+    bare = CulvertBarrel(
+        geometry=geometry,
+        length=30.0,
+        inlet_invert=10.0,
+        outlet_invert=9.7,
+        roughness=0.012,
+        material=CONCRETE_PIPE,
+    )
+    with pytest.raises(InvalidInputError, match="Elliptical inlet treatment is ambiguous"):
+        calculate_inlet_control_headwater(bare, discharge)
+
+    explicitly_supplied = calculate_inlet_control_headwater(
+        bare, discharge, coefficients=expected_coefficients
+    )
+    assert math.isfinite(explicitly_supplied.headwater_depth)
+    attached = CulvertBarrel(
+        geometry=geometry,
+        length=30.0,
+        inlet_invert=10.0,
+        outlet_invert=9.7,
+        roughness=0.012,
+        material=CONCRETE_PIPE,
+        inlet_coefficients=expected_coefficients,
+    )
+    assert calculate_inlet_control_headwater(attached, discharge) == explicitly_supplied
+    with pytest.raises(InvalidInputError, match="cannot be used"):
+        calculate_inlet_control_headwater(bare, discharge, coefficients=CIRCULAR_CONCRETE_SQUARE_EDGE)
