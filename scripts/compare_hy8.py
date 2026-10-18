@@ -350,12 +350,12 @@ CASES: tuple[ComparisonCase, ...] = (
         6.00,
     ),
     # HY-8 8.0.1.2 Concrete ShapeDB catalogue sizes, not arbitrary ellipses.
-    # Compared against the local *mathematically exact* ellipse; areas differ.
+    # Reconstructed circular-arc sections must pass independent span/area gates.
     ComparisonCase(
-        "ellipse-60x38-low",
+        "ellipse-83x53-low",
         CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
-        1.524,
-        0.9652,
+        2.1082,
+        1.3462,
         30.0,
         10.0,
         9.5,
@@ -364,10 +364,10 @@ CASES: tuple[ComparisonCase, ...] = (
         0.5,
     ),
     ComparisonCase(
-        "ellipse-60x38-mid",
+        "ellipse-83x53-mid",
         CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
-        1.524,
-        0.9652,
+        2.1082,
+        1.3462,
         30.0,
         10.0,
         9.5,
@@ -376,10 +376,10 @@ CASES: tuple[ComparisonCase, ...] = (
         1.0,
     ),
     ComparisonCase(
-        "ellipse-60x38-high",
+        "ellipse-83x53-high",
         CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
-        1.524,
-        0.9652,
+        2.1082,
+        1.3462,
         30.0,
         10.0,
         9.5,
@@ -388,10 +388,10 @@ CASES: tuple[ComparisonCase, ...] = (
         2.0,
     ),
     ComparisonCase(
-        "ellipse-68x43-low",
+        "ellipse-128x82-low",
         CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
-        1.7272,
-        1.0922,
+        3.2512,
+        2.0828,
         30.0,
         10.0,
         9.5,
@@ -400,10 +400,10 @@ CASES: tuple[ComparisonCase, ...] = (
         0.5,
     ),
     ComparisonCase(
-        "ellipse-68x43-mid",
+        "ellipse-128x82-mid",
         CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
-        1.7272,
-        1.0922,
+        3.2512,
+        2.0828,
         30.0,
         10.0,
         9.5,
@@ -412,10 +412,10 @@ CASES: tuple[ComparisonCase, ...] = (
         1.0,
     ),
     ComparisonCase(
-        "ellipse-68x43-high",
+        "ellipse-128x82-high",
         CaseKind.CONCRETE_HORIZONTAL_ELLIPSE,
-        1.7272,
-        1.0922,
+        3.2512,
+        2.0828,
         30.0,
         10.0,
         9.5,
@@ -754,10 +754,24 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
             "inlet_control_depth_difference_m",
             "outlet_control_depth_difference_m",
             "full_flow_length_difference_m",
+            *(( "nominal_span_m", "reconstructed_span_m", "span_difference_percent",
+                 "reconstructed_area_m2", "shape_db_area_m2", "area_difference_percent")
+              if args.elliptical else ()),
         )
     )
     for case in _selected_cases(args):
         local = _local_result(case)
+        oval_data: tuple[float, ...] = ()
+        if args.elliptical:
+            oval = Hy8ConcreteOvalGeometry.from_mm(case.span * 1000.0, case.rise * 1000.0)
+            oval_data = (
+                case.span,
+                oval.span,
+                100.0 * (oval.span / case.span - 1.0),
+                oval.area_full,
+                oval.shape_db_area_full,
+                oval.shape_db_area_difference_percent,
+            )
         case_workspace = args.workspace / case.case_id if args.workspace is not None else None
         hy8_result = _hy8_crossing(case).hw_from_q(
             case.discharge,
@@ -821,6 +835,7 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
                     else None
                 ),
                 local.full_flow_length - hy8_culvert.full_length,
+                *oval_data,
             )
         )
 
