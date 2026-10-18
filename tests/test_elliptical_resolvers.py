@@ -207,9 +207,7 @@ def test_ellipse_material_does_not_bypass_explicit_treatment_requirement() -> No
     with pytest.raises(InvalidInputError, match="Elliptical entrance treatment is ambiguous"):
         resolve_entrance_loss_coefficient(barrel)
 
-
-
-@pytest.mark.parametrize(
+@pytest.mark.parametrize
     ("geometry", "inlet_coefficients", "loss_coefficients"),
     [
         (
