@@ -418,7 +418,6 @@ part of this work. No new Linux/macOS local execution or GUI inspection was perf
 The owner is returned to Unassigned; final acceptance review remains deferred until
 the hydraulic discrepancies have a defensible disposition.
 
-
 ## Optional larger-discharge HY-8 diagnostic matrix, 2026-10-18
 
 A separate `--elliptical-sweep` flag retains the original six-case
