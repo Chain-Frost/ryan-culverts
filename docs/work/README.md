@@ -17,6 +17,29 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+PR #29 CI documentation repair (2026-10-19): Owner: Unassigned. Status: fixed locally.
+Boundary: repair the malformed MkDocs navigation entry behind run 39142627654,
+preserving hydraulic evidence and acceptance boundaries.
+Run [39142627654](https://github.com/Chain-Frost/ryan-culverts/actions/runs/39142627654)
+failed strict MkDocs on head `0bdea47`: YAML interpreted the unquoted `#29` label
+as a comment, leaving a nonexistent `PR` navigation target. Quoted the label.
+Reproduced the exact two-warning failure before repair; strict MkDocs now passes.
+
+Validation on Python 3.14.6: `python -m pytest -q` (658 passed in 24.43 s),
+`python -m ruff check .`, `python -m ruff format --check .` (159 files),
+`python -m pyright` (zero diagnostics),
+`python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`,
+`python -m mkdocs build --strict`, and `git diff --check` passed.
+`python scripts/build_package.py --no-bump` and `python scripts/verify_wheel.py`
+also passed: version 26.10.16.1, 121975 bytes, SHA-256
+`e7d5d28bcfcfd9daedf9acf65e681ba42b456c7983f4fc1fcd23ca1ab4fb7764`.
+The failed hosted run passed all three installed-wheel platform jobs; whitespace
+and fresh-wheel steps in `verify` were skipped after the docs failure.
+Local Python 3.13, actionlint, installed/vendored-wheel smoke tests and HY-8 were
+not rerun for this navigation-only fix. No hydraulic behaviour or evidence changed.
+Changes are uncommitted and unpushed; hosted CI remains failed until delivery and
+an exact-head rerun. No release or merge performed.
+
 Issue #3 / PR #29 hydraulic review (2026-10-18): Owner: Unassigned.
 Status: **Current review round complete**; numerical parity and design acceptance
 are separate decisions. No additional HY-8 cases or solver adjustments are
