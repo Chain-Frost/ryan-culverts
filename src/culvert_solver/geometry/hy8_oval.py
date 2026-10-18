@@ -2,14 +2,13 @@
 
 The nominal HY-8 "elliptical" product is not a mathematical ellipse: HEC-10
 VII.C describes two pairs of circular arcs with long/short radii. ShapeDB v8
-stores the two long radii, side radius, and half rise. This geometry joins
-those arcs tangentially, then scales horizontal coordinates to the nominal
-catalogue width. This is a source-derived *reconstruction*, not an assertion
-that HY-8 uses identical interior-section numerical methods.
+stores the two long radii, side radius, and half rise. This reconstruction
+joins actual circular arcs tangentially without altering either axis. Profiles
+whose reconstructed width or area cannot be reconciled with ShapeDB fail closed.
+This is not an assertion of HY-8 executable numerical parity.
 """
 
 import math
-from collections.abc import Callable
 from functools import lru_cache
 from typing import Self
 
@@ -25,32 +24,20 @@ _CATALOGUE_MATCH_TOLERANCE_M = 2e-6
 # beyond this *data reconciliation* tolerance must not be used for hydraulics.
 # This is not an engineering accuracy or headwater acceptance tolerance.
 _MAX_CATALOGUE_AREA_DIFFERENCE = 0.005
-_ARC_PANELS = 128
-
-
-def _simpson(function: Callable[[float], float], start: float, end: float) -> float:
-    """Integrate a smooth parameterised arc (no endpoint singularities)."""
-    if end <= start:
-        return 0.0
-    step = (end - start) / _ARC_PANELS
-    total = function(start) + function(end)
-    total += 4.0 * sum(function(start + index * step) for index in range(1, _ARC_PANELS, 2))
-    total += 2.0 * sum(function(start + index * step) for index in range(2, _ARC_PANELS, 2))
-    return total * step / 3.0
+_MAX_CATALOGUE_SPAN_DIFFERENCE = 0.005
 
 
 class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
     """Nominal horizontal HY-8 concrete oval, using four source-backed arcs.
 
     Construct by exact nominal catalogue dimensions or zero-based row index.
-    Rows whose arc-derived area disagrees materially with ShapeDB fail closed.
+    Rows whose unscaled arc geometry disagrees with ShapeDB span or area fail closed.
     No arbitrary dimensions, nearest-size substitution, or rotation are allowed.
     """
 
     __slots__ = (
         "_corner_radius",
         "_half_rise",
-        "_horizontal_scale",
         "_join_height",
         "_long_radius",
         "_rise",
@@ -91,9 +78,18 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
             msg = "Invalid HY-8 oval source radii: arc junction is outside the section."
             raise InvalidInputError(msg)
 
-        horizontal_scale = span / (2.0 * (side_offset + corner_radius))
+        actual_span = 2.0 * (side_offset + corner_radius)
+        span_difference = abs(actual_span / span - 1.0)
+        if span_difference > _MAX_CATALOGUE_SPAN_DIFFERENCE:
+            msg = (
+                f"HY-8 oval catalogue row {catalogue_index} span reconciliation failed "
+                f"({span_difference:.2%} versus ShapeDB nominal span); source radii "
+                "cannot support a four-circular-arc profile with this nominal size."
+            )
+            raise InvalidInputError(msg)
+
         self.catalogue_index = catalogue_index
-        self._span = span
+        self._span = actual_span
         self._rise = 2.0 * half_rise
         self._half_rise = half_rise
         self._long_radius = long_radius
@@ -101,7 +97,6 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
         self._vertical_shift = vertical_shift
         self._side_offset = side_offset
         self._join_height = join_height
-        self._horizontal_scale = horizontal_scale
 
         ratio = abs(self.area_full / self.shape_db_area_full - 1.0)
         if ratio > _MAX_CATALOGUE_AREA_DIFFERENCE:
@@ -177,7 +172,7 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
     @property
     def area_full(self) -> float:
         """Full source-derived arc-section flow area (m²)."""
-        return 4.0 * self._horizontal_scale * self._integrated_half_width(0.0, self._half_rise)
+        return 4.0 * self._integrated_half_width(0.0, self._half_rise)
 
     def area(self, depth: float) -> float:
         """Depth-dependent flow area; symmetric about the half rise."""
@@ -189,7 +184,7 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
         if y > self._half_rise:
             return self.area_full - self.area(self.rise - y)
         z = self._half_rise - y
-        return 2.0 * self._horizontal_scale * self._integrated_half_width(z, self._half_rise)
+        return 2.0 * self._integrated_half_width(z, self._half_rise)
 
     def top_width(self, depth: float) -> float:
         """Free-surface width, including the circular-arc shoulders."""
@@ -201,31 +196,20 @@ class Hy8ConcreteOvalGeometry(CrossSectionGeometry):
             radius_width = self._side_offset + math.sqrt(max(0.0, self._corner_radius**2 - z**2))
         else:
             radius_width = math.sqrt(max(0.0, self._long_radius**2 - (z + self._vertical_shift) ** 2))
-        return 2.0 * self._horizontal_scale * radius_width
+        return 2.0 * radius_width
 
     def _one_side_length(self, z_start: float) -> float:
-        """Arc length from height z_start to the crown on one side."""
-        scale = self._horizontal_scale
+        """Exact circular-arc length from height z_start to the crown on one side."""
         total = 0.0
         if z_start < self._join_height:
             radius = self._corner_radius
             low = math.asin(min(1.0, z_start / radius))
             high = math.asin(min(1.0, self._join_height / radius))
+            total += radius * (high - low)
 
-            def side_integrand(theta: float) -> float:
-                return radius * math.hypot(scale * math.sin(theta), math.cos(theta))
-
-            total += _simpson(side_integrand, low, high)
-
-        long_radius = self._long_radius
         start = max(self._join_height, z_start)
-        top_start_angle = math.acos(min(1.0, (start + self._vertical_shift) / long_radius))
-
-        def top_integrand(theta: float) -> float:
-            return long_radius * math.hypot(scale * math.cos(theta), math.sin(theta))
-
-        total += _simpson(top_integrand, 0.0, top_start_angle)
-        return total
+        top_angle = math.acos(min(1.0, (start + self._vertical_shift) / self._long_radius))
+        return total + self._long_radius * top_angle
 
     @property
     def wetted_perimeter_full(self) -> float:
