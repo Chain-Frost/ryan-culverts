@@ -442,9 +442,7 @@ def test_direct_inlet_api_requires_explicit_ellipse_inlet_treatment(
     with pytest.raises(InvalidInputError, match="Elliptical inlet treatment is ambiguous"):
         calculate_inlet_control_headwater(bare, discharge)
 
-    explicitly_supplied = calculate_inlet_control_headwater(
-        bare, discharge, coefficients=expected_coefficients
-    )
+    explicitly_supplied = calculate_inlet_control_headwater(bare, discharge, coefficients=expected_coefficients)
     assert math.isfinite(explicitly_supplied.headwater_depth)
     attached = CulvertBarrel(
         geometry=geometry,
