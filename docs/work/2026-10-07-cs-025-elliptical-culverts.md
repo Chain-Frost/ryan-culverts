@@ -181,15 +181,20 @@ With `run-hy8` installed from PyPI using the optional
 with HY-8 8.0.1.2 installed:
 
 ```powershell
-python -m pip install -e ".[dev,external-validation]"
-python -m pip show run-hy8
+py -3.14 -m pip install -e ".[dev,external-validation]"
+py -3.14 -m pip show run-hy8
 $env:PYTHONPATH = 'src'
-python -B scripts/compare_hy8.py `
+py -3.14 -B scripts/compare_hy8.py `
   --elliptical `
   --hy8 'C:\Path\To\HY864.exe' `
   --workspace validation_artifacts/hy8-ellipse `
   --output docs/validation_data/hy8_8_0_1_2_ellipse_comparison.csv
 ```
+
+If `py -3.14` is unavailable, replace it with the full path to
+your installed Python 3.14 executable (for example,
+`& 'C:\Program Files\Python314\python.exe'` in PowerShell). Do not
+accidentally execute the comparison using Python 3.13.
 
 Preserve the executable's actual version/path and the case-level
 `.hy8`, `.rst`, `.rsql` alongside the resulting CSV. Run into a fresh
