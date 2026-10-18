@@ -269,7 +269,7 @@ def compute_inlet_control_s2_profile(
                         result=outlet_root,
                     )
                 )
-            except ConvergenceError, InvalidInputError:
+            except (ConvergenceError, InvalidInputError):
                 fraction: float = (barrel.length - curr_x) / (next_x - curr_x)
                 outlet_y = curr_y + fraction * (next_y - curr_y)
             points.append(_make_point(station=barrel.length, depth=outlet_y, barrel=barrel, discharge=q, g=g))
@@ -652,7 +652,7 @@ def compute_backwater_profile(
                             result=root_res,
                         )
                     )
-                except ConvergenceError, InvalidInputError:
+                except (ConvergenceError, InvalidInputError):
                     # Linear fallback interpolation if boundary stagnation occurs
                     frac: float = (0.0 - curr_x) / (next_x - curr_x)
                     y_inlet = curr_y + frac * (next_y - curr_y)

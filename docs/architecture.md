@@ -5,7 +5,7 @@ Status: implementation snapshot under review, 2026-09-14.
 ## Implemented package boundary
 
 The distribution remains `ryan-culverts`; the new import is `culvert_solver`.
-Use the `src/` layout and Python 3.14. The runtime has no third-party dependencies.
+Use the `src/` layout and Python 3.13 or 3.14. The runtime has no third-party dependencies.
 There is no compatibility layer for the retired `culvertflow` package.
 
 | Module | Responsibility |

@@ -17,6 +17,36 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+Python 3.13 support (2026-10-18): Owner: Unassigned. Status: Complete locally.
+User-selected compatibility task within the CS-019 packaging boundary. Installation
+requires Python `>=3.13`, with no upper bound. CI now covers full checks on 3.13/3.14
+and installed/vendored wheels on Windows, Linux, and macOS for both versions.
+Ruff and Pyright target 3.13. Restored exception tuple parentheses and deferred barrel
+annotations for 3.13 imports; hydraulic equations and comparison baselines are unchanged.
+Adjusted the invalid-date test for the different standard-library error wording on 3.13.
+
+Verification on Windows, Python 3.13.15 and 3.14.6:
+
+- Full `python -m pytest -q`: 526 passed on each version, no skips or deselections.
+- Python 3.13: `python -m ruff check .`, `python -m ruff format --check .`
+  (142 files), and `python -m pyright` (zero diagnostics) passed.
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`,
+  `python -m mkdocs build --strict`, and `git diff --check` passed.
+- Python 3.13: `python scripts/build_package.py --no-bump` and
+  `python scripts/verify_wheel.py` passed. Rebuilt retained version `26.10.16.1`,
+  113181 bytes, SHA-256
+  `8de9b889e79bb5af8046b24bcbdaf12187caf0c7c9f2ac5c46a7d26a0534523c`.
+- Rebuilt wheel installed and passed `scripts/smoke_test_installed_wheel.py`
+  outside the checkout in separate clean 3.13 and 3.14 virtual environments.
+- Python 3.13 vendored fixture built, installed into a temporary target, and passed
+  `scripts/smoke_test_vendored_wheel.py` outside the checkout with unrelated stale
+  distribution metadata present.
+
+HY-8 executable comparisons, hosted CI, Linux/macOS execution, Python 3.15 or later,
+and local Actionlint were not run. Newer interpreters are permitted by metadata;
+local compatibility evidence covers 3.13/3.14. This is regression evidence, not
+engineering acceptance. Changes remain uncommitted and unpushed; nothing was published.
+
 PyPI release automation (2026-10-16): Owner: ChatGPT. Status: Active.
 User-selected task: consistent release preparation, verified publication and focused
 CI improvements, delivered as a new PR. No hydraulic methods or comparison baselines
