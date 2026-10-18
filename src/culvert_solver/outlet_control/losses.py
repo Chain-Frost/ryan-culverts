@@ -12,6 +12,7 @@ from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.primitives import friction_head_loss, minor_head_loss
 from ..models.barrel import CulvertBarrel
 from ..models.enums import ExitLossSelectionBasis, GeometryShape
+from ..models.materials import CONCRETE, CONCRETE_PIPE
 from ..references.models import SourceReference
 
 _HDS5_TABLE_C2_REF = SourceReference(
@@ -45,6 +46,7 @@ class EntranceLossCoefficient:
     ke: float
     shape: GeometryShape = GeometryShape.ANY
     reference: SourceReference = _HDS5_TABLE_C2_REF
+    concrete_pipe_only: bool = False
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -133,6 +135,9 @@ def validate_entrance_loss_shape(barrel: CulvertBarrel, coefficient: EntranceLos
             f"used with {barrel_shape.value!r} geometry."
         )
         raise InvalidInputError(msg)
+    if coefficient.concrete_pipe_only and barrel.material not in (CONCRETE, CONCRETE_PIPE):
+        msg = "Concrete ellipse entrance-loss coefficients require a concrete pipe material."
+        raise InvalidInputError(msg)
 
 
 # Circular concrete pipe entrance loss coefficients (HDS-5 Table C.2)
@@ -204,11 +209,13 @@ HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE = EntranceLossCoefficient(
     name="Horizontal ellipse, concrete pipe: Headwall square-edge",
     ke=0.5,
     shape=GeometryShape.HORIZONTAL_ELLIPSE,
+    concrete_pipe_only=True,
 )
 VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE = EntranceLossCoefficient(
     name="Vertical ellipse, concrete pipe: Headwall square-edge",
     ke=0.5,
     shape=GeometryShape.VERTICAL_ELLIPSE,
+    concrete_pipe_only=True,
 )
 
 # Reinforced concrete box culvert entrance loss coefficients (HDS-5 Table C.2)
