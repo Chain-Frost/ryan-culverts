@@ -27,13 +27,13 @@ Adjusted the invalid-date test for the different standard-library error wording 
 
 Verification on Windows, Python 3.13.15 and 3.14.6:
 
-- Full `python -m pytest -q`: 526 passed on each version, no skips or deselections.
+- Full `python -m pytest -q`: 560 passed on each version, no skips or deselections.
 - Python 3.13: `python -m ruff check .`, `python -m ruff format --check .`
-  (142 files), and `python -m pyright` (zero diagnostics) passed.
+  (148 files), and `python -m pyright` (zero diagnostics) passed.
 - `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`,
   `python -m mkdocs build --strict`, and `git diff --check` passed.
 - Python 3.13: `python scripts/build_package.py --no-bump` and
-  `python scripts/verify_wheel.py` passed. Rebuilt retained version `26.10.16.1`,
+  `python scripts/verify_wheel.py` passed. Rebuilt local version `26.10.16.1`,
   113181 bytes, SHA-256
   `8de9b889e79bb5af8046b24bcbdaf12187caf0c7c9f2ac5c46a7d26a0534523c`.
 - Rebuilt wheel installed and passed `scripts/smoke_test_installed_wheel.py`
@@ -43,7 +43,7 @@ Verification on Windows, Python 3.13.15 and 3.14.6:
   distribution metadata present.
 
 HY-8 executable comparisons, hosted CI, Linux/macOS execution, Python 3.15 or later,
-and local Actionlint were not run. Newer interpreters are permitted by metadata;
+were not run. Actionlint 1.7.12 passed after checksum verification. Newer interpreters are permitted by metadata;
 local compatibility evidence covers 3.13/3.14. This is regression evidence, not
 engineering acceptance. The compatibility change is committed on `feat/python-313-support`; no publication
 was performed. The latest `main` was merged before PR validation. Its removal of the
