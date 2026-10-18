@@ -58,6 +58,7 @@ from culvert_solver import (
     CulvertGroup,
     Hy8ConcreteOvalGeometry,
     RectangularGeometry,
+    flow_parameter,
     solve_barrel_hydraulics,
     solve_crossing_hydraulics,
 )
@@ -426,6 +427,14 @@ CASES: tuple[ComparisonCase, ...] = (
     ),
 )
 
+# A second, opt-in comparison matrix. These higher flows are diagnostic,
+# not an engineering-capacity prediction or a validated HY-8 parity fixture.
+# Keep the six existing cases unchanged for evidence reproducibility.
+ELLIPSE_HIGH_FLOW_DISCHARGES: dict[str, tuple[float, ...]] = {
+    "ellipse-83x53-low": (3.0, 5.0, 6.0, 8.0, 12.0),
+    "ellipse-128x82-low": (3.0, 5.0, 10.0, 15.0, 18.0, 25.0, 35.0),
+}
+
 DISCREPANCY_SWEEP_DISCHARGES: dict[str, tuple[float, ...]] = {
     "cc-long-high-q-low-tw": (
         2.6,
@@ -698,15 +707,33 @@ def parse_args() -> argparse.Namespace:
     mode.add_argument(
         "--elliptical",
         action="store_true",
-        help="Run the pinned HY-8 catalogue concrete ellipse comparison only",
+        help="Run the retained six-case HY-8 concrete oval baseline only",
+    )
+    mode.add_argument(
+        "--elliptical-sweep",
+        action="store_true",
+        help="Run the six-case oval baseline plus 12 higher-flow cases (18 total)",
     )
     return parser.parse_args()
 
 
 def _selected_cases(args: argparse.Namespace) -> tuple[ComparisonCase, ...]:
-    """Return the standard matrix or the two focused discrepancy sweeps."""
-    if args.elliptical:
-        return tuple(case for case in CASES if case.kind is CaseKind.CONCRETE_HORIZONTAL_ELLIPSE)
+    """Select immutable baseline cases or one explicitly requested sweep."""
+    if args.elliptical or args.elliptical_sweep:
+        baseline = tuple(case for case in CASES if case.kind is CaseKind.CONCRETE_HORIZONTAL_ELLIPSE)
+        if not args.elliptical_sweep:
+            return baseline
+        cases_by_id = {case.case_id: case for case in baseline}
+        additional = tuple(
+            replace(
+                cases_by_id[case_id],
+                case_id=f"{case_id.removesuffix('-low')}-q{discharge:.2f}",
+                discharge=discharge,
+            )
+            for case_id, discharges in ELLIPSE_HIGH_FLOW_DISCHARGES.items()
+            for discharge in discharges
+        )
+        return (*baseline, *additional)
     if not args.discrepancy_sweep:
         return tuple(case for case in CASES if case.kind is not CaseKind.CONCRETE_HORIZONTAL_ELLIPSE)
     cases_by_id = {case.case_id: case for case in CASES}
@@ -719,6 +746,13 @@ def _selected_cases(args: argparse.Namespace) -> tuple[ComparisonCase, ...]:
         for case_id, discharges in DISCREPANCY_SWEEP_DISCHARGES.items()
         for discharge in discharges
     )
+
+
+def _difference_percent(local_value: float, reference_value: float) -> float | None:
+    """Percentage difference against an independently reported positive reference."""
+    if not math.isfinite(reference_value) or reference_value <= 0.0:
+        return None
+    return 100.0 * (local_value - reference_value) / reference_value
 
 
 def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
@@ -737,7 +771,20 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
             "hy8_culvert_discharge_m3s",
             "hy8_roadway_discharge_m3s",
         )
-        if args.elliptical
+        if args.elliptical or args.elliptical_sweep
+        else ()
+    )
+    sweep_columns = (
+        (
+            "local_headwater_depth_m",
+            "hy8_headwater_depth_m",
+            "headwater_depth_difference_percent",
+            "outlet_velocity_difference_percent",
+            "local_hw_over_rise",
+            "hy8_hw_over_rise",
+            "flow_parameter_q_star",
+        )
+        if args.elliptical_sweep
         else ()
     )
     writer.writerow(
@@ -771,12 +818,13 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
             "outlet_control_depth_difference_m",
             "full_flow_length_difference_m",
             *extra_columns,
+            *sweep_columns,
         )
     )
     for case in _selected_cases(args):
         local = _local_result(case)
         oval_data: tuple[float, ...] = ()
-        if args.elliptical:
+        if args.elliptical or args.elliptical_sweep:
             oval = Hy8ConcreteOvalGeometry.from_mm(case.span * 1000.0, case.rise * 1000.0)
             oval_data = (
                 case.span,
@@ -815,6 +863,19 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
             row_flow_type=row.flow_type,
             culverts=row.culverts,
         )
+        sweep_data: tuple[float | None, ...] = ()
+        if args.elliptical_sweep:
+            local_depth = local.headwater - case.inlet_invert
+            hy8_depth = row.headwater_elevation - case.inlet_invert
+            sweep_data = (
+                local_depth,
+                hy8_depth,
+                _difference_percent(local_depth, hy8_depth),
+                _difference_percent(local.velocity, row.velocity),
+                local_depth / case.rise,
+                hy8_depth / case.rise,
+                flow_parameter(case.discharge, oval.area_full, oval.rise),
+            )
         writer.writerow(
             (
                 case.case_id,
@@ -850,7 +911,12 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
                 ),
                 local.full_flow_length - hy8_culvert.full_length,
                 *oval_data,
-                *((row.flow, hy8_culvert.discharge, row.roadway_discharge) if args.elliptical else ()),
+                *(
+                    (row.flow, hy8_culvert.discharge, row.roadway_discharge)
+                    if args.elliptical or args.elliptical_sweep
+                    else ()
+                ),
+                *sweep_data,
             )
         )
 
