@@ -17,6 +17,13 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+Issue #3 / PR #29 hydraulic review (2026-10-18): Owner: Unassigned.
+Status: **Current review round complete**; numerical parity and design acceptance
+are separate decisions. No additional HY-8 cases or solver adjustments are
+requested for this review round. Findings and limits are recorded in the
+[standalone PR review](2026-10-18-pr29-hydraulic-review.md).
+No merge or release was performed in this review.
+
 Issue #3 / PR #29 critical-depth diagnostic (2026-10-18): Owner: Unassigned. Status: executed; independent review required.
 Boundary: execute five new high-flow cases, retain native curves, compare critical
 and profile depths with unchanged geometry/equations, and report independent-review limits.
