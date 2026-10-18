@@ -556,3 +556,110 @@ Verification on Python 3.14.6:
 Python 3.13, new wheel build/install checks and hosted CI were not run for these
 artifact/documentation and offline-audit additions. No hydraulic implementation changed.
 Changes remain uncommitted and unpushed; no publication or PR merge performed.
+
+### Targeted high-flow critical-depth investigation, 2026-10-18
+
+Executed [the additional request](https://github.com/Chain-Frost/ryan-culverts/pull/29#issuecomment-6251192424)
+on source head `8cb5b28` with Python 3.14.6, public `run-hy8==2026.10.18.2`, and
+HY-8 8.0.1.2. Five fresh runs at 28, 30, 32, 34 and 36 m3/s use the unchanged
+128 x 82 inch fixture: inverts 10.0/9.5 m, length 30 m, n=0.012, tailwater 9.7 m,
+concrete square-edge headwall and the existing roadway. No global adapter change,
+core equation, source geometry, acceptance gate or historical output was modified.
+The separate workspace is `validation_artifacts/hy8-ellipse-critical-run01`.
+
+[Retained diagnostics](../validation_data/hy8_8_0_1_2_ellipse_critical/diagnostics.csv)
+contain seven rows: five fresh cases and the original 25/35 m3/s anchors.
+[Five-case comparison](../validation_data/hy8_8_0_1_2_ellipse_critical/comparison.csv),
+[all extracted curves](../validation_data/hy8_8_0_1_2_ellipse_critical/curves.json),
+[exact inputs](../validation_data/hy8_8_0_1_2_ellipse_critical/cases.json), and
+[manifest](../validation_data/hy8_8_0_1_2_ellipse_critical/manifest.json) accompany
+all 28 full native files, including byte-identical copies of both anchor cases.
+The manifest records EXE version/hash, adapter/interpreter versions, source head,
+harness hash and per-file checksums. The retained `runner.py.txt` is a one-off,
+process-local selection wrapper around the existing comparison harness. It adds no
+permanent CLI mode and changes neither baseline matrix. To reproduce, copy it into
+a fresh validation workspace, change its workspace assignment and run with
+`PYTHONPATH=src`; an overwrite guard refuses an existing comparison CSV.
+
+All five new cases passed existing positive-barrel/crossing-flow, zero-roadway,
+finite-result and nonnegative/full-plus-free-length checks. All seven cases report
+`5-S2n`, zero full length and 30 m free length. Local control is submerged inlet
+control with an S2 profile. No control-label change explains the anomalous depths.
+
+Depths below are above the local invert, in metres. Asterisks identify retained
+anchors; other rows are new executable runs. HY-8 values use the requested-flow
+`.plt` profile, not the minimum-flow profile or rounded `.rst` depths.
+
+| Q (m3/s) | Local critical | HY-8 critical | Local normal | HY-8 normal | Local outlet | HY-8 outlet | HY-8 critical Fr squared using local geometry |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 25* | 1.863753 | 1.863500 | 1.126845 | 1.125400 | 1.463206 | 1.463300 | 1.000861 |
+| 28 | 1.924439 | 1.924300 | 1.206918 | 1.205400 | 1.559676 | 1.559700 | 1.000572 |
+| 30 | 1.955666 | 1.955500 | 1.260047 | 1.258400 | 1.618147 | 1.618200 | 1.000795 |
+| 32 | 1.980623 | 1.980500 | 1.313309 | 1.311600 | 1.672159 | 1.672200 | 1.000696 |
+| 34 | 2.000378 | 1.892800 | 1.367022 | 1.365200 | 1.722065 | 1.704800 | 1.667763 |
+| 35* | 2.008627 | 1.814000 | 1.394162 | 1.392200 | 1.745635 | 1.689800 | 2.284419 |
+| 36 | 2.015948 | 2.077600 | 1.421563 | 1.419700 | 1.768388 | 1.769300 | 0.272389 |
+
+The diagnostics also retain Critical/Normal/Profile/Headwater first and last stations
+and elevations, local critical/normal/outlet depths, both headwater depths and velocities,
+local A(y), P(y), T(y), Q/A(y) and Fr squared at each HY-8 critical/normal/profile endpoint,
+classification and warning codes. Full series are preserved. `.plt` decimal text is more
+precise than `.rst` but is still rounded output, not HY-8 internal floating-point state.
+Its `FlowProfileFlow` values are in cfs; the requested profile was verified against Q
+before using its SI stations/elevations. HY-8 does not directly emit an outlet area here:
+A(y) is explicitly the local geometry evaluated at the external depth, not an independent
+HY-8 area measurement.
+
+Findings and limits:
+
+- Agreement at 28/30/32 m3/s is close: inlet critical differences are 0.12-0.17 mm,
+  and outlet-depth differences are below 0.06 mm. HY-8's critical depth then drops
+  at 34 and 35 m3/s and jumps to 2.0776 m at 36 m3/s. Local critical depth rises
+  from 1.86375 m at 25 to 2.01595 m at 36 m3/s. The anomaly starts between the
+  sampled 32 and 34 m3/s cases; these runs do not locate an exact threshold.
+- At 34/35/36 m3/s the purported external critical depths give local Fr squared
+  about 1.668/2.284/0.272, rather than 1. At the matching 25-32 m3/s depths this
+  quantity is approximately 1.0006-1.0009. The high-flow anomaly therefore cannot
+  be explained by `.plt` decimal rounding under the reconstructed section.
+- A separate 19,999-depth scan across the open section at each of the seven flows
+  finds one sign-changing bracket for `g*A**3-Q**2*T`, retained in the CSV.
+  There is no sampled evidence of a second local critical root. On the upper
+  half of this symmetric convex section A increases and T decreases, so the
+  critical residual increases: switching to another local near-crown root is
+  not supported. A finite scan alone does not prove global root uniqueness.
+- At the HY-8 outlet depths, local Q/A matches reported velocity within the existing
+  0.0051 m/s rounding gate in every row. For 34/35 m3/s it gives 7.11064/7.38182 m/s
+  versus reported 7.11/7.38 m/s. The velocity residual is consistent with the
+  different outlet-profile depths; changing sectional area to match it is unwarranted.
+- The discrepancy is not a monotonic growth with flow: outlet-depth agreement largely
+  returns at 36 m3/s (about 0.912 mm), despite the incorrect local-critical condition
+  at HY-8's inlet profile point. This is evidence to investigate HY-8's near-crown
+  lookup/root/profile treatment, not proof of its internal algorithm or a specific bug.
+  A version-specific cause cannot be established from one executable version.
+- Local normal depths exceed HY-8's by approximately 1.4-2.0 mm. Local-minus-PLT
+  headwater-depth differences range from about 4.56 to 43.81 mm. These are separate
+  method residuals; matching the outlet velocity does not establish inlet-method parity.
+- `inlet_control_high_head_extension` is preserved at 34, 35 and 36 m3/s; both local
+  and HY-8 HW/rise exceed 3 for those cases. They lie beyond the adopted HDS-5
+  laboratory-range gate and require explicit qualification. They are diagnostic
+  cases, not newly accepted engineering regimes.
+
+Disposition: the five requested executable runs are complete. Current evidence points
+to a high-flow HY-8 critical/profile discrepancy under the matched local section;
+it does not demonstrate a local equation bug, identify undocumented HY-8 geometry,
+or establish an accepted independent method for these high-head cases. Preserve PR draft
+status and obtain independent engineering review before acceptance. No tolerance or
+coefficient changes are justified by this comparison.
+
+Verification: `python -m pytest -q` passed **658 tests** in 23.82 s, no skips or
+deselections. Ruff lint and formatting (158 files), strict Pyright (zero diagnostics),
+Markdown lint, strict MkDocs and whitespace checks passed on Python 3.14.6.
+Focused native-evidence tests passed (4 tests). During this work the branch advanced
+to `c699225`; it already includes the new evidence, and its hydraulic source/harness
+are unchanged from execution head `8cb5b28`. The advanced head contained a missing
+opening parenthesis on a test decorator; repaired it and reran all ordinary checks.
+Python 3.13, wheel build/install validation and fresh hosted CI were not run for these
+additions. The evidence was committed externally during execution; this agent made
+no commit, push, release or merge. Final documentation and syntax repair remain local.
+
+Posted the requested table and interpretation in [the PR response](https://github.com/Chain-Frost/ryan-culverts/pull/29#issuecomment-6251255222).

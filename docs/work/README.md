@@ -17,9 +17,13 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
-Issue #3 / PR #29 critical-depth diagnostic (2026-10-18): Owner: ChatGPT. Status: Active.
+Issue #3 / PR #29 critical-depth diagnostic (2026-10-18): Owner: Unassigned. Status: executed; independent review required.
 Boundary: execute five new high-flow cases, retain native curves, compare critical
 and profile depths with unchanged geometry/equations, and report independent-review limits.
+Five fresh runs and the 25/35 m3/s anchors are retained separately with full native curves.
+See [the targeted assessment](2026-10-07-cs-025-elliptical-culverts.md#targeted-high-flow-critical-depth-investigation-2026-10-18).
+All 658 tests and ordinary quality checks pass on Python 3.14.6 after repairing
+a missing test-decorator parenthesis from the concurrently advanced branch.
 
 Issue #3 / PR #29 higher-flow executable sweep (2026-10-18): Owner: Unassigned. Status: executed; engineering review outstanding.
 Boundary: execute the requested 18-case diagnostic matrix in a fresh workspace,
