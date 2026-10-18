@@ -7,3 +7,11 @@ docs/validation_data/hy8_8_0_1_2_ellipse/**/*.rsql -text -diff
 docs/validation_data/hy8_8_0_1_2_ellipse/**/*.plt -text -diff
 docs/validation_data/hy8_8_0_1_2_ellipse/manifest.json text eol=lf
 docs/validation_data/hy8_8_0_1_2_ellipse_comparison.csv -text
+
+# Higher-flow diagnostic evidence is separate from the six-case baseline.
+docs/validation_data/hy8_8_0_1_2_ellipse_sweep/**/*.hy8 -text -diff
+docs/validation_data/hy8_8_0_1_2_ellipse_sweep/**/*.rst -text -diff
+docs/validation_data/hy8_8_0_1_2_ellipse_sweep/**/*.rsql -text -diff
+docs/validation_data/hy8_8_0_1_2_ellipse_sweep/**/*.plt -text -diff
+docs/validation_data/hy8_8_0_1_2_ellipse_sweep/comparison.csv -text
+docs/validation_data/hy8_8_0_1_2_ellipse_sweep/manifest.json text eol=lf

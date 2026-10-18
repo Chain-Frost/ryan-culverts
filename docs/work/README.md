@@ -17,6 +17,15 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+Issue #3 / PR #29 higher-flow executable sweep (2026-10-18): Owner: Unassigned. Status: executed; engineering review outstanding.
+Boundary: execute the requested 18-case diagnostic matrix in a fresh workspace,
+preserve native/version/hash evidence, and assess discrepancies without changing
+solver equations, coefficients, existing baselines, or acceptance criteria.
+All 18 cases completed with HY-8 8.0.1.2 and run-hy8 2026.10.18.2. Native reports,
+CSV and manifest are retained separately; repeated baseline rows are unchanged.
+See [the sweep assessment](2026-10-07-cs-025-elliptical-culverts.md#local-18-case-executable-sweep-2026-10-18).
+PR remains draft. Changes are uncommitted and unpushed.
+
 Main integration (2026-10-18): Owner: Unassigned. Status: validated locally.
 Merged `origin/main` at `8d442e6` into `feat/issue-3-elliptical-culverts`.
 Resolved the sole conflict in this index by retaining both branches' handoff records.

@@ -1,0 +1,26 @@
+CrossingGUID: 9bbccad6-c898-403f-9c6c-2d6296301754
+
+Crossing: ellipse-128x82-high
+
+Culvert: 0
+CulvertName: RCP
+FlowProfileName: Minimum Flow
+FlowProfile: 0
+FlowProfileFlow: 7.06293
+HeadwaterToDepth: 0.108778
+FreeboardToSubgrade: 32.0651
+Overtops: false
+hydraulicJump: false
+FlowType: 5-S2n
+InletSubmerged: false
+OutletSubmerged: false
+ControllingDepth: Inlet Control
+fullFlowLength: 0
+perchDepth: 0
+minDepth: 0.348856
+minDepthLessThanPerchDepth: false
+EndFlowProfile: 0
+
+EndCulvert: 0
+
+EndCrossing

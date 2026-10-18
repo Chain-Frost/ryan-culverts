@@ -476,6 +476,83 @@ raises on these cases. If a larger flow triggers a genuine change of
 hydraulic control, preserve that finding rather than adjusting input
 parameters or empirical coefficients to force a match.
 
-This optional high-flow diagnostic has **not yet been executed against
-the Windows HY-8 executable**. Current validation boundaries and
-engineering-acceptance requirements remain unchanged.
+This optional high-flow diagnostic was executed locally on 2026-10-18;
+see the retained results below. Engineering-acceptance requirements remain unchanged.
+
+### Local 18-case executable sweep, 2026-10-18
+
+Executed the exact requested command on source head `cd0b90f07aea7249fc2a6128a39c382850a2c8b5`,
+Python 3.14.6, installed `run-hy8==2026.10.18.2`, and HY-8 8.0.1.2 at
+`C:/Program Files/HY-8 8.00/HY864.exe`. No dependency installation was needed.
+The fresh workspace is `validation_artifacts/hy8-ellipse-sweep-run01`.
+The original six-case evidence and all hydraulic source files remain unchanged.
+
+Retained evidence: [18-row CSV](../validation_data/hy8_8_0_1_2_ellipse_sweep/comparison.csv)
+and [provenance/hash manifest](../validation_data/hy8_8_0_1_2_ellipse_sweep/manifest.json),
+with all 72 case-level native `.hy8`, `.rst`, `.rsql`, and `.plt` files alongside.
+The manifest records the command, interpreter, adapter, executable and ShapeDB hashes,
+source head, and harness checksum. Byte-preserving Git attributes cover native evidence.
+Every field of the repeated six baseline rows exactly matches the original CSV.
+
+All 18 reported crossing and positive barrel flows match the requested flow within the
+existing `0.0051 m3/s` report tolerance; all roadway flows are zero. All reported
+full/free lengths are nonnegative and sum to 30 m within `0.011 m`.
+Local control remains inlet control with S2 profiles and zero full-flow length;
+HY-8 reports zero full length and 30 m free length throughout.
+
+Signed differences are local minus HY-8, divided by the HY-8 depth or velocity.
+Headwater percentages use depth above the inlet invert, not absolute elevation.
+
+| Size (inch) | Q (m3/s) | HW depth difference (%) | Velocity difference (%) | Local inlet regime | HY-8 type |
+| --- | ---: | ---: | ---: | --- | --- |
+| 83 x 53 | 0.5 | -0.321 | +0.466 | unsubmerged | 1-S2n |
+| 83 x 53 | 1 | +0.551 | +0.452 | unsubmerged | 1-S2n |
+| 83 x 53 | 2 | +0.897 | +0.140 | unsubmerged | 1-S2n |
+| 128 x 82 | 0.5 | -6.656 | +0.255 | unsubmerged | 1-S2n |
+| 128 x 82 | 1 | -2.052 | +0.848 | unsubmerged | 1-S2n |
+| 128 x 82 | 2 | -1.053 | +0.611 | unsubmerged | 1-S2n |
+| 83 x 53 | 3 | +1.777 | +0.186 | unsubmerged | 1-S2n |
+| 83 x 53 | 5 | +0.901 | -0.012 | unsubmerged | 5-S2n |
+| 83 x 53 | 6 | -0.102 | -0.021 | submerged | 5-S2n |
+| 83 x 53 | 8 | +0.752 | -0.037 | submerged | 5-S2n |
+| 83 x 53 | 12 | +0.238 | +0.424 | submerged | 5-S2n |
+| 128 x 82 | 3 | +0.636 | +0.364 | unsubmerged | 1-S2n |
+| 128 x 82 | 5 | +1.730 | +0.007 | unsubmerged | 1-S2n |
+| 128 x 82 | 10 | +1.787 | +0.083 | unsubmerged | 1-S2n |
+| 128 x 82 | 15 | +1.163 | +0.033 | unsubmerged | 5-S2n |
+| 128 x 82 | 18 | +0.054 | +0.065 | submerged | 5-S2n |
+| 128 x 82 | 25 | +0.871 | -0.056 | submerged | 5-S2n |
+| 128 x 82 | 35 | +0.362 | -2.983 | submerged | 5-S2n |
+
+The sampled local regime changes to submerged between 5 and 6 m3/s for 83 x 53,
+and between 15 and 18 m3/s for 128 x 82. HY-8 changes its reported label from
+`1-S2n` to `5-S2n` between 3 and 5 m3/s, and between 10 and 15 m3/s respectively.
+These are sampled classification changes, not an independently identified HY-8 equation
+transition. Control remains inlet control; neither change establishes pressurised flow.
+
+`inlet_control_high_head_extension` occurs at 12 m3/s (83 x 53) and 35 m3/s
+(128 x 82). Those results require the existing applicability qualification.
+The 35 m3/s velocity discrepancy is approximately -2.98%; a quantitative attribution
+to HY-8 geometry or profile methods remains unresolved. No coefficients, equations,
+source-geometry limits, or acceptance criteria were adjusted.
+
+Under the existing rounding-only gates (`0.0051 m` and `0.0051 m/s`), 4/18
+headwater comparisons and 9/18 velocity comparisons pass; only 2/18 pass both.
+The 12 added cases are diagnostic evidence. They do not establish numerical equivalence
+or construction-grade engineering acceptance. Keep PR #29 draft; independent disposition
+of hydraulic residuals and applicability warnings remains necessary before acceptance.
+
+Verification on Python 3.14.6:
+
+- The executable sweep completed all 18 cases; offline evidence tests independently
+  check every native requested-flow column, headwater, velocity, type, lengths and hashes.
+- `python -m pytest -q`: 649 passed, no skips or deselections.
+- `python -m ruff check .` and `python -m ruff format --check .`: passed (158 files).
+- `python -m pyright`: zero errors, warnings or information messages.
+- `python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`: passed after
+  removing an extra blank line in this handoff.
+- `python -m mkdocs build --strict` and `git diff --check`: passed.
+
+Python 3.13, new wheel build/install checks and hosted CI were not run for these
+artifact/documentation and offline-audit additions. No hydraulic implementation changed.
+Changes remain uncommitted and unpushed; no publication or PR merge performed.

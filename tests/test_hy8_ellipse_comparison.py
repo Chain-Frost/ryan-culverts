@@ -45,3 +45,42 @@ def test_ellipse_fixture_has_requested_positive_barrel_flow() -> None:
         assert float(_requested_value(report, "Headwater Elevation (m)")) == float(row["hy8_headwater_m"])
         assert float(_requested_value(report, "Outlet Velocity (m/s)")) == float(row["hy8_velocity_ms"])
         assert _requested_value(report, "Flow Type") == row["hy8_flow_type"]
+
+
+def test_retained_sweep_integrity_and_native_hydraulics() -> None:
+    """Audit all sweep rows against native reports and preserve the original baseline."""
+    evidence = DATA / "hy8_8_0_1_2_ellipse_sweep"
+    manifest = json.loads((evidence / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["case_count"] == 18
+    assert len(manifest["files"]) == 73
+    for name, digest in manifest["files"].items():
+        assert hashlib.sha256((evidence / name).read_bytes()).hexdigest() == digest
+    with (evidence / "comparison.csv").open(encoding="utf-8", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    with (DATA / "hy8_8_0_1_2_ellipse_comparison.csv").open(encoding="utf-8", newline="") as stream:
+        baseline = list(csv.DictReader(stream))
+    assert len(rows) == 18
+    assert len({row["case_id"] for row in rows}) == 18
+    for row, original in zip(rows[:6], baseline, strict=True):
+        assert {key: row[key] for key in original} == original
+    for row in rows:
+        case = evidence / row["case_id"]
+        for extension in ("hy8", "rst", "rsql", "plt"):
+            assert len(list(case.glob(f"*.{extension}"))) == 1
+        report = next(case.glob("*.rst")).read_text(encoding="utf-8")
+        discharge = float(row["discharge_m3s"])
+        assert discharge > 0
+        for label in ("Total Discharge (cms)", "RCP Discharge (cms)"):
+            assert float(_requested_value(report, label)) == discharge
+        assert float(_requested_value(report, "Roadway Discharge (cms)")) == 0.0
+        assert float(row["hy8_culvert_discharge_m3s"]) == discharge
+        assert float(row["hy8_total_discharge_m3s"]) == discharge
+        assert float(row["hy8_roadway_discharge_m3s"]) == 0.0
+        assert float(_requested_value(report, "Headwater Elevation (m)")) == float(row["hy8_headwater_m"])
+        assert float(_requested_value(report, "Outlet Velocity (m/s)")) == float(row["hy8_velocity_ms"])
+        assert _requested_value(report, "Flow Type") == row["hy8_flow_type"]
+        full = float(_requested_value(report, "Length Full (m)"))
+        free = float(_requested_value(report, "Length Free (m) "))
+        assert full >= 0
+        assert free >= 0
+        assert abs(full + free - 30.0) <= 0.011
