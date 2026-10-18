@@ -23,21 +23,21 @@ from culvert_solver.solver.resolvers import (
 )
 
 
-@pytest.mark.parametrize(("span_mm", "rise_mm"), [(1524, 965.2), (1727.2, 1092.2)])
+@pytest.mark.parametrize(("span_mm", "rise_mm"), [(2108.2, 1346.2), (3251.2, 2082.8)])
 def test_hy8_source_oval_matches_nominal_dimensions_and_area(span_mm: float, rise_mm: float) -> None:
     """The catalogue-based section is not interchangeable with an exact ellipse."""
     oval = Hy8ConcreteOvalGeometry.from_mm(span_mm, rise_mm)
     exact_ellipse = HorizontalEllipseGeometry.from_mm(span_mm, rise_mm)
-    assert oval.span == pytest.approx(span_mm / 1000.0)
+    assert abs(oval.span / (span_mm / 1000.0) - 1.0) <= 0.005
     assert oval.rise == pytest.approx(rise_mm / 1000.0)
     assert oval.top_width(oval.rise / 2) == pytest.approx(oval.span, abs=1e-12)
     assert oval.area_full > exact_ellipse.area_full
-    assert abs(oval.shape_db_area_difference_percent) < 0.1
+    assert abs(oval.shape_db_area_difference_percent) < 0.5
     assert oval.area_full == pytest.approx(2 * oval.area(oval.rise / 2), rel=1e-12)
     assert oval.wetted_perimeter_full == pytest.approx(2 * oval.wetted_perimeter(oval.rise / 2), rel=1e-12)
 
 
-@pytest.mark.parametrize("row_index", [0, 1, 7, 8, 9, 16, 21])
+@pytest.mark.parametrize("row_index", [3, 7, 11, 12, 17, 18, 19, 20])
 def test_oval_area_depth_perimeter_and_width_consistency(row_index: int) -> None:
     """Partial profile derivatives satisfy the basic cross-section identities."""
     oval = Hy8ConcreteOvalGeometry(row_index)
@@ -65,15 +65,17 @@ def test_catalogue_selection_and_area_reconciliation_fail_closed() -> None:
         Hy8ConcreteOvalGeometry.from_mm(1500, 1000)
     with pytest.raises(InvalidInputError, match="exact ShapeDB catalogue size"):
         Hy8ConcreteOvalGeometry.from_mm(965.2, 1524)
-    with pytest.raises(InvalidInputError, match="area reconciliation failed"):
-        Hy8ConcreteOvalGeometry.from_mm(34 * 25.4, 22 * 25.4)
+    with pytest.raises(InvalidInputError, match="span reconciliation failed"):
+        Hy8ConcreteOvalGeometry.from_mm(60 * 25.4, 38 * 25.4)
+    with pytest.raises(InvalidInputError, match="span reconciliation failed"):
+        Hy8ConcreteOvalGeometry.from_mm(68 * 25.4, 43 * 25.4)
     with pytest.raises(InvalidInputError, match="area reconciliation failed"):
         Hy8ConcreteOvalGeometry.from_mm(180 * 25.4, 116 * 25.4)
 
 
 def test_hy8_oval_critical_and_normal_depth() -> None:
     """Standard profiles participate in the existing hydraulic primitives."""
-    oval = Hy8ConcreteOvalGeometry.from_mm(1524, 965.2)
+    oval = Hy8ConcreteOvalGeometry.from_mm(2108.2, 1346.2)
     critical = calculate_critical_depth(oval, discharge=0.5)
     assert 0 < critical.depth < oval.rise
     assert critical.froude_number == pytest.approx(1.0, rel=1e-6)
@@ -88,7 +90,7 @@ def test_hy8_oval_critical_and_normal_depth() -> None:
 
 def test_hy8_oval_inlet_and_loss_are_explicit_and_shape_checked() -> None:
     """Catalogue identity must never imply a physical inlet/entrance configuration."""
-    oval = Hy8ConcreteOvalGeometry.from_mm(1524, 965.2)
+    oval = Hy8ConcreteOvalGeometry.from_mm(2108.2, 1346.2)
     bare = CulvertBarrel(
         geometry=oval, length=30, inlet_invert=10, outlet_invert=9.5, roughness=0.012, material=CONCRETE_PIPE
     )
@@ -111,3 +113,34 @@ def test_hy8_oval_inlet_and_loss_are_explicit_and_shape_checked() -> None:
     assert resolve_entrance_loss_coefficient(barrel).ke == HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE.ke
     result = solve_barrel_hydraulics(barrel, 0.5, tailwater=9.7)
     assert math.isfinite(result.headwater_elevation)
+
+
+@pytest.mark.parametrize("row_index", [3, 7, 11, 12, 17, 18, 19, 20])
+def test_oval_reconstruction_preserves_actual_circular_arcs(row_index: int) -> None:
+    """Independent radius/angle identities expose any unintended x-axis stretching."""
+    oval = Hy8ConcreteOvalGeometry(row_index)
+    record = HY8_CONCRETE_OVALS[row_index]
+    inch_to_m = 0.0254
+    long_radius = record.top_radius_in * inch_to_m
+    corner_radius = record.corner_radius_in * inch_to_m
+    half_rise = record.half_rise_in * inch_to_m
+    vertical_shift = long_radius - half_rise
+    radial_difference = long_radius - corner_radius
+    side_offset = math.sqrt(radial_difference**2 - vertical_shift**2)
+    join_height = long_radius * vertical_shift / radial_difference - vertical_shift
+    expected_span = 2.0 * (side_offset + corner_radius)
+    expected_perimeter = 4.0 * (
+        corner_radius * math.asin(join_height / corner_radius)
+        + long_radius * math.acos((join_height + vertical_shift) / long_radius)
+    )
+    assert oval.span == pytest.approx(expected_span, rel=1e-12)
+    assert oval.top_width(oval.rise / 2) == pytest.approx(expected_span, rel=1e-12)
+    assert oval.wetted_perimeter_full == pytest.approx(expected_perimeter, rel=1e-12)
+    assert abs(expected_span / (record.span_in * inch_to_m) - 1.0) <= 0.005
+
+
+@pytest.mark.parametrize("row_index", [0, 1, 2, 4, 5, 6, 8, 9, 10, 13, 14, 15, 16, 21, 22])
+def test_oval_rejects_unreconciled_catalogue_rows(row_index: int) -> None:
+    """Every excluded size fails rather than being silently reshaped."""
+    with pytest.raises(InvalidInputError, match="reconciliation failed"):
+        Hy8ConcreteOvalGeometry(row_index)
