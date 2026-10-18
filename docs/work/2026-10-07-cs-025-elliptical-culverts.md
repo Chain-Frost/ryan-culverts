@@ -65,9 +65,12 @@ and follows the repository fail-closed policy.
 ## External validation boundary (updated 2026-10-08)
 
 The companion [run-hy8 PR #7](https://github.com/Chain-Frost/run-hy8/pull/7)
-was merged on 8 October 2026. This branch's optional `external-validation`
-dependency is now pinned to the merged `run-hy8` commit
-`28e7909afd5ae53c4357380ef70c5f2e482c917d`. The HY-8 v8.0.1.2
+was merged on 8 October 2026. The source ShapeDB catalogue is traced to
+the merged `run-hy8` commit `28e7909afd5ae53c4357380ef70c5f2e482c917d`.
+The optional `external-validation` extra now specifies `run-hy8>=2026.10.5.1`
+from PyPI, not a Git commit pin. Record the **installed** `run-hy8` version
+and the HY-8 executable version when producing comparison evidence.
+The HY-8 v8.0.1.2
 ShapeDB-backed adapter supports 23 concrete and 40 steel-or-aluminum
 **catalogue sizes** and rejects arbitrary/reversed dimension pairs.
 Its ellipse catalogue does not expose a generic vertical-orientation switch.
@@ -119,29 +122,39 @@ and Manning roughness. Source: HY-8 8.0.1.2 / `run-hy8` merge commit
 Section VII.C (the standard oval is constructed from two pairs of arcs,
 not a mathematical ellipse).
 
-`Hy8ConcreteOvalGeometry.from_mm(span_mm, rise_mm)` requires a matching
-catalogue entry, without nearest-size substitution or rotation. The
-reconstructed profile uses the long and short radii for tangent arcs and
-scales the horizontal coordinate to the catalogue's nominal span.
-Arc-area integrals are analytical; wetted arcs use smooth angle-domain
-Simpson integration. The library verifies the resulting full area against
-the **separate** ShapeDB full area, failing closed above a 0.5% internal
-data-reconciliation difference. This is a *source consistency criterion*,
-not a headwater accuracy claim.
+`Hy8ConcreteOvalGeometry.from_mm(span_mm, rise_mm)` selects an exact nominal
+catalogue row; arbitrary sizes, orientation reversal and interpolation are
+rejected. The unscaled source radii join at tangent circular arcs, and all
+partial-area and perimeter calculations retain this circular-arc geometry.
+No affine horizontal stretch is permitted.
 
-Concrete rows 2 (34 × 22 in; about +2.28%) and 22 (180 × 116 in; about
--0.87%) cannot yet be reconciled from the rounded source radii and are
-rejected for hydraulic use. The remaining 21 entries may be selected;
-their partial-depth geometry has numerical/contract tests, but **HY-8
-executable parity remains unverified**. The library does not force its
-calculated full area to the ShapeDB value by changing Manning's `n` or
-inlet coefficients. Steel-or-aluminum profile support is not implied by
-this concrete-only class.
+The reconstructed *actual* span must agree with nominal ShapeDB span
+within 0.5%, and independently calculated full flow area must agree with
+the ShapeDB reported area within 0.5%. These **two fail-closed source
+reconciliation gates** are not a claim of HY-8 numeric parity or an
+engineering design accuracy tolerance. `oval.span` returns actual
+reconstructed maximum width; `oval.catalogue_size.span_in` is the nominal
+selection width in inches.
 
-The opt-in six-case comparison now builds its local sections from
-`Hy8ConcreteOvalGeometry` rather than mathematically exact ellipses.
-Users needing an arbitrary mathematical elliptical cross-section can
-still select `HorizontalEllipseGeometry` or `VerticalEllipseGeometry`.
+**Eight of 23 concrete sizes** pass both gates (zero-based rows 3, 7, 11,
+12, 17, 18, 19, 20); the other 15 sizes reject construction. The formerly
+accepted **60 × 38** and **68 × 43 inch** entries do not pass unscaled
+reconciliation. The previous horizontal stretch reduced area residuals
+but converted the four source *circles* to elliptical arcs and is removed.
+
+The six-case comparison now uses **83 × 53** and **128 × 82 inch** concrete
+ShapeDB sections, each at discharges of 0.5, 1.0 and 2.0 m³/s.
+The 83 × 53 reconstruction differs approximately +0.01% in span and
+-0.004% in area; 128 × 82 differs approximately 0% in span and
+-0.19% in area. The CSV includes source/reconstructed spans and areas
+alongside headwater, velocities, controls and profile diagnostics.
+Classify model-geometry discrepancies separately from numerical hydraulic
+solver discrepancies. Do not adjust inlet coefficients to conceal a
+geometric difference.
+
+The exact mathematical ellipse classes are retained independently.
+Steel/aluminium ovals, arch/pipe-arch shapes and reversed vertical
+standard profiles are not supported by this catalogue class.
 
 ### Verification status and next validation gate
 
@@ -154,7 +167,7 @@ still select `HorizontalEllipseGeometry` or `VerticalEllipseGeometry`.
   `ryan-culverts` comparison fixture. The `ryan-culverts` ellipse geometry,
   inlet/output regimes, velocity and headwater are not yet HY-8-validated.
 The existing `scripts/compare_hy8.py` now has an **opt-in**
-`--elliptical` mode with six cases (60 × 38 and 68 × 43 inch concrete
+`--elliptical` mode with six cases (83 × 53 and 128 × 82 inch concrete
 catalogue sizes, each at 0.5, 1.0 and 2.0 m³/s). The default legacy
 circular/CSP/box comparison matrix is unchanged. The mode writes
 headwater, velocity, control/regime, per-culvert flow and diagnostics
@@ -163,10 +176,13 @@ Its comparison CSV must be read together with the ShapeDB catalogue and
 arc-reconstruction area discrepancies; it is **quantitative comparison
 instrumentation**, not a claim of HY-8 parity.
 
-With `run-hy8` installed from the pinned `external-validation` extra,
-run the following on Windows with HY-8 8.0.1.2 installed:
+With `run-hy8` installed from PyPI using the optional
+`external-validation` extra, run from the repository root on Windows
+with HY-8 8.0.1.2 installed:
 
 ```powershell
+python -m pip install -e ".[dev,external-validation]"
+python -m pip show run-hy8
 $env:PYTHONPATH = 'src'
 python -B scripts/compare_hy8.py `
   --elliptical `
@@ -191,10 +207,15 @@ environment**; no numerical findings are yet claimed.
 - Classify geometry mismatch separately from inlet/profile/control-method
   discrepancies. Seek independent shape/profile evidence for vertical
   ellipses; do not invent a reversed HY-8 catalogue size.
-- The previously recorded hosted Python 3.14 CI passed on the original
-  review-adjusted branch. Recheck CI on the new dependency-pin commit before
-  asserting a final status. Hosted Python CI is not a substitute for the
-  executable comparison.
+- Verify Ruff, strict Pyright, pytest, documentation, wheel smoke checks
+  and CI on the final PR head. Hosted CI does **not** substitute for the
+  independent HY-8 executable.
+- If the numerical results disagree, preserve raw files and distinguish
+  catalogue area/radius discrepancies from inlet polynomial, outlet
+  profile and control-state differences. Reject invalid fixtures with
+  unexpected roadway flow or zero culvert discharge.
+- Keep the PR as draft until the executable comparison is reviewed against
+  documented quantitative acceptance criteria.
 
 ## Verification status (historical)
 
