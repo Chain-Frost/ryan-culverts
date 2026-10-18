@@ -20,8 +20,8 @@ context unless the issue explicitly says otherwise.
 PyPI release policy (2026-10-18): Owner: Unassigned. Status: Needs review.
 Port run-hy8 PR #17's verified merge-only release opt-out, preserving repository-specific
 builds and publisher identity. Local validation passes, including 557 tests and isolated
-wheel smoke. Commit/push and PR creation authorized on `ci/merge-only-release-policy` in an
-isolated worktree. Next review: 2026-10-19. See the
+wheel smoke. [PR #38](https://github.com/Chain-Frost/ryan-culverts/pull/38) is open
+on `ci/merge-only-release-policy`; hosted CI is running. No merge authorized. Next review: 2026-10-19. See the
 [release handoff](2026-10-16-pypi-release-automation.md) for scope and validation.
 
 Local and CI validation (2026-10-08): Owner: Unassigned. Status: local checks passed;
