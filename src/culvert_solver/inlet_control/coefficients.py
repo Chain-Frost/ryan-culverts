@@ -46,6 +46,7 @@ class InletCoefficients:
     slope_correction: float = -0.5
     shape: GeometryShape = GeometryShape.ANY
     reference: SourceReference = _HDS5_TABLE_A1_INLET_REF
+    concrete_pipe_only: bool = False
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -214,6 +215,7 @@ HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE = InletCoefficients(
     y=0.67,
     shape=GeometryShape.HORIZONTAL_ELLIPSE,
     reference=_HDS5_TABLE_A2_INLET_REF,
+    concrete_pipe_only=True,
 )
 
 HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END = InletCoefficients(
@@ -227,6 +229,7 @@ HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END = InletCoefficients(
     y=0.74,
     shape=GeometryShape.HORIZONTAL_ELLIPSE,
     reference=_HDS5_TABLE_A2_INLET_REF,
+    concrete_pipe_only=True,
 )
 
 HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING = InletCoefficients(
@@ -240,6 +243,7 @@ HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING = InletCoefficients(
     y=0.69,
     shape=GeometryShape.HORIZONTAL_ELLIPSE,
     reference=_HDS5_TABLE_A2_INLET_REF,
+    concrete_pipe_only=True,
 )
 
 VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE = InletCoefficients(
@@ -253,6 +257,7 @@ VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE = InletCoefficients(
     y=0.67,
     shape=GeometryShape.VERTICAL_ELLIPSE,
     reference=_HDS5_TABLE_A2_INLET_REF,
+    concrete_pipe_only=True,
 )
 
 VERTICAL_ELLIPSE_CONCRETE_GROOVE_END = InletCoefficients(
@@ -266,6 +271,7 @@ VERTICAL_ELLIPSE_CONCRETE_GROOVE_END = InletCoefficients(
     y=0.74,
     shape=GeometryShape.VERTICAL_ELLIPSE,
     reference=_HDS5_TABLE_A2_INLET_REF,
+    concrete_pipe_only=True,
 )
 
 VERTICAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING = InletCoefficients(
@@ -279,6 +285,7 @@ VERTICAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING = InletCoefficients(
     y=0.69,
     shape=GeometryShape.VERTICAL_ELLIPSE,
     reference=_HDS5_TABLE_A2_INLET_REF,
+    concrete_pipe_only=True,
 )
 
 STANDARD_INLET_COEFFICIENTS: tuple[InletCoefficients, ...] = (
