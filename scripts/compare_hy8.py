@@ -1,8 +1,9 @@
 """Run a focused ryan-culverts versus HY-8 headwater comparison.
 
 This is external verification tooling, not a runtime dependency of the hydraulic
-library. Run with the current run-hy8 source tree on ``PYTHONPATH`` when validating
-against a particular run-hy8 commit.
+library. Install the optional external-validation extra to obtain run-hy8 from PyPI.
+Record the installed adapter version and HY-8 executable details when
+retaining validation evidence.
 """
 
 from __future__ import annotations
@@ -724,6 +725,18 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
     """Execute all cases and write comparison rows to an open text stream."""
     executable = Hy8Executable(args.hy8) if args.hy8 is not None else Hy8Executable()
     writer = csv.writer(output, lineterminator="\n")
+    extra_columns = (
+        (
+            "nominal_span_m",
+            "reconstructed_span_m",
+            "span_difference_percent",
+            "reconstructed_area_m2",
+            "shape_db_area_m2",
+            "area_difference_percent",
+        )
+        if args.elliptical
+        else ()
+    )
     writer.writerow(
         (
             "case_id",
@@ -754,9 +767,7 @@ def _write_matrix(args: argparse.Namespace, output: TextIO) -> None:
             "inlet_control_depth_difference_m",
             "outlet_control_depth_difference_m",
             "full_flow_length_difference_m",
-            *(( "nominal_span_m", "reconstructed_span_m", "span_difference_percent",
-                 "reconstructed_area_m2", "shape_db_area_m2", "area_difference_percent")
-              if args.elliptical else ()),
+            *extra_columns,
         )
     )
     for case in _selected_cases(args):
