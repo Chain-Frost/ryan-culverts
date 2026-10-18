@@ -130,6 +130,9 @@ def _validate_coefficient_shape(barrel: CulvertBarrel, coefficients: InletCoeffi
             f"with {barrel_shape.value!r} geometry."
         )
         raise InvalidInputError(msg)
+    if coefficients.concrete_pipe_only and barrel.material not in (CONCRETE, CONCRETE_PIPE):
+        msg = "Concrete ellipse inlet coefficients require a concrete pipe material."
+        raise InvalidInputError(msg)
 
 
 def calculate_inlet_control_headwater(
