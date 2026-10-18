@@ -19,8 +19,6 @@ from .coefficients import (
     BOX_CONCRETE_FLARED_WINGWALLS_30_75,
     CIRCULAR_CMP_HEADWALL,
     CIRCULAR_CONCRETE_SQUARE_EDGE,
-    HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
-    VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
     InletCoefficients,
 )
 from .fhwa import (
@@ -99,21 +97,8 @@ def _default_coefficients_for_barrel(barrel: CulvertBarrel) -> InletCoefficients
             "provide inlet_coefficients explicitly."
         )
         raise InvalidInputError(msg)
-    if isinstance(barrel.geometry, (HorizontalEllipseGeometry, Hy8ConcreteOvalGeometry)):
-        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
-            return HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE
-        msg = (
-            "No default inlet coefficients exist for this horizontal ellipse material; "
-            "provide inlet_coefficients explicitly."
-        )
-        raise InvalidInputError(msg)
-    if isinstance(barrel.geometry, VerticalEllipseGeometry):
-        if barrel.material in {CONCRETE, CONCRETE_PIPE}:
-            return VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE
-        msg = (
-            "No default inlet coefficients exist for this vertical ellipse material; "
-            "provide inlet_coefficients explicitly."
-        )
+    if isinstance(barrel.geometry, (HorizontalEllipseGeometry, VerticalEllipseGeometry, Hy8ConcreteOvalGeometry)):
+        msg = "Elliptical inlet treatment is ambiguous; provide inlet_coefficients explicitly."
         raise InvalidInputError(msg)
     if isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         if barrel.material in {CONCRETE, CONCRETE_BOX}:
