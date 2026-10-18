@@ -5,11 +5,14 @@ from dataclasses import dataclass
 from .._validation import finite
 from ..exceptions import InvalidInputError
 from ..geometry.circular import CircularGeometry
+from ..geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
 from ..geometry.filleted_rectangular import FilletedRectangularGeometry
+from ..geometry.hy8_oval import Hy8ConcreteOvalGeometry
 from ..geometry.rectangular import RectangularGeometry
 from ..hydraulics.primitives import friction_head_loss, minor_head_loss
 from ..models.barrel import CulvertBarrel
 from ..models.enums import ExitLossSelectionBasis, GeometryShape
+from ..models.materials import CONCRETE, CONCRETE_PIPE
 from ..references.models import SourceReference
 
 _HDS5_TABLE_C2_REF = SourceReference(
@@ -43,6 +46,7 @@ class EntranceLossCoefficient:
     ke: float
     shape: GeometryShape = GeometryShape.ANY
     reference: SourceReference = _HDS5_TABLE_C2_REF
+    concrete_pipe_only: bool = False
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -55,7 +59,7 @@ class EntranceLossCoefficient:
         try:
             shape_val = GeometryShape(self.shape)
         except (TypeError, ValueError) as exc:
-            msg = "shape must be GeometryShape.CIRCULAR, RECTANGULAR, or ANY."
+            msg = "shape must be a recognized GeometryShape value."
             raise InvalidInputError(msg) from exc
         object.__setattr__(self, "ke", ke_val)
         object.__setattr__(self, "shape", shape_val)
@@ -117,6 +121,10 @@ def validate_entrance_loss_shape(barrel: CulvertBarrel, coefficient: EntranceLos
     """Reject an entrance-loss coefficient for a different geometry family."""
     if isinstance(barrel.geometry, CircularGeometry):
         barrel_shape: GeometryShape = GeometryShape.CIRCULAR
+    elif isinstance(barrel.geometry, (HorizontalEllipseGeometry, Hy8ConcreteOvalGeometry)):
+        barrel_shape = GeometryShape.HORIZONTAL_ELLIPSE
+    elif isinstance(barrel.geometry, VerticalEllipseGeometry):
+        barrel_shape = GeometryShape.VERTICAL_ELLIPSE
     elif isinstance(barrel.geometry, (RectangularGeometry, FilletedRectangularGeometry)):
         barrel_shape = GeometryShape.RECTANGULAR
     else:
@@ -126,6 +134,9 @@ def validate_entrance_loss_shape(barrel: CulvertBarrel, coefficient: EntranceLos
             f"Entrance-loss coefficient for {coefficient.shape.value!r} geometry cannot be "
             f"used with {barrel_shape.value!r} geometry."
         )
+        raise InvalidInputError(msg)
+    if coefficient.concrete_pipe_only and barrel.material not in (CONCRETE, CONCRETE_PIPE):
+        msg = "Concrete ellipse entrance-loss coefficients require a concrete pipe material."
         raise InvalidInputError(msg)
 
 
@@ -191,6 +202,20 @@ PIPE_CMP_BEVELED = EntranceLossCoefficient(
     name="Pipe, CMP: Beveled edges, 33.7 deg or 45 deg bevels",
     ke=0.2,
     shape=GeometryShape.CIRCULAR,
+)
+
+# HDS-5 Table C.2 groups these values under concrete pipe, not a circular-only shape.
+HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE = EntranceLossCoefficient(
+    name="Horizontal ellipse, concrete pipe: Headwall square-edge",
+    ke=0.5,
+    shape=GeometryShape.HORIZONTAL_ELLIPSE,
+    concrete_pipe_only=True,
+)
+VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE = EntranceLossCoefficient(
+    name="Vertical ellipse, concrete pipe: Headwall square-edge",
+    ke=0.5,
+    shape=GeometryShape.VERTICAL_ELLIPSE,
+    concrete_pipe_only=True,
 )
 
 # Reinforced concrete box culvert entrance loss coefficients (HDS-5 Table C.2)

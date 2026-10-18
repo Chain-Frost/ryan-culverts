@@ -202,9 +202,21 @@ the listed tolerances are numerical comparison tolerances rather than design acc
 | Fixture | Inputs | Independent expected result | Solver difference | Test tolerance |
 | --- | --- | --- | ---: | --- |
 | Circular full geometry | `D=1.0 m` | `A=0.7853981633974483 m²`, `R=0.25 m` | `0.0` at shown precision | relative `1e-14` |
+| Horizontal ellipse quarter depth | `B=2.4 m`, `D=1.2 m`, `y=0.3 m` | `A=0.44221309149915243 m²`, wetted perimeter `2.2041439063591807 m` | analytical area plus independent high-precision arc integral | area absolute `1e-12`; perimeter absolute `2e-10` |
+| Vertical ellipse quarter depth | `B=1.2 m`, `D=2.4 m`, `y=0.6 m` | `A=0.44221309149915243 m²`, wetted perimeter `1.6919134922465608 m` | analytical area plus independent high-precision arc integral | area absolute `1e-12`; perimeter absolute `2e-10` |
 | Rectangular critical flow | `b=2.0 m`, `Q=6.0 m³/s` | `yc=0.9717933987105833 m`, `Ec=1.457690098065875 m` | `0.0` at shown precision | relative `1e-12` |
 | Rectangular Manning flow | `b=2.4 m`, `S=0.002`, `n=0.013`, `Q=2.6893095773667723 m³/s` | `yn=0.6 m`, `K=0.7817522735793332 m^(8/3)` | `0.0` at shown precision | depth absolute `1e-6`; conveyance relative `1e-12` |
 | Circular full-flow losses | `D=1.0 m`, `L=100 m`, `Q=2.0 m³/s`, `n=0.013`, `Ke=0.5`, `Ko=1.0` | `He=0.16531016588512945 m`, `Hf=0.6958467261846067 m`, `Ho=0.3306203317702589 m`, `HL=1.191777223839995 m` | `0.0` at shown precision | relative `1e-12` |
+
+Ellipse contract tests additionally verify half-depth symmetry, full/surcharged limits,
+critical-depth compatibility, and the rising normal-depth branch where open-channel
+conveyance exceeds the full-section value near the crown.
+
+Inlet transition checks cover every catalogued coefficient set. The published Chart 30
+Scale 3 constants produce a nonmonotonic cubic bridge for a vertical ellipse with 1.2 m
+span and 2.4 m rise. Tests require an explicit error throughout that transition interval;
+the source coefficients and independently evaluable bounding branches are preserved.
+This is an unresolved transition-method applicability limit, not HY-8 validation.
 
 These fixtures separate geometry, critical flow, uniform flow, and loss transcription from
 the numerical solvers that consume them. They do not validate profile selection, mixed

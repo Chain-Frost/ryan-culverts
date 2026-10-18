@@ -19,7 +19,7 @@ inventory. It is evidence of useful workflows, not hydraulic authority.
 | Flow for HW/D | Added for a single barrel; mixed-crossing HW/D is deliberately omitted because there is no unique invert or rise |
 | Tailwater rating/channel definitions | Relevant missing boundary work, separated as CS-029 |
 | Irregular roadway profile | Relevant extension already owned by CS-028 |
-| Additional culvert shapes/materials | Relevant only with sourced equations and geometry tests; owned by CS-025 |
+| Additional culvert shapes/materials | Horizontal/vertical concrete ellipses implemented independently under CS-025; arch/pipe-arch profiles remain source-gated |
 | Top/bottom or composite roughness | Relevant only with physical zones and applicability; split into CS-030 and CS-033 |
 | Project dictionaries/JSON | Keep deferred under CS-009 until a real consumer fixes the schema contract |
 | Flow sequences and performance tables | Existing rating-curve APIs cover the hydraulic need; HY-8's min/design/max presentation convention is not core physics |
@@ -30,6 +30,7 @@ inventory. It is evidence of useful workflows, not hydraulic authority.
 | --- | --- | --- | --- | --- |
 | Numerical roots and SI conversion | Implementation detail | Foundation available | Analytical/contract tests | Not applicable |
 | Circular/box culverts | HDS-5 and HY-8 scope | Implemented | Analytical geometry tests | Single-barrel matrix covers circular concrete/CSP and concrete box |
+| Horizontal/vertical concrete ellipse | HDS-5 Appendix A Table A.2 Charts 29/30 | Implemented in core | Analytical area/width, high-precision perimeter, critical/normal-depth and fail-closed coefficient tests | Pending Chain-Frost/run-hy8#5; no executable parity claimed |
 | Inlet control | HDS-5 methods | Implemented, provisional | Equations/Table A.1 and transition tests | HY-8 matrix and Type 6 sweep; high-head method difference retained |
 | Full and partly full outlet control | HDS-5/HY-8 | Implemented, provisional | Energy and independent fixture tests | HY-8 candidate depth within `0.012 m` in matrix and sweeps |
 | Critical/normal depth and velocity | HY-8 release notes | Implemented | Analytical and branch tests | Exercised through version-pinned regime comparisons |

@@ -17,6 +17,85 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+PR #29 CI documentation repair (2026-10-19): Owner: Unassigned. Status: fixed locally.
+Boundary: repair the malformed MkDocs navigation entry behind run 39142627654,
+preserving hydraulic evidence and acceptance boundaries.
+Run [39142627654](https://github.com/Chain-Frost/ryan-culverts/actions/runs/39142627654)
+failed strict MkDocs on head `0bdea47`: YAML interpreted the unquoted `#29` label
+as a comment, leaving a nonexistent `PR` navigation target. Quoted the label.
+Reproduced the exact two-warning failure before repair; strict MkDocs now passes.
+
+Validation on Python 3.14.6: `python -m pytest -q` (658 passed in 24.43 s),
+`python -m ruff check .`, `python -m ruff format --check .` (159 files),
+`python -m pyright` (zero diagnostics),
+`python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`,
+`python -m mkdocs build --strict`, and `git diff --check` passed.
+`python scripts/build_package.py --no-bump` and `python scripts/verify_wheel.py`
+also passed: version 26.10.16.1, 121975 bytes, SHA-256
+`e7d5d28bcfcfd9daedf9acf65e681ba42b456c7983f4fc1fcd23ca1ab4fb7764`.
+The failed hosted run passed all three installed-wheel platform jobs; whitespace
+and fresh-wheel steps in `verify` were skipped after the docs failure.
+Local Python 3.13, actionlint, installed/vendored-wheel smoke tests and HY-8 were
+not rerun for this navigation-only fix. No hydraulic behaviour or evidence changed.
+Changes are uncommitted and unpushed; hosted CI remains failed until delivery and
+an exact-head rerun. No release or merge performed.
+
+Issue #3 / PR #29 hydraulic review (2026-10-18): Owner: Unassigned.
+Status: **Current review round complete**; numerical parity and design acceptance
+are separate decisions. No additional HY-8 cases or solver adjustments are
+requested for this review round. Findings and limits are recorded in the
+[standalone PR review](2026-10-18-pr29-hydraulic-review.md).
+No merge or release was performed in this review.
+
+Issue #3 / PR #29 critical-depth diagnostic (2026-10-18): Owner: Unassigned. Status: executed; independent review required.
+Boundary: execute five new high-flow cases, retain native curves, compare critical
+and profile depths with unchanged geometry/equations, and report independent-review limits.
+Five fresh runs and the 25/35 m3/s anchors are retained separately with full native curves.
+See [the targeted assessment](2026-10-07-cs-025-elliptical-culverts.md#targeted-high-flow-critical-depth-investigation-2026-10-18).
+All 658 tests and ordinary quality checks pass on Python 3.14.6 after repairing
+a missing test-decorator parenthesis from the concurrently advanced branch.
+
+Issue #3 / PR #29 higher-flow executable sweep (2026-10-18): Owner: Unassigned. Status: executed; engineering review outstanding.
+Boundary: execute the requested 18-case diagnostic matrix in a fresh workspace,
+preserve native/version/hash evidence, and assess discrepancies without changing
+solver equations, coefficients, existing baselines, or acceptance criteria.
+All 18 cases completed with HY-8 8.0.1.2 and run-hy8 2026.10.18.2. Native reports,
+CSV and manifest are retained separately; repeated baseline rows are unchanged.
+See [the sweep assessment](2026-10-07-cs-025-elliptical-culverts.md#local-18-case-executable-sweep-2026-10-18).
+PR remains draft. Changes are uncommitted and unpushed.
+
+Main integration (2026-10-18): Owner: Unassigned. Status: validated locally.
+Merged `origin/main` at `8d442e6` into `feat/issue-3-elliptical-culverts`.
+Resolved the sole conflict in this index by retaining both branches' handoff records.
+Validation on Python 3.14.6: `python -m pytest -q` (648 passed),
+`python -m ruff check .`, `python -m ruff format --check .` (158 files),
+`python -m pyright` (zero diagnostics),
+`python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md`,
+`python -m mkdocs build --strict`, and `git diff --check` passed.
+Python 3.13.15 pytest could not run because that interpreter lacks pytest.
+No new HY-8 executable comparison, wheel build/install verification, or hosted CI
+was run for this merge. Existing engineering acceptance limits remain in force.
+Local merge only; no push or publication performed.
+
+Issue #3 / PR #29 six-case executable validation (2026-10-18): Owner: Unassigned. Status: Needs review.
+Boundary: preserve fresh HY-8 ellipse evidence, assess hydraulic discrepancies against
+explicit comparison criteria, and record validation and review readiness.
+The six positive-flow cases are retained; hydraulic differences exceed report rounding.
+See [the current assessment](2026-10-07-cs-025-elliptical-culverts.md#local-six-case-executable-assessment-2026-10-18).
+Engineering acceptance and final review remain gated; next review: 2026-10-19.
+
+Issue #3 ellipse validation repair (2026-10-07): Owner: Unassigned. Status: verified locally.
+Boundary: repair local test and quality-check failures in the ellipse implementation
+slice without changing sourced coefficients or HY-8 baselines.
+See [the implementation note](2026-10-07-cs-025-elliptical-culverts.md) for exact checks
+and the remaining Chart 30 Scale 3 transition applicability limit. Changes are uncommitted
+and unpushed; the broader issue remains open.
+PyPI release automation (2026-10-16): Owner: ChatGPT. Status: Active.
+User-selected task: consistent release preparation, verified publication and focused
+CI improvements, delivered as a new PR. No hydraulic methods or comparison baselines
+will change. [PR #32](https://github.com/Chain-Frost/ryan-culverts/pull/32) owns current review status; see the
+[release setup handoff](2026-10-16-pypi-release-automation.md) for validation and next actions.
+
 Python 3.13 support (2026-10-18): Owner: Unassigned. Status: CI simplification validated locally.
 User-selected compatibility task within the CS-019 packaging boundary. Installation
 requires Python `>=3.13`, with no upper bound. CI runs full checks once on 3.13 under the required name `verify`, plus lightweight

@@ -20,7 +20,10 @@ from .constants import (
 from .exceptions import ConvergenceError, InvalidInputError
 from .geometry.base import CrossSectionGeometry
 from .geometry.circular import CircularGeometry
+from .geometry.elliptical import HorizontalEllipseGeometry, VerticalEllipseGeometry
 from .geometry.filleted_rectangular import FilletedRectangularGeometry
+from .geometry.hy8_oval import Hy8ConcreteOvalGeometry
+from .geometry.hy8_oval_catalogue import HY8_CONCRETE_OVALS, Hy8ConcreteOvalSize
 from .geometry.rectangular import RectangularGeometry
 from .hydraulics.critical import CriticalDepthResult, calculate_critical_depth
 from .hydraulics.momentum import (
@@ -50,7 +53,13 @@ from .inlet_control.coefficients import (
     CIRCULAR_CMP_PROJECTING,
     CIRCULAR_CONCRETE_GROOVE_END,
     CIRCULAR_CONCRETE_SQUARE_EDGE,
+    HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END,
+    HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING,
+    HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
     STANDARD_INLET_COEFFICIENTS,
+    VERTICAL_ELLIPSE_CONCRETE_GROOVE_END,
+    VERTICAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING,
+    VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
     InletCoefficients,
 )
 from .inlet_control.fhwa import (
@@ -174,6 +183,9 @@ from .outlet_control.losses import (
     BOX_CONCRETE_PARALLEL_WINGWALLS_0 as BOX_LOSS_PARALLEL_0,
 )
 from .outlet_control.losses import (
+    HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE as HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE,
+)
+from .outlet_control.losses import (
     PIPE_CMP_HEADWALL as PIPE_CMP_LOSS_HEADWALL,
 )
 from .outlet_control.losses import (
@@ -195,6 +207,9 @@ from .outlet_control.losses import (
     calculate_friction_loss,
     calculate_total_head_loss,
     resolve_exit_loss_coefficient,
+)
+from .outlet_control.losses import (
+    VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE as VERTICAL_ELLIPSE_LOSS_SQUARE_EDGE,
 )
 from .outlet_control.partial_flow import (
     PartialFlowOutletResult,
@@ -290,6 +305,11 @@ __all__: list[str] = [
     "FHWA_MODERN_BOX_HW_D_MIN",
     "GRAVITATIONAL_ACCELERATION",
     "HDS5_LABORATORY_HW_D_MAX",
+    "HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END",
+    "HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING",
+    "HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE",
+    "HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE",
+    "HY8_CONCRETE_OVALS",
     "MRWA_CONCRETE_REFERENCE",
     "MRWA_CSP_MANNING_TABLE",
     "MRWA_CSP_REFERENCE",
@@ -307,6 +327,10 @@ __all__: list[str] = [
     "STANDARD_INLET_COEFFICIENTS",
     "STANDARD_WATER_DENSITY",
     "STANDARD_WATER_KINEMATIC_VISCOSITY",
+    "VERTICAL_ELLIPSE_CONCRETE_GROOVE_END",
+    "VERTICAL_ELLIPSE_CONCRETE_GROOVE_PROJECTING",
+    "VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE",
+    "VERTICAL_ELLIPSE_LOSS_SQUARE_EDGE",
     "AdoptedParameterSet",
     "ApplicabilityNoticeCode",
     "BarrelHydraulicResult",
@@ -345,6 +369,9 @@ __all__: list[str] = [
     "GroupHydraulicResult",
     "GroupSummary",
     "HeadLossComponents",
+    "HorizontalEllipseGeometry",
+    "Hy8ConcreteOvalGeometry",
+    "Hy8ConcreteOvalSize",
     "HydraulicApplicabilityNotice",
     "HydraulicEvaluationFailure",
     "HydraulicProfilePoint",
@@ -405,6 +432,7 @@ __all__: list[str] = [
     "TailwaterResolution",
     "TrapezoidalChannel",
     "UniformParameterSpec",
+    "VerticalEllipseGeometry",
     "WaterSurfaceProfile",
     "__version__",
     "calculate_channel_normal_depth",

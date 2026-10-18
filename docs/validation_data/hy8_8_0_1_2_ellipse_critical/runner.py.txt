@@ -1,0 +1,93 @@
+"""One-off targeted diagnostic; run from the repository root with PYTHONPATH=src."""
+import argparse
+import csv
+import hashlib
+import json
+import math
+import shutil
+import subprocess
+import sys
+from dataclasses import asdict, replace
+from importlib.metadata import version
+from pathlib import Path
+
+sys.path.insert(0, str(Path("scripts").resolve()))
+import compare_hy8 as harness
+from culvert_solver import Hy8ConcreteOvalGeometry, calculate_critical_depth, calculate_normal_depth
+
+workspace = Path("validation_artifacts/hy8-ellipse-critical-run01")
+if (workspace/"comparison.csv").exists():
+    raise RuntimeError("Choose a new workspace; refusing to overwrite evidence")
+base = next(c for c in harness.CASES if c.case_id == "ellipse-128x82-low")
+cases = tuple(replace(base, case_id=f"ellipse-128x82-q{q:.2f}", discharge=q) for q in (28.,30.,32.,34.,36.))
+# Restrict only this process. The retained harness and its default matrices are unchanged.
+harness._selected_cases = lambda args: cases
+args = argparse.Namespace(hy8=Path("C:/Program Files/HY-8 8.00/HY864.exe"), workspace=workspace, elliptical=False, elliptical_sweep=True)
+with (workspace/"comparison.csv").open("w",encoding="utf-8",newline="") as stream:
+    harness._write_matrix(args,stream)
+
+
+def curves(path):
+    profiles = {}
+    profile = None
+    series = None
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("FlowProfile:"):
+            profile = {"series": {}}
+        elif line.startswith("FlowProfileFlow:"):
+            profile["flow_cfs"] = float(line.split(":",1)[1])
+        elif line.startswith("Series:"):
+            series = line.split(":",1)[1].strip()
+            profile["series"][series] = []
+        elif line.startswith("point:"):
+            profile["series"][series].append([float(v) for v in line.split(":",1)[1].split()])
+        elif line.startswith("EndFlowProfile:"):
+            profiles[int(line.split(":",1)[1])] = profile
+    return profiles
+
+geometry = Hy8ConcreteOvalGeometry.from_mm(3251.2,2082.8)
+old = Path("docs/validation_data/hy8_8_0_1_2_ellipse_sweep")
+with (old/"comparison.csv").open() as stream:
+    anchors={float(r["discharge_m3s"]):r for r in csv.DictReader(stream) if r["case_id"].startswith("ellipse-128x82") and float(r["discharge_m3s"]) in (25.,35.)}
+with (workspace/"comparison.csv").open() as stream:
+    new={float(r["discharge_m3s"]):r for r in csv.DictReader(stream)}
+output=[]
+series_output={}
+for q in (25.,28.,30.,32.,34.,35.,36.):
+    row=(anchors if q in anchors else new)[q]
+    folder=(old if q in anchors else workspace)/row["case_id"]
+    profile=curves(next(folder.glob("*.plt")))[1]
+    if abs(profile["flow_cfs"]/35.3146667214886-q)>.001:
+        raise RuntimeError("PLT flow mismatch")
+    series_output[str(q)] = profile
+    result={"discharge_m3s":q,"evidence_origin":"retained_anchor" if q in anchors else "fresh_execution",**row}
+    critical=calculate_critical_depth(geometry,q)
+    normal=calculate_normal_depth(geometry,q,(10-9.5)/30,.012)
+    result.update(local_critical_depth_m=critical.depth,local_normal_depth_m=normal.depth)
+    for name in ("Critical","Normal","Profile","Headwater"):
+        points=profile["series"][name]
+        for position,point in (("first",points[0]),("last",points[-1])):
+            x,elevation=point
+            invert=10.-.5*x/30 if name!="Headwater" else 10.
+            depth=elevation-invert
+            prefix=f"hy8_{name.lower()}_{position}"
+            result.update({prefix+"_station_m":x,prefix+"_elevation_m":elevation,prefix+"_depth_m":depth})
+            if name!="Headwater":
+                a=geometry.area(depth)
+                t=geometry.top_width(depth)
+                result.update({prefix+"_local_area_m2":a,prefix+"_local_top_width_m":t,prefix+"_local_perimeter_m":geometry.wetted_perimeter(depth),prefix+"_local_velocity_ms":q/a,prefix+"_local_fr_squared":q*q*t/(9.80665*a**3)})
+    # Scan open depths independently of the production root bracket for multiple crossings.
+    depths=[geometry.rise*i/20000 for i in range(1,20000)]
+    residuals=[9.80665*geometry.area(y)**3-q*q*geometry.top_width(y) for y in depths]
+    brackets=[(depths[i],depths[i+1]) for i in range(len(depths)-1) if residuals[i]*residuals[i+1]<0]
+    result["scanned_critical_root_count"]=len(brackets)
+    result["critical_root_brackets_m"]=json.dumps(brackets)
+    output.append(result)
+with (workspace/"diagnostics.csv").open("w",encoding="utf-8",newline="") as stream:
+    writer=csv.DictWriter(stream,fieldnames=list(output[0]))
+    writer.writeheader()
+    writer.writerows(output)
+(workspace/"curves.json").write_text(json.dumps(series_output,indent=2)+"\n",encoding="utf-8")
+(workspace/"cases.json").write_text(json.dumps([asdict(c) for c in cases],indent=2)+"\n",encoding="utf-8")
+for r in output:
+    print(r["discharge_m3s"],r["local_critical_depth_m"],r["hy8_critical_first_depth_m"],r["local_outlet_depth_m"],r["hy8_profile_last_depth_m"],r["hy8_critical_first_local_fr_squared"],r["scanned_critical_root_count"])

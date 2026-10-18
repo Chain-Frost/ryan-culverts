@@ -18,7 +18,9 @@ class GeometryShape(StrEnum):
 
     ANY = "any"
     CIRCULAR = "circular"
+    HORIZONTAL_ELLIPSE = "horizontal_ellipse"
     RECTANGULAR = "rectangular"
+    VERTICAL_ELLIPSE = "vertical_ellipse"
 
 
 class CspCorrugation(StrEnum):

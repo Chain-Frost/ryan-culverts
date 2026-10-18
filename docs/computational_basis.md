@@ -92,6 +92,14 @@ For a circle of radius r at depth y, the segment angle is
 is `r*theta`, and surface chord is `2*sqrt(y*(2*r-y))` for `0 < y < 2*r`.
 These analytical geometry identities need cancellation/limiting-case tests.
 
+For an ellipse with semi-span `a`, semi-rise `b`, and normalized vertical coordinate
+`eta = 2y/D - 1`, the partial area is
+`A = ab*(eta*sqrt(1-eta^2) + asin(eta) + pi/2)` and top width is
+`T = 2a*sqrt(1-eta^2)`. The incomplete ellipse perimeter has no elementary closed form;
+the implementation integrates the exact arc-length integrand with deterministic composite
+Simpson quadrature. Horizontal and vertical classes are distinct so empirical inlet
+applicability cannot silently cross orientations.
+
 Geometry conventions are a Phase 2 gate: distinguish a surface approaching the
 crown from a pressurised closed section. Do not reuse the old circular top width
 of one diameter at full depth. Hydraulic depth and Froude number are undefined
@@ -112,7 +120,7 @@ section 3.1.4 states that backwater calculations are required for low headwater.
 Therefore it does not replace a free-surface profile in the production solver.
 
 Direct step is the adopted production method for monotonic S1, S2, M1, M2, and H2
-profiles in the currently supported prismatic circular and rectangular barrels. Depth is a
+profiles in the currently supported prismatic circular, elliptical, and rectangular barrels. Depth is a
 stable integration coordinate for those branches and directly locates normal-depth and
 crown limits. Standard step is reserved as an independent spatial-coordinate validation
 method and for future non-prismatic geometry; it is not currently a second production
@@ -125,7 +133,9 @@ methodology reference for boundary energy accounting and candidate conditions.
 ## Empirical relationships and transition policy
 
 The implemented inlet constants were checked against HDS-5 Appendix A, Table A.1
-(local PDF page 197), and the implemented entrance-loss constants against Appendix C,
+(local PDF page 197), with horizontal/vertical concrete ellipse constants taken from
+Table A.2 discontinued Charts 29 and 30, and the implemented entrance-loss constants
+against Appendix C,
 Table C.2 (local PDF page 216). Equation form, unit conversion, chart/scale, entrance
 geometry, locator and shape applicability are represented in typed records. The box-report
 (FHWA-HRT-06-138) and NCHRP 734 coefficients have been extracted into `docs/research/`, providing
@@ -138,7 +148,11 @@ page A.6 states that the nomograph transition was drawn by hand, so no reproduci
 algorithm is prescribed. The adopted project method is a cubic Hermite bridge over
 `3.5 <= q* <= 4.0`, using the value and first derivative of each bounding curve. For Form
 1, the lower tangent includes the exact critical-specific-energy derivative. It is C1
-continuous and monotonic for every catalogued circular and rectangular coefficient set.
+continuous when supported. The exact minimum of the cubic derivative is checked;
+nonmonotonic bridges fail closed without altering published constants or endpoint slopes.
+For example, Chart 30 Scale 3 (vertical concrete ellipse, groove end projecting) fails
+this check for a 1.2 m span and 2.4 m rise. Its empirical unsubmerged and submerged
+branches remain evaluable, but the transition requires a separately justified method.
 This is a deterministic implementation of the HDS-5 tangency requirement, not a claim of
 exact HY-8 polynomial or hand-drawn-nomograph equivalence.
 
@@ -166,10 +180,14 @@ ranges; Table 2.2 supplies diameter/corrugation-specific CSP values. The MRWA Pa
 supplement requires plastic-pipe Manning roughness from the applicable manufacturer.
 Accordingly, generic concrete roughness and missing material context fail explicitly,
 while a plastic HDS-5 laboratory value is available only through a deliberate fallback
-flag with structured applicability notices. Hydraulic defaults and construction
-compliance remain separate decisions. No HY-8 fallback value has been adopted.
+flag with structured applicability notices. Elliptical inlet-control and entrance-loss
+records are source-backed catalogue choices, not geometry/material defaults: the actual
+ellipse inlet treatment must be supplied explicitly because square-edge, groove-ended,
+and projecting configurations are hydraulically distinct. Hydraulic defaults and
+construction compliance remain separate decisions. No HY-8 fallback value has been adopted.
 
-The repository implements circular and rectangular geometry, hydraulic primitives,
+The repository implements circular, horizontal/vertical elliptical, and rectangular geometry,
+hydraulic primitives,
 critical and normal depth, selected HDS-5 inlet and loss coefficients, provisional
 inlet/outlet control, direct-step profiles, barrel/group/crossing solvers, rating curves,
 and roadway overtopping for both constant and piecewise-linear irregular crests. Roadway

@@ -29,6 +29,17 @@ explicitly accepts Austroads `n = 0.024` for plain or unpaved small-corrugation
 corrugated metal pipe; the selection then carries an applicability notice.
 HDPE does not receive an automatic inlet/loss arrangement.
 
+For horizontal and vertical ellipses, including HY-8 source-reconstructed concrete
+ovals, the inlet and entrance-loss treatments must be specified explicitly.
+The built-in `HORIZONTAL_ELLIPSE_CONCRETE_*` and
+`VERTICAL_ELLIPSE_CONCRETE_*` coefficient records apply only to
+`CONCRETE` and `CONCRETE_PIPE`. These records carry
+`concrete_pipe_only=True`; the resolver and direct inlet-control API reject them
+for steel, concrete-box or otherwise incompatible material specifications.
+A project-sourced custom coefficient can instead be supplied explicitly with
+its own provenance and documented material applicability. Shape matching
+alone does not establish that an empirical coefficient is suitable.
+
 ### Canonical CSP barrel construction
 
 `CulvertBarrel.roughness` remains an explicit SI input. The core barrel dataclass does
@@ -80,6 +91,11 @@ requested discharge below the minimum evaluable submerged-roadway capacity.
     options:
       members:
         - CircularGeometry
+        - HorizontalEllipseGeometry
+        - Hy8ConcreteOvalGeometry
+        - HY8_CONCRETE_OVALS
+        - Hy8ConcreteOvalSize
+        - VerticalEllipseGeometry
         - RectangularGeometry
         - FilletedRectangularGeometry
         - CrossSectionGeometry

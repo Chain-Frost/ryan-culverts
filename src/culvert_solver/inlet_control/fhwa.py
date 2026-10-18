@@ -118,6 +118,8 @@ def transition_headwater(
     transition was drawn by hand. It does not prescribe a digital interpolation
     algorithm. Cubic Hermite interpolation is the project's deterministic C1
     implementation of that construction; it is not HY-8's fitted polynomial method.
+    Rejects supplied branches whose cubic bridge has a negative derivative anywhere
+    in the interval; endpoint tangents and published constants are not adjusted.
     """
     qs: float = finite(q_star, "q_star")
     h1: float = finite(hwi_d_unsub_at_limit, "hwi_d_unsub_at_limit")
@@ -135,6 +137,23 @@ def transition_headwater(
         raise InvalidInputError(msg)
 
     interval: float = q2 - q1
+    # The derivative with respect to normalized position is quadratic. Check
+    # its exact minimum, rather than accepting a bridge that decreases between
+    # increasing empirical branches or sampling only selected discharge values.
+    delta = h2 - h1
+    linear = 6.0 * delta - interval * (4.0 * tangent1 + 2.0 * tangent2)
+    quadratic = -6.0 * delta + 3.0 * interval * (tangent1 + tangent2)
+    minimum = min(interval * tangent1, interval * tangent2)
+    if quadratic > 0.0:
+        vertex = -linear / (2.0 * quadratic)
+        if 0.0 < vertex < 1.0:
+            minimum = min(minimum, interval * tangent1 + linear * vertex + quadratic * vertex**2)
+    if minimum < 0.0:
+        msg = (
+            "The supplied inlet branches do not admit a monotonic cubic transition; "
+            "a source-backed alternative transition method is required."
+        )
+        raise InvalidInputError(msg)
     ratio: float = (qs - q1) / interval
     h00: float = 2.0 * ratio**3 - 3.0 * ratio**2 + 1.0
     h10: float = ratio**3 - 2.0 * ratio**2 + ratio
