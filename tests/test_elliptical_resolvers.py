@@ -4,6 +4,8 @@ import pytest
 
 from culvert_solver import (
     CIRCULAR_CONCRETE_SQUARE_EDGE,
+    CONCRETE,
+    CONCRETE_BOX,
     CONCRETE_PIPE,
     CORRUGATED_STEEL,
     HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END,
@@ -19,9 +21,11 @@ from culvert_solver import (
     EntranceLossCoefficient,
     GeometryShape,
     HorizontalEllipseGeometry,
+    Hy8ConcreteOvalGeometry,
     InletCoefficients,
     InvalidInputError,
     VerticalEllipseGeometry,
+    calculate_inlet_control_headwater,
 )
 from culvert_solver.solver.resolvers import (
     resolve_entrance_loss_coefficient,
@@ -202,3 +206,85 @@ def test_ellipse_material_does_not_bypass_explicit_treatment_requirement() -> No
         resolve_inlet_coefficients(barrel)
     with pytest.raises(InvalidInputError, match="Elliptical entrance treatment is ambiguous"):
         resolve_entrance_loss_coefficient(barrel)
+
+
+
+@pytest.mark.parametrize(
+    ("geometry", "inlet_coefficients", "loss_coefficients"),
+    [
+        (
+            HorizontalEllipseGeometry(span=2.4, rise=1.2),
+            HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
+            HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE,
+        ),
+        (
+            VerticalEllipseGeometry(span=1.2, rise=2.4),
+            VERTICAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
+            VERTICAL_ELLIPSE_LOSS_SQUARE_EDGE,
+        ),
+        (
+            Hy8ConcreteOvalGeometry.from_mm(2108.2, 1346.2),
+            HORIZONTAL_ELLIPSE_CONCRETE_GROOVE_END,
+            HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE,
+        ),
+    ],
+)
+@pytest.mark.parametrize("material", [CORRUGATED_STEEL, CONCRETE_BOX])
+def test_concrete_ellipse_coefficients_fail_closed_for_other_materials(
+    geometry: HorizontalEllipseGeometry | VerticalEllipseGeometry | Hy8ConcreteOvalGeometry,
+    inlet_coefficients: InletCoefficients,
+    loss_coefficients: EntranceLossCoefficient,
+    material: CulvertMaterial,
+) -> None:
+    """A shape match does not make concrete empirical data valid for steel/boxes."""
+    bare = CulvertBarrel(
+        geometry=geometry,
+        length=30.0,
+        inlet_invert=100.0,
+        outlet_invert=99.5,
+        roughness=0.012,
+        material=material,
+    )
+    attached = CulvertBarrel(
+        geometry=geometry,
+        length=30.0,
+        inlet_invert=100.0,
+        outlet_invert=99.5,
+        roughness=0.012,
+        material=material,
+        inlet_coefficients=inlet_coefficients,
+        entrance_loss_coefficient=loss_coefficients,
+    )
+    with pytest.raises(InvalidInputError, match="concrete pipe material"):
+        resolve_inlet_coefficients(bare, override=inlet_coefficients)
+    with pytest.raises(InvalidInputError, match="concrete pipe material"):
+        resolve_inlet_coefficients(attached)
+    with pytest.raises(InvalidInputError, match="concrete pipe material"):
+        resolve_entrance_loss_coefficient(bare, override=loss_coefficients)
+    with pytest.raises(InvalidInputError, match="concrete pipe material"):
+        resolve_entrance_loss_coefficient(attached)
+    for discharge in (0.0, 1.0):
+        with pytest.raises(InvalidInputError, match="concrete pipe material"):
+            calculate_inlet_control_headwater(bare, discharge, coefficients=inlet_coefficients)
+        with pytest.raises(InvalidInputError, match="concrete pipe material"):
+            calculate_inlet_control_headwater(attached, discharge)
+
+
+@pytest.mark.parametrize("material", [CONCRETE, CONCRETE_PIPE])
+def test_concrete_ellipse_coefficients_accept_concrete_pipe_materials(
+    material: CulvertMaterial,
+) -> None:
+    """Explicit published ellipse configurations retain both valid concrete options."""
+    barrel = CulvertBarrel(
+        geometry=HorizontalEllipseGeometry(span=2.4, rise=1.2),
+        length=30.0,
+        inlet_invert=100.0,
+        outlet_invert=99.5,
+        roughness=0.012,
+        material=material,
+        inlet_coefficients=HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE,
+        entrance_loss_coefficient=HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE,
+    )
+    assert resolve_inlet_coefficients(barrel).coefficients is HORIZONTAL_ELLIPSE_CONCRETE_SQUARE_EDGE
+    assert resolve_entrance_loss_coefficient(barrel).ke == HORIZONTAL_ELLIPSE_LOSS_SQUARE_EDGE.ke
+    assert calculate_inlet_control_headwater(barrel, 1.0).headwater_depth > 0.0
