@@ -19,10 +19,23 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Checkout repository
+      # PDFs and ShapeDB.dat are source-review evidence, not routine CI inputs.
+      # Fetching every LFS object here consumes the owner's bandwidth allowance.
+      - name: Checkout source and fixtures without LFS binaries
         uses: actions/checkout@v6
         with:
-          lfs: true
+          fetch-depth: 0
+          lfs: false
+        env:
+          GIT_LFS_SKIP_SMUDGE: "1"
+
+      - name: Confirm reference LFS files remain pointers
+        shell: pwsh
+        run: |
+          $firstLine = Get-Content -LiteralPath 'reference_docs/ShapeDB.dat' -TotalCount 1
+          if ($firstLine -ne 'version https://git-lfs.github.com/spec/v1') {
+            throw 'Reference data unexpectedly hydrated during routine CI checkout.'
+          }
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v6
@@ -47,13 +60,31 @@ jobs:
           & (Join-Path $directory 'actionlint.exe') -ignore 'unexpected key "queue" for "concurrency" section'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Install development dependencies
-        shell: pwsh
+      # Read the lightweight subset from the dependency authority, without installing
+      # the project, documentation builder, type checker, or test runner yet.
+      - name: Install lightweight check dependencies
+        shell: python
         run: |
-          python -m pip install --upgrade pip
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m pip install -e .[dev]
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          import re
+          import subprocess
+          import sys
+          import tomllib
+          from pathlib import Path
+
+          with Path("pyproject.toml").open("rb") as stream:
+              dev = tomllib.load(stream)["project"]["optional-dependencies"]["dev"]
+          names = {"ruff", "pymarkdownlnt"}
+          selected = {}
+          for requirement in dev:
+              name = re.split(r"[<>=!~\[ @]", requirement, maxsplit=1)[0].lower()
+              if name in names:
+                  selected[name] = requirement
+          if selected.keys() != names:
+              raise RuntimeError("Lightweight check dependencies are missing from the dev extra.")
+          subprocess.run(
+              [sys.executable, "-m", "pip", "install", *selected.values()],
+              check=True,
+          )
 
       - name: Lint check
         shell: pwsh
@@ -63,25 +94,50 @@ jobs:
         shell: pwsh
         run: python -m ruff format --check .
 
+      - name: Check Markdown
+        shell: pwsh
+        run: python -m pymarkdown -d MD013 scan -r README.md docs AGENTS.md
+
+      - name: Check patch whitespace
+        shell: python
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          import os
+          import subprocess
+
+          base = os.environ.get("BASE_SHA", "")
+          if not base or not base.strip("0"):
+              print("::warning::No comparison base; continuing full validation without a patch whitespace check.")
+              raise SystemExit(0)
+          result = subprocess.run(
+              ["git", "diff", "--check", base, os.environ["GITHUB_SHA"], "--"],
+              check=False,
+          )
+          # Git returns 2 for whitespace violations and a different nonzero code
+          # when the comparison itself is unavailable. Never hide a real violation.
+          if result.returncode not in (0, 2):
+              print("::warning::Comparison unavailable; continuing full validation without a patch whitespace check.")
+              raise SystemExit(0)
+          raise SystemExit(result.returncode)
+
+      - name: Install development dependencies
+        shell: pwsh
+        run: python -m pip install -e .[dev]
+
       - name: Type check
         shell: pwsh
         run: python -m pyright
 
       - name: Test
         shell: pwsh
+        env:
+          PYTEST_ADDOPTS: ${{ github.event_name == 'pull_request' && github.run_attempt == 1 && '--maxfail=1' || '' }}
         run: python -m pytest --durations=10
-
-      - name: Check Markdown
-        shell: pwsh
-        run: python -m pymarkdown -d MD013 scan -r README.md docs
 
       - name: Build documentation strictly
         shell: pwsh
         run: python -m mkdocs build --strict
-
-      - name: Check patch whitespace
-        shell: pwsh
-        run: git diff --check
 
       - name: Build and verify fresh wheel
         shell: pwsh
@@ -92,11 +148,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
   installed-wheel:
+    # A failed source, style, or documentation check must not start three wheel builds.
+    # The required verify check still reports the original failure.
+    needs: verify
     name: Installed wheel (${{ matrix.os }}, Python 3.14)
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
-      fail-fast: false
+      # Main and same-revision reruns retain complete failure diagnostics.
+      fail-fast: ${{ github.event_name == 'pull_request' && github.run_attempt == 1 }}
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
 

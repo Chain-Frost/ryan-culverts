@@ -17,6 +17,44 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+PR #40 CI resource efficiency (2026-11-08): Owner: Unassigned.
+Status: validated locally; hosted acceptance pending.
+Boundary: run inexpensive checks before development dependency installation and wheel
+validation, preserve Windows acceptance and the small portable-wheel matrix, and document
+batched CI updates. Continue the existing LFS checkout change on
+[PR #40](https://github.com/Chain-Frost/ryan-culverts/pull/40).
+
+The Windows `verify` job now installs only Ruff and pymarkdown before lint, formatting,
+Markdown and whitespace checks. Their requirements come from the unchanged `dev` extra;
+missing declarations fail before installation. Full development dependencies, typing,
+solver tests, strict documentation and fresh-wheel verification follow. The three existing
+Python 3.14 installed/vendored-wheel jobs depend on successful `verify`, preserving their
+names and Windows/Linux/macOS coverage. PR tests stop after the first failure and PR matrix
+fail-fast cancels remaining wheel jobs after a failure, on the first attempt only. Reruns
+of the same revision and main keep full failure diagnostics. Main retains its existing
+exact-commit release concurrency. Successful matrix jobs start later; no measured runtime
+or billing saving is claimed before hosted comparison.
+
+Whitespace checking compares the PR base or pre-push revision with the tested commit,
+using complete checkout history with LFS hydration still disabled. Actual whitespace
+violations fail immediately; an unavailable comparison warns and leaves full validation
+enabled instead of mistaking an unknown diff for a clean or failing patch.
+
+Validation: actionlint 1.7.12 passed; Ruff 0.16.6 check and format passed (159 files);
+Pyright reported zero diagnostics; Markdown checking of README, docs and AGENTS passed;
+`git diff --check` passed. Executed the dependency selector with installation intercepted:
+it selects the exact two declared requirements, and rejects either missing declaration.
+Executed the whitespace step against temporary Git commits: a clean patch passes, an
+introduced whitespace violation fails, and missing/unknown bases warn and continue.
+Compared parsed workflow structures with the prior head: trigger, permissions, concurrency,
+required job names, platform matrix and installed-wheel steps remain unchanged. Confirmed
+`ShapeDB.dat` remains an LFS pointer and `pyproject.toml` has no changes.
+
+The local interpreter is Python 3.12; supported Python 3.13/3.14 source tests, PowerShell
+execution, strict MkDocs and wheel smoke were not rerun here. No HY-8 comparison was run.
+One local source commit is prepared for review; push and the resulting CI run remain pending.
+No hydraulic code, comparison evidence, version, release or main-branch changes were made.
+
 PR #29 CI documentation repair (2026-10-19): Owner: Unassigned. Status: fixed locally.
 Boundary: repair the malformed MkDocs navigation entry behind run 39142627654,
 preserving hydraulic evidence and acceptance boundaries.
