@@ -74,6 +74,25 @@ boundary is deliberately changed.
 - Preserve the distinction between the core solver and optional plotting, reporting,
   optimisation, or external-program orchestration.
 
+## Efficient CI updates
+
+- Windows is the primary validation platform. Preserve the full Windows source checks
+  and installed-wheel acceptance. Keep Linux and macOS coverage to the existing small
+  portable-wheel smoke tests unless a task explicitly needs broader platform work.
+- Run focused local checks while editing. Batch related changes into a reviewable
+  checkpoint and push once after those checks, rather than after each file or small fix.
+  Several local commits may be included in that one push.
+- When using the GitHub API, create one tree and commit containing the related files,
+  then update the branch once. Avoid one Contents API commit per edited file.
+- Continue the assigned PR branch. Do not create empty commits just to trigger CI or
+  repeat successful jobs when retrying a diagnosed transient failure.
+- Rerun the existing PR revision when complete failure diagnostics are needed. Pytest
+  and matrix fail-fast limits apply only to the first PR attempt.
+- Keep required validation on the final pushed commit. Do not use skip-CI commit markers
+  to bypass it. Preserve every main push's release validation and its concurrency policy.
+- Ordinary CI needs source and tracked comparison fixtures, not hydrated reference PDFs
+  or `ShapeDB.dat`. Fetch a specific LFS asset only when the task actually needs its bytes.
+
 ## Verification and handoff
 
 Run focused tests while developing, then run the ordinary repository checks when the
