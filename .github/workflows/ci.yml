@@ -19,10 +19,22 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Checkout repository
+      # PDFs and ShapeDB.dat are source-review evidence, not routine CI inputs.
+      # Fetching every LFS object here consumes the owner's bandwidth allowance.
+      - name: Checkout source and fixtures without LFS binaries
         uses: actions/checkout@v6
         with:
-          lfs: true
+          lfs: false
+        env:
+          GIT_LFS_SKIP_SMUDGE: "1"
+
+      - name: Confirm reference LFS files remain pointers
+        shell: pwsh
+        run: |
+          $firstLine = Get-Content -LiteralPath 'reference_docs/ShapeDB.dat' -TotalCount 1
+          if ($firstLine -ne 'version https://git-lfs.github.com/spec/v1') {
+            throw 'Reference data unexpectedly hydrated during routine CI checkout.'
+          }
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v6
