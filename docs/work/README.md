@@ -17,6 +17,15 @@ context unless the issue explicitly says otherwise.
 
 ## Active validation handoff
 
+PR #43 CI endpoint policy (2026-11-24): Owner: Unassigned.
+Ordinary PR validation uses Python 3.11; main validates Python 3.11 and 3.14.
+Ruleset 25174147 now requires the three version-neutral installed-wheel contexts,
+with `verify`, integration IDs, strictness and all other protection unchanged.
+The test-only vendored host fixture now admits Python 3.11, matching the unchanged
+product support range; its former minimum of 3.13 prevented the PR wheel smoke test.
+Source tests, numerical references and release workflows are unchanged. Exact-head
+CI and independent review receipts are recorded on PR #43 before owner merge approval.
+
 PR #40 CI resource efficiency (2026-11-08): Owner: Unassigned.
 Status: validated locally; hosted acceptance pending.
 Boundary: run inexpensive checks before development dependency installation and wheel

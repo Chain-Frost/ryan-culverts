@@ -62,6 +62,7 @@ boundary is deliberately changed.
 
 ## Implementation conventions
 
+- Ordinary PR CI uses Python 3.11 only. Main-push CI uses Python 3.11 and 3.14 before release; Python 3.12 and 3.13 remain supported but are not routine CI lanes.
 - Support Python 3.11, 3.12, 3.13 and 3.14; prefer Python 3.14 for development. If the cloud
   environment lacks either version, do not relax `requires-python`; run the available
   checks and report the gap so CI or a local checkout can finish verification.
