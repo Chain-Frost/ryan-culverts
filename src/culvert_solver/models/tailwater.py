@@ -4,7 +4,7 @@ from bisect import bisect_left
 from dataclasses import dataclass
 from enum import StrEnum
 from itertools import pairwise
-from typing import Protocol, runtime_checkable
+from typing import Protocol, TypeAlias, runtime_checkable
 
 from .._validation import finite
 from ..channel.geometry import OpenChannelSection
@@ -368,7 +368,7 @@ class ManningChannelTailwater:
         )
 
 
-type TailwaterInput = TailwaterBoundary | float
+TailwaterInput: TypeAlias = TailwaterBoundary | float
 
 
 def resolve_tailwater(

@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from itertools import pairwise
+from typing import TypeAlias
 
 from .._validation import finite
 from ..exceptions import InvalidInputError
@@ -224,4 +225,4 @@ class RoadwayProfileWeir:
         return self.profile.minimum_crest_elevation
 
 
-type RoadwayOvertoppingInput = RoadwayWeir | RoadwayProfileWeir
+RoadwayOvertoppingInput: TypeAlias = RoadwayWeir | RoadwayProfileWeir

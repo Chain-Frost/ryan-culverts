@@ -351,3 +351,7 @@ issues:
 - [#15](https://github.com/Chain-Frost/ryan-culverts/issues/15) through [#23](https://github.com/Chain-Frost/ryan-culverts/issues/23) carry the migrated remaining CS work where applicable.
 
 Always use the GitHub issue itself for current status and acceptance criteria.
+
+## Python compatibility
+
+[Python 3.11 migration](2026-11-24-python311-compatibility.md), issue #41, owner Unassigned; next review 2026-11-25.
