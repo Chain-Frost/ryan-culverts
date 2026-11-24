@@ -37,10 +37,10 @@ jobs:
             throw 'Reference data unexpectedly hydrated during routine CI checkout.'
           }
 
-      - name: Set up Python 3.13
+      - name: Set up minimum Python 3.11
         uses: actions/setup-python@v6
         with:
-          python-version: "3.13"
+          python-version: "3.11"
           cache: pip
 
       - name: Check GitHub Actions workflows
@@ -151,7 +151,7 @@ jobs:
     # A failed source, style, or documentation check must not start three wheel builds.
     # The required verify check still reports the original failure.
     needs: verify
-    name: Installed wheel (${{ matrix.os }}, Python 3.14)
+    name: Installed wheel (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
@@ -164,10 +164,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Set up Python 3.14
+      - name: Set up selected Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.14"
+          python-version: ${{ github.event_name == 'pull_request' && '3.11' || '3.14' }}
           cache: pip
 
       - name: Build wheel
@@ -235,7 +235,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        # Minimum on PRs; minimum and latest before release.
+        python-version: ${{ fromJSON(github.event_name == 'pull_request' && '["3.11"]' || '["3.11","3.14"]') }}
     steps:
       - uses: actions/checkout@v6
         with:
