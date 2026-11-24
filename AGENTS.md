@@ -62,7 +62,7 @@ boundary is deliberately changed.
 
 ## Implementation conventions
 
-- Support Python 3.13 and 3.14, with Python 3.13 as the minimum interpreter. If the cloud
+- Support Python 3.11, 3.12, 3.13 and 3.14; prefer Python 3.14 for development. If the cloud
   environment lacks either version, do not relax `requires-python`; run the available
   checks and report the gap so CI or a local checkout can finish verification.
 - Use SI units in the hydraulic core. Keep unit conversion at explicit boundaries.

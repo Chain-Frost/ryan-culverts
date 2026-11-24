@@ -34,7 +34,7 @@ Development records: [progress](docs/progress.md),
 [architecture](docs/architecture.md), [validation](docs/validation.md) and
 [HY-8 capability matrix](docs/hy8_feature_parity.md).
 
-Use your selected Python installation. Python 3.13 and 3.14 are supported; Python 3.13 is the minimum
+Use your selected Python installation. Python 3.11, 3.12, 3.13 and 3.14 are supported; Python 3.11 is the minimum
 installation version. See the
 [Python support policy](docs/packaging.md#python-support-policy).
 
@@ -89,3 +89,5 @@ parties, or provision of the software or its functionality as a paid hosted serv
 SaaS, or API is not permitted under the free licence.
 
 Separate commercial licensing may be available on request.
+
+Python compatibility evidence: [24 November 2026 record](docs/work/2026-11-24-python311-compatibility.md).

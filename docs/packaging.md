@@ -31,7 +31,7 @@ acceptance.
 
 ## Python support policy
 
-Python 3.13 and 3.14 are supported. Metadata declares `requires-python >=3.13`.
+Python 3.11, 3.12, 3.13 and 3.14 are supported. Metadata declares `requires-python >=3.11`.
 Ruff and Pyright target the minimum supported version so maintenance does not
 accidentally introduce a requirement for a newer interpreter.
 
@@ -193,3 +193,5 @@ The configuration follows the [PyPA project metadata guide][pypa] and
 
 See [publishing](pypi_publishing.md) for the automated release PR, stable GitHub Release,
 verified-wheel smoke check and Trusted Publishing setup.
+
+The compatibility job additionally runs compilation, strict typing, the full test suite, builds and pip consistency checks on Python 3.11–3.14. The original OS coverage and publishing controls remain.
