@@ -241,11 +241,12 @@ jobs:
         with:
           lfs: false
       - uses: actions/setup-python@v6
+        id: compatibility-python
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -e ".[dev]"
       - run: python -m compileall -q src tests scripts
-      - run: python -m pyright --pythonpath python
+      - run: python -m pyright --pythonpath "${{ steps.compatibility-python.outputs.python-path }}"
       - run: python -m pytest -q
       - run: python -m build
       - run: python -m pip check

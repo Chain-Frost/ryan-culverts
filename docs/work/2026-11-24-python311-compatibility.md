@@ -37,3 +37,5 @@ Replace two PEP 695 aliases with TypeAlias. The hydraulic foundation retains zer
 Publish the checked compatibility PR, obtain independent review of its exact head and verify the final hosted matrix. No merge or release.
 
 Local evidence directory: `E:/Github/compat311-evidence` (not required at runtime). Ruff safe fixes: 2 automatic; no remaining manual Ruff findings.
+
+Hosted run 45308186006 passed the original quality/OS gates but exposed an interpreter-discovery error in all new typing lanes: a bare `python` was treated as a relative file path. The compatibility step now uses setup-python's absolute interpreter output. Numerical source and test results are unchanged; verify the new final-head matrix.
